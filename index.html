@@ -37,9 +37,6 @@
                 <div class="player-display">
                     <div id="active-player-cat" class="category-badge">-</div>
                     <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
-                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;">
-                        <strong>Current Bid:</strong> <span id="current-bid-display">50</span> pts
-                    </div>
                 </div>
 
                 <!-- On-Screen Sale & Status Announcement Messages -->
@@ -57,70 +54,77 @@
                         <select id="bidder-select" class="form-control"></select>
                     </div>
                     <div class="form-group">
-                        <label for="bid-amount">Bid Raise Amount (Points):</label>
-                        <input type="number" id="bid-amount" class="form-control" min="10" step="10" value="50">
+                        <label for="bid-amount">Bid Amount (Points):</label>
+                        <input type="number" id="bid-amount" class="form-control" min="50" step="50" value="50">
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0284c7;">Raise Bid</button>
-                        <button onclick="finalizeBid()" class="btn success" style="flex: 1; background-color: #10b981;">Finalize Sale</button>
+                    <div class="bid-buttons">
+                        <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
+                        <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
                     </div>
-                    <div style="margin-top: 8px;">
-                        <button onclick="undoLastBid()" class="btn secondary" style="width: 100%; background-color: #4b5563;">Undo Last Action</button>
+                    <div style="margin-top: 15px;">
+                        <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
+                    </div>
+
+                    <!-- Emergency Backup & Recovery Controls -->
+                    <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
+                        <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
+                        <label class="btn primary-outline btn-full">
+                            📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
+                        </label>
                     </div>
                 </div>
             </section>
 
-            <!-- Column 2: Player Pool & Backup -->
-            <section class="card player-pool-section">
-                <div class="card-header">
-                    <h2>Player Pool</h2>
-                </div>
-                <div class="pool-actions" style="margin-bottom: 10px; display: flex; gap: 6px;">
-                    <button onclick="downloadAuctionBackup()" class="btn-sm" style="flex: 1; background: #374151; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer;">Backup State</button>
-                    <label class="btn-sm" style="flex: 1; background: #374151; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; text-align: center; display: inline-block;">
-                        Restore <input type="file" id="import-file" style="display: none;" onchange="importAuctionState(event)">
-                    </label>
-                </div>
-                <div class="player-pool-container">
-                    <ul id="player-pool-list" class="player-pool-list"></ul>
+            <!-- Column 2: Team Squads & Standings -->
+            <section class="card teams-overview-card">
+                <h2>Team Squads & Standings</h2>
+                <div id="teams-container" class="teams-grid">
+                    <!-- Dynamic team cards will render here -->
                 </div>
             </section>
 
-            <!-- Column 3: Teams & Squad Management -->
-            <section class="card teams-overview-section">
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2>Teams & Squads</h2>
-                    <button onclick="downloadSquadCSV()" class="btn-sm" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: 600;">Export CSV</button>
+            <!-- Column 3: Remaining Player Pool & Unsold Section -->
+            <section class="card player-pool-card">
+                <h2>Remaining Player Pool</h2>
+                <div class="player-pool-wrapper">
+                    <ul id="player-pool-list" class="player-pool-list">
+                        <!-- Remaining players & unsold section render here -->
+                    </ul>
                 </div>
-                <div id="teams-container" class="teams-container"></div>
             </section>
         </main>
 
-        <!-- CAPTAIN / PROJECTOR VIEW CONTAINER -->
-        <main id="captain-view-container" class="captain-view-layout" style="width: 100%; display: none;">
-            <!-- Top Spotlight Banner -->
-            <section class="card captain-spotlight-card">
-                <div class="captain-spotlight-header">
-                    <div class="spotlight-title-group">
-                        <span class="live-pulse-dot"></span>
-                        <h2>Live Auction Status</h2>
-                    </div>
-                    <div id="captain-active-cat" class="category-badge">-</div>
+        <!-- CAPTAIN & PROJECTOR VIEW CONTAINER -->
+        <main id="captain-view-container" class="auction-grid-captain-3col" style="display: none; width: 100%;">
+            <!-- Left Column: Teams 1 to 4 -->
+            <section class="card captain-teams-column">
+                <h2>Teams (1 - 4)</h2>
+                <div id="captain-teams-left" class="captain-side-grid-horizontal">
+                    <!-- Teams 1-4 render here side-by-side in 2x2 grid -->
                 </div>
-                <div id="captain-active-name" class="captain-player-name">Waiting for next player...</div>
-                <div id="captain-active-bid" class="captain-bid-status">Status: Standby | <strong>Current Bid: 0 pts</strong></div>
-                <div id="captain-sold-announcement" class="sold-announcement" style="margin-top: 10px;"></div>
             </section>
 
-            <!-- 8 Team Cards Split into Left & Right Grid Columns -->
-            <div class="captain-grids-wrapper">
-                <div id="captain-teams-left" class="captain-teams-column"></div>
-                <div id="captain-teams-right" class="captain-teams-column"></div>
-            </div>
+            <!-- Center Column: Live Auction Status Main Focus -->
+            <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
+                <h2>Live Auction Status</h2>
+                <div class="player-display" style="max-width: 100%; margin: 15px 0;">
+                    <div id="captain-active-cat" class="category-badge">-</div>
+                    <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
+                    <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
+                </div>
+            </section>
+
+            <!-- Right Column: Teams 5 to 8 -->
+            <section class="card captain-teams-column">
+                <h2>Teams (5 - 8)</h2>
+                <div id="captain-teams-right" class="captain-side-grid-horizontal">
+                    <!-- Teams 5-8 render here side-by-side in 2x2 grid -->
+                </div>
+            </section>
         </main>
     </div>
 
-    <!-- Script File -->
+    <!-- Application Script -->
     <script src="app.js"></script>
 </body>
 </html>
