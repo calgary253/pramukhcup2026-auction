@@ -170,13 +170,13 @@ function renderCaptainView() {
         capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)}`;
     }
 
-    // Render Teams 1 to 4 on the left
+    // Render Teams 1 to 4 on the left side-by-side horizontally
     leftContainer.innerHTML = "";
     teams.slice(0, 4).forEach(team => {
         leftContainer.appendChild(createCaptainTeamCard(team));
     });
 
-    // Render Teams 5 to 8 on the right
+    // Render Teams 5 to 8 on the right side-by-side horizontally
     rightContainer.innerHTML = "";
     teams.slice(4, 8).forEach(team => {
         rightContainer.appendChild(createCaptainTeamCard(team));
