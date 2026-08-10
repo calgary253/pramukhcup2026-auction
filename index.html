@@ -37,8 +37,8 @@
                 <div class="player-display">
                     <div id="active-player-cat" class="category-badge">-</div>
                     <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
-                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;">
-                        Current Highest Bid: <span id="current-bid-display">50</span> pts
+                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;" id="current-bid-display">
+                        Current Highest Bid: <strong>50 pts</strong> (No bids yet)
                     </div>
                 </div>
 
@@ -60,9 +60,12 @@
                         <label for="bid-amount">Bid Amount (Points):</label>
                         <input type="number" id="bid-amount" class="form-control" min="50" step="50" value="50">
                     </div>
-                    <div class="bid-buttons">
-                        <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
-                        <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
+                    <div class="bid-buttons" style="display: flex; gap: 8px; flex-direction: column;">
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0284c7;">Raise / Add Bid</button>
+                            <button onclick="finalizeBid()" class="btn success" style="flex: 1; background-color: #10b981;">Finalize Sale</button>
+                        </div>
+                        <button onclick="undoLastBid()" class="btn danger" style="width: 100%;">Undo Last Bid</button>
                     </div>
                     <div style="margin-top: 15px;">
                         <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
@@ -71,7 +74,7 @@
                     <!-- Emergency Backup & Recovery Controls -->
                     <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
                         <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
-                        <label class="btn primary-outline btn-full">
+                        <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block;">
                             📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
                         </label>
                     </div>
@@ -114,6 +117,7 @@
                     <div id="captain-active-cat" class="category-badge">-</div>
                     <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
                     <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
+                    <div id="captain-sold-announcement" class="sold-announcement" style="margin-top: 15px;"></div>
                 </div>
             </section>
 
