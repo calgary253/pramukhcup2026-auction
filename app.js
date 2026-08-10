@@ -60,6 +60,49 @@ function saveStateToStorage() {
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
 }
 
+// Emergency Backup Download Function
+function downloadAuctionBackup() {
+    const backupData = {
+        players: players,
+        teams: teams,
+        currentActivePlayer: currentActivePlayer,
+        auctionHistory: auctionHistory,
+        timestamp: new Date().toISOString()
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `auction_backup_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+// Emergency State Restoration Function
+function importAuctionState(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            players = imported.players || [];
+            teams = imported.teams || [];
+            currentActivePlayer = imported.currentActivePlayer || null;
+            auctionHistory = imported.auctionHistory || [];
+            
+            saveStateToStorage();
+            updateUI();
+            alert("Auction state successfully restored!");
+        } catch (err) {
+            alert("Invalid backup file format.");
+        }
+    };
+    reader.readAsText(file);
+}
+
 function updateUI() {
     renderActivePlayer();
     renderTeams();
