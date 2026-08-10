@@ -16,9 +16,6 @@
             <h1>Pramukh Cup - 2026 Team Auction</h1>
             <p>Live Team Bidding & Squad Management Dashboard</p>
         </div>
-        <div class="header-action">
-            <button onclick="downloadSquadCSV()" class="btn primary-outline">📥 Export Squads (CSV)</button>
-        </div>
     </header>
 
     <main class="auction-grid">
@@ -53,6 +50,10 @@
                 <div class="bid-buttons">
                     <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
                     <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
+                </div>
+                <!-- Export CSV button relocated here -->
+                <div style="margin-top: 15px;">
+                    <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
                 </div>
             </div>
         </section>
