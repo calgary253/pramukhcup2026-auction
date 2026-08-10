@@ -93,9 +93,9 @@
     </main>
 
     <!-- CAPTAIN & PROJECTOR VIEW CONTAINER -->
-    <main id="captain-view-container" class="auction-grid-2col" style="display: none;">
-        <!-- Left: Live Auction Status Banner -->
-        <section class="card current-player-section" style="grid-column: 1 / -1; text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
+    <main id="captain-view-container" class="auction-grid-captain-view" style="display: none;">
+        <!-- Top: Live Auction Status Banner -->
+        <section class="card current-player-section" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
             <h2>Live Auction Status</h2>
             <div class="player-display" style="max-width: 600px; margin: 0 auto;">
                 <div id="captain-active-cat" class="category-badge">-</div>
@@ -104,11 +104,11 @@
             </div>
         </section>
 
-        <!-- Right / Full Grid: Team Squads -->
-        <section class="card teams-overview-card" style="grid-column: 1 / -1;">
+        <!-- Bottom: Side-by-Side Independent Team Columns -->
+        <section class="card teams-overview-card">
             <h2>All Team Squads</h2>
-            <div id="captain-teams-container" class="teams-grid-responsive">
-                <!-- Dynamic captain team cards render here -->
+            <div id="captain-teams-container" class="captain-side-by-side-grid">
+                <!-- Dynamic side-by-side individual team columns render here -->
             </div>
         </section>
     </main>
