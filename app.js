@@ -77,7 +77,7 @@ function switchView(mode) {
         btnCaptain.style.color = "#a7f3d0";
     } else {
         adminContainer.style.display = "none";
-        captainContainer.style.display = "flex";
+        captainContainer.style.display = "grid";
         btnCaptain.style.background = "#0284c7";
         btnCaptain.style.color = "white";
         btnAdmin.style.background = "transparent";
@@ -155,9 +155,10 @@ function renderCaptainView() {
     const capNameEl = document.getElementById("captain-active-name");
     const capCatEl = document.getElementById("captain-active-cat");
     const capBidEl = document.getElementById("captain-active-bid");
-    const capTeamsContainer = document.getElementById("captain-teams-container");
+    const leftContainer = document.getElementById("captain-teams-left");
+    const rightContainer = document.getElementById("captain-teams-right");
 
-    if (!capTeamsContainer) return;
+    if (!leftContainer || !rightContainer) return;
 
     if (!currentActivePlayer) {
         capNameEl.innerText = "Waiting for next player...";
@@ -169,40 +170,50 @@ function renderCaptainView() {
         capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)}`;
     }
 
-    // Render team squads showing squad members and remaining points (without categorized counts)
-    capTeamsContainer.innerHTML = "";
-    teams.forEach(team => {
-        let div = document.createElement("div");
-        div.className = "team-card";
-        const progressPercent = (team.squad.length / 10) * 100;
-
-        let squadListHTML = "";
-        if (team.squad.length === 0) {
-            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
-        } else {
-            squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
-            team.squad.forEach(player => {
-                squadListHTML += `<li style="margin: 2px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
-            });
-            squadListHTML += `</ul></div>`;
-        }
-
-        div.innerHTML = `
-            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
-            <div class="points-display">
-                <span>Points Left:</span>
-                <span>${team.points} / 5000</span>
-            </div>
-            <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted);">
-                Squad: <strong>${team.squad.length} / 10</strong> players
-            </div>
-            <div class="squad-progress">
-                <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
-            </div>
-            ${squadListHTML}
-        `;
-        capTeamsContainer.appendChild(div);
+    // Render Teams 1 to 4 on the left
+    leftContainer.innerHTML = "";
+    teams.slice(0, 4).forEach(team => {
+        leftContainer.appendChild(createCaptainTeamCard(team));
     });
+
+    // Render Teams 5 to 8 on the right
+    rightContainer.innerHTML = "";
+    teams.slice(4, 8).forEach(team => {
+        rightContainer.appendChild(createCaptainTeamCard(team));
+    });
+}
+
+function createCaptainTeamCard(team) {
+    let div = document.createElement("div");
+    div.className = "team-card";
+    const progressPercent = (team.squad.length / 10) * 100;
+
+    let squadListHTML = "";
+    if (team.squad.length === 0) {
+        squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
+    } else {
+        squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
+        team.squad.forEach(player => {
+            squadListHTML += `<li style="margin: 2px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
+        });
+        squadListHTML += `</ul></div>`;
+    }
+
+    div.innerHTML = `
+        <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
+        <div class="points-display">
+            <span>Points Left:</span>
+            <span>${team.points} / 5000</span>
+        </div>
+        <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted);">
+            Squad: <strong>${team.squad.length} / 10</strong> players
+        </div>
+        <div class="squad-progress">
+            <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
+        </div>
+        ${squadListHTML}
+    `;
+    return div;
 }
 
 function nextPlayer() {
