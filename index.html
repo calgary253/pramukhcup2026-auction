@@ -92,23 +92,31 @@
         </section>
     </main>
 
-    <!-- CAPTAIN & PROJECTOR VIEW CONTAINER -->
-    <main id="captain-view-container" class="auction-grid-captain-view" style="display: none;">
-        <!-- Top: Live Auction Status Banner -->
-        <section class="card current-player-section" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
-            <h2>Live Auction Status</h2>
-            <div class="player-display" style="max-width: 600px; margin: 0 auto;">
-                <div id="captain-active-cat" class="category-badge">-</div>
-                <div id="captain-active-name" style="color: #34d399; font-size: 2.2em; font-weight: 700; margin: 10px 0;">Waiting for next player...</div>
-                <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted);">Current Bidding Level / Status: Active</div>
+    <!-- CAPTAIN & PROJECTOR VIEW CONTAINER (3-Column Layout: Left Teams, Center Live Auction, Right Teams) -->
+    <main id="captain-view-container" class="auction-grid-captain-3col" style="display: none;">
+        <!-- Left Column: Teams 1 to 4 -->
+        <section class="card captain-teams-column">
+            <h2>Teams (1 - 4)</h2>
+            <div id="captain-teams-left" class="captain-side-grid">
+                <!-- Teams 1-4 render here -->
             </div>
         </section>
 
-        <!-- Bottom: All Team Squads in a Single Overview Column / Section -->
-        <section class="card teams-overview-card">
-            <h2>All Team Squads & Remaining Points</h2>
-            <div id="captain-teams-container" class="teams-grid">
-                <!-- Dynamic team cards will render here in a standard multi-column/single overview structure -->
+        <!-- Center Column: Live Auction Status Main Focus -->
+        <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
+            <h2>Live Auction Status</h2>
+            <div class="player-display" style="max-width: 100%; margin: 15px 0;">
+                <div id="captain-active-cat" class="category-badge">-</div>
+                <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
+                <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
+            </div>
+        </section>
+
+        <!-- Right Column: Teams 5 to 8 -->
+        <section class="card captain-teams-column">
+            <h2>Teams (5 - 8)</h2>
+            <div id="captain-teams-right" class="captain-side-grid">
+                <!-- Teams 5-8 render here -->
             </div>
         </section>
     </main>
