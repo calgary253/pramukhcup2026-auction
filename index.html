@@ -3,57 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Tournament Live Auction</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Pramukh Cup - 2026 Team Auction</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Link to your stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>🏏 Cricket Tournament Auction</h1>
-        <p>Budget: 5,000 Points | Target Squad: 11 Players | Min Bid: 50 Points</p>
+        <h1>Pramukh Cup - 2026 Team Auction</h1>
+        <p>Live Team Bidding & Squad Management Dashboard</p>
     </header>
 
-    <main class="auction-grid">
-        <!-- Left Column: Current Player on Auction -->
-        <section class="card current-player-section">
+    <div class="auction-grid">
+        <!-- Left Column: Active Player & Bidding Controls -->
+        <div class="card current-player-section">
             <h2>Current Player</h2>
-            <div id="player-card" class="player-display">
-                <h3 id="active-player-name">No Player Selected</h3>
-                <p>Category: <span id="active-player-cat">-</span></p>
-                <p>Base Price: <span id="active-player-price">50</span> Points</p>
+            <div class="player-display">
+                <div id="active-player-cat">-</div>
+                <div id="active-player-name">Select 'Next Player' to begin</div>
             </div>
-
             <div class="controls">
                 <button onclick="nextPlayer()" class="btn primary">Next Player from List</button>
             </div>
 
             <div class="bidding-panel">
                 <h3>Place Bid</h3>
-                <label for="bidder-select">Select Team/Captain:</label>
-                <select id="bidder-select"></select>
-                
-                <label for="bid-amount">Bid Amount:</label>
-                <input type="number" id="bid-amount" min="50" step="10" value="50">
-                
-               <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
-<button onclick="undoLastBid()" class="btn" style="background-color: #d9534f; color: white; margin-left: 10px;">Undo Last Bid</button>
+                <div class="form-group">
+                    <label for="bidder-select">Select Team/Captain:</label>
+                    <select id="bidder-select"></select>
+                </div>
+                <div class="form-group">
+                    <label for="bid-amount">Bid Amount (Points):</label>
+                    <input type="number" id="bid-amount" value="50" min="50">
+                </div>
+                <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
+                <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
             </div>
-        </section>
+        </div>
 
-        <!-- Right Column: Teams Status & Squads -->
-        <section class="card teams-section">
+        <!-- Right Column: Team Standings -->
+        <div class="card teams-section">
             <h2>Team Standings & Budgets</h2>
             <div id="teams-container" class="teams-grid">
-                <!-- Dynamically populated via JS -->
+                <!-- Teams rendered dynamically via JS -->
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
-    <!-- Player Pool Queue Modal/List -->
-    <section class="card pool-section">
+    <!-- Remaining Player Pool Section -->
+    <div class="card pool-section">
         <h2>Remaining Player Pool</h2>
-        <ul id="player-pool-list" class="player-list"></ul>
-    </section>
+        <ul id="player-pool-list" class="player-list">
+            <!-- Player pool rendered dynamically via JS -->
+        </ul>
+    </div>
 
     <script src="app.js"></script>
 </body>
