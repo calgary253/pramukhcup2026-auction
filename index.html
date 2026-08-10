@@ -92,12 +92,12 @@
         </section>
     </main>
 
-    <!-- CAPTAIN & PROJECTOR VIEW CONTAINER (3-Column Layout with Horizontal Side Grids) -->
-    <main id="captain-view-container" class="auction-grid-captain-3col" style="display: none;">
-        <!-- Left Column: Teams 1 to 4 (Horizontal 2x2 Layout) -->
+    <!-- CAPTAIN & PROJECTOR VIEW CONTAINER (Forced 2x2 Grid via Inline Styles) -->
+    <main id="captain-view-container" style="display: none; grid-template-columns: 540px 1fr 540px; gap: 15px; width: 100%; max-width: 1600px; margin-bottom: 15px; align-items: start;">
+        <!-- Left Column: Teams 1 to 4 -->
         <section class="card captain-teams-column">
             <h2>Teams (1 - 4)</h2>
-            <div id="captain-teams-left" class="captain-side-grid-horizontal">
+            <div id="captain-teams-left" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-height: calc(100vh - 160px); overflow-y: auto; padding-right: 4px;">
                 <!-- Teams 1-4 render here side-by-side -->
             </div>
         </section>
@@ -112,10 +112,10 @@
             </div>
         </section>
 
-        <!-- Right Column: Teams 5 to 8 (Horizontal 2x2 Layout) -->
+        <!-- Right Column: Teams 5 to 8 -->
         <section class="card captain-teams-column">
             <h2>Teams (5 - 8)</h2>
-            <div id="captain-teams-right" class="captain-side-grid-horizontal">
+            <div id="captain-teams-right" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-height: calc(100vh - 160px); overflow-y: auto; padding-right: 4px;">
                 <!-- Teams 5-8 render here side-by-side -->
             </div>
         </section>
