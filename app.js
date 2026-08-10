@@ -212,9 +212,9 @@ function renderAnnouncements() {
         if (!el) return;
         el.innerText = lastAuctionMessage;
         if (lastAuctionMessageType === "danger") {
-            el.style.color = "#f87171";
+            el.style.color = "#f87171"; // Red text for unsold/danger messages
         } else if (lastAuctionMessageType === "success") {
-            el.style.color = "#34d399";
+            el.style.color = "#34d399"; // Green text for sold messages
         } else {
             el.style.color = "inherit";
         }
