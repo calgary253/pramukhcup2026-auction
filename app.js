@@ -53,8 +53,6 @@ function nextPlayer() {
         return;
     }
     
-    // Save state before pulling next player just in case, or leave it out if undo should only apply to bids.
-    // Pushing state here when a bid is confirmed is ideal.
     currentActivePlayer = players.shift(); // Pulls the first player from the queue
     updateUI();
 }
@@ -147,14 +145,34 @@ function renderTeams() {
         let div = document.createElement("div");
         div.className = "team-card";
         
-        let squadNames = team.squad.map(p => `${p.name} (${p.category}: ${p.cost}pts)`).join(", ");
-        if (!squadNames) squadNames = "No players bought yet.";
+        // Calculate progress percentage for squad size (max 10 players)
+        const progressPercent = (team.squad.length / 10) * 100;
+
+        // Generate an itemized list of players bought by this team
+        let squadListHTML = "";
+        if (team.squad.length === 0) {
+            squadListHTML = `<p class="purchased-players" style="font-style: italic;">No players bought yet.</p>`;
+        } else {
+            squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
+            team.squad.forEach(player => {
+                squadListHTML += `<li>${player.name} <span style="color: #34d399;">[Cat ${player.category}]</span> - <strong>${player.cost} pts</strong></li>`;
+            });
+            squadListHTML += `</ul></div>`;
+        }
 
         div.innerHTML = `
-            <h3>${team.name}: ${team.captain} (Captain)</h3>
-            <p><strong>Remaining Points:</strong> ${team.points} / 5000</p>
-            <p><strong>Auction Purchases:</strong> ${team.squad.length} / 10</p>
-            <p><small><strong>Purchased Players:</strong> ${squadNames}</small></p>
+            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9em;">(${team.captain})</span></h3>
+            <div class="points-display">
+                <span>Points Left:</span>
+                <span>${team.points} / 5000</span>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-muted);">
+                Squad: <strong>${team.squad.length} / 10</strong> players
+            </div>
+            <div class="squad-progress">
+                <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
+            </div>
+            ${squadListHTML}
         `;
         container.appendChild(div);
     });
