@@ -1,6 +1,7 @@
 // State Management
 let players = [];
 let currentActivePlayer = null;
+let auctionHistory = []; // Stack to keep history for undo functionality
 
 // 8 Teams with pre-assigned Captains and 5000 starting points
 let teams = [
@@ -51,6 +52,9 @@ function nextPlayer() {
         alert("All players have been auctioned!");
         return;
     }
+    
+    // Save state before pulling next player just in case, or leave it out if undo should only apply to bids.
+    // Pushing state here when a bid is confirmed is ideal.
     currentActivePlayer = players.shift(); // Pulls the first player from the queue
     updateUI();
 }
@@ -100,6 +104,14 @@ function submitBid() {
         return;
     }
 
+    // Save a deep snapshot of the state *right before* executing the purchase
+    const currentState = {
+        teams: JSON.parse(JSON.stringify(teams)),
+        currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
+        players: [...players]
+    };
+    auctionHistory.push(currentState);
+
     // Execute the purchase
     team.points -= bidAmount;
     team.squad.push({ name: currentActivePlayer.name, category: currentActivePlayer.category, cost: bidAmount });
@@ -109,6 +121,22 @@ function submitBid() {
     // Reset current player and refresh UI
     currentActivePlayer = null;
     updateUI();
+}
+
+function undoLastBid() {
+    if (auctionHistory.length === 0) {
+        alert("No recent bids to undo!");
+        return;
+    }
+
+    // Pop the previous state from history stack and restore it
+    const previousState = auctionHistory.pop();
+    teams = previousState.teams;
+    currentActivePlayer = previousState.currentActivePlayer;
+    players = previousState.players;
+
+    updateUI();
+    alert("Last bid successfully undone!");
 }
 
 function renderTeams() {
