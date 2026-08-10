@@ -18,8 +18,8 @@
         </div>
     </header>
 
-    <main class="auction-grid">
-        <!-- Left Column: Active Player & Bidding Controls -->
+    <main class="auction-grid-3col">
+        <!-- Column 1: Active Player & Bidding Controls -->
         <section class="card current-player-section">
             <div class="card-header">
                 <h2>Active Player</h2>
@@ -51,29 +51,28 @@
                     <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
                     <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
                 </div>
-                <!-- Export CSV button relocated here -->
+                <!-- Export CSV button -->
                 <div style="margin-top: 15px;">
                     <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
                 </div>
             </div>
         </section>
 
-        <!-- Right Column: Teams Overview & Player Pool -->
-        <section class="dashboard-right-column">
-            <div class="card teams-overview-card">
-                <h2>Team Squads & Standings</h2>
-                <div id="teams-container" class="teams-grid">
-                    <!-- Dynamic team cards will render here -->
-                </div>
+        <!-- Column 2: Team Squads & Standings -->
+        <section class="card teams-overview-card">
+            <h2>Team Squads & Standings</h2>
+            <div id="teams-container" class="teams-grid">
+                <!-- Dynamic team cards will render here -->
             </div>
+        </section>
 
-            <div class="card player-pool-card">
-                <h2>Remaining Player Pool</h2>
-                <div class="player-pool-wrapper">
-                    <ul id="player-pool-list" class="player-pool-list">
-                        <!-- Remaining players render here -->
-                    </ul>
-                </div>
+        <!-- Column 3: Remaining Player Pool -->
+        <section class="card player-pool-card">
+            <h2>Remaining Player Pool</h2>
+            <div class="player-pool-wrapper">
+                <ul id="player-pool-list" class="player-pool-list">
+                    <!-- Remaining players render here -->
+                </ul>
             </div>
         </section>
     </main>
