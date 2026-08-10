@@ -12,6 +12,8 @@ auctionChannel.onmessage = (event) => {
     currentActivePlayer = state.currentActivePlayer;
     auctionHistory = state.auctionHistory;
     currentHighestBid = state.currentHighestBid !== undefined ? state.currentHighestBid : 50;
+    lastAuctionMessage = state.lastAuctionMessage || "";
+    lastAuctionMessageType = state.lastAuctionMessageType || "";
     
     // Instantly update whichever view is open on this device
     updateUI();
@@ -23,6 +25,8 @@ let unsoldPlayers = [];
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
 let currentHighestBid = 50; // Track the current live bidding amount/level
+let lastAuctionMessage = "";
+let lastAuctionMessageType = ""; // "success", "danger", etc.
 let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; // Persist view mode across refreshes
 
 let initialTeams = [
@@ -53,6 +57,8 @@ window.onload = async function() {
         const savedActivePlayer = localStorage.getItem('auction_active_player');
         const savedHistory = localStorage.getItem('auction_history');
         const savedHighestBid = localStorage.getItem('auction_highest_bid');
+        const savedMessage = localStorage.getItem('auction_last_message');
+        const savedMessageType = localStorage.getItem('auction_last_message_type');
 
         if (savedPlayers && savedTeams) {
             players = JSON.parse(savedPlayers);
@@ -61,12 +67,16 @@ window.onload = async function() {
             currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
             auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
             currentHighestBid = savedHighestBid ? JSON.parse(savedHighestBid) : 50;
+            lastAuctionMessage = savedMessage || "";
+            lastAuctionMessageType = savedMessageType || "";
         } else {
             let response = await fetch('players.json');
             players = await response.json();
             unsoldPlayers = [];
             teams = JSON.parse(JSON.stringify(initialTeams));
             currentHighestBid = 50;
+            lastAuctionMessage = "";
+            lastAuctionMessageType = "";
             saveStateToStorage();
         }
         
@@ -85,6 +95,8 @@ function saveStateToStorage() {
     localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
     localStorage.setItem('auction_highest_bid', JSON.stringify(currentHighestBid));
+    localStorage.setItem('auction_last_message', lastAuctionMessage);
+    localStorage.setItem('auction_last_message_type', lastAuctionMessageType);
 
     // Broadcast the updated state to all other open screens/devices on the same Wi-Fi
     auctionChannel.postMessage({
@@ -93,7 +105,9 @@ function saveStateToStorage() {
         teams,
         currentActivePlayer,
         auctionHistory,
-        currentHighestBid
+        currentHighestBid,
+        lastAuctionMessage,
+        lastAuctionMessageType
     });
 }
 
@@ -140,6 +154,8 @@ function downloadAuctionBackup() {
         currentActivePlayer: currentActivePlayer,
         auctionHistory: auctionHistory,
         currentHighestBid: currentHighestBid,
+        lastAuctionMessage: lastAuctionMessage,
+        lastAuctionMessageType: lastAuctionMessageType,
         timestamp: new Date().toISOString()
     };
 
@@ -166,6 +182,8 @@ function importAuctionState(event) {
             currentActivePlayer = imported.currentActivePlayer || null;
             auctionHistory = imported.auctionHistory || [];
             currentHighestBid = imported.currentHighestBid !== undefined ? imported.currentHighestBid : 50;
+            lastAuctionMessage = imported.lastAuctionMessage || "";
+            lastAuctionMessageType = imported.lastAuctionMessageType || "";
             
             saveStateToStorage();
             updateUI();
@@ -183,6 +201,24 @@ function updateUI() {
     renderPlayerPool();
     populateTeamDropdown();
     renderCaptainView();
+    renderAnnouncements();
+}
+
+function renderAnnouncements() {
+    const adminAnnouncementEl = document.getElementById("sold-announcement");
+    const captainAnnouncementEl = document.getElementById("captain-sold-announcement");
+
+    [adminAnnouncementEl, captainAnnouncementEl].forEach(el => {
+        if (!el) return;
+        el.innerText = lastAuctionMessage;
+        if (lastAuctionMessageType === "danger") {
+            el.style.color = "#f87171";
+        } else if (lastAuctionMessageType === "success") {
+            el.style.color = "#34d399";
+        } else {
+            el.style.color = "inherit";
+        }
+    });
 }
 
 function renderActivePlayer() {
@@ -294,15 +330,16 @@ function nextPlayer() {
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
         players: [...players],
         unsoldPlayers: [...unsoldPlayers],
-        currentHighestBid: currentHighestBid
+        currentHighestBid: currentHighestBid,
+        lastAuctionMessage: lastAuctionMessage,
+        lastAuctionMessageType: lastAuctionMessageType
     };
     auctionHistory.push(currentState);
 
     currentActivePlayer = players.shift(); 
     currentHighestBid = 50; // Reset starting bid amount for the new player
-    
-    const announcementEl = document.getElementById("sold-announcement");
-    if (announcementEl) announcementEl.innerText = "";
+    lastAuctionMessage = "";
+    lastAuctionMessageType = "";
 
     saveStateToStorage();
     updateUI();
@@ -319,18 +356,17 @@ function markAsUnsold() {
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
         players: [...players],
         unsoldPlayers: [...unsoldPlayers],
-        currentHighestBid: currentHighestBid
+        currentHighestBid: currentHighestBid,
+        lastAuctionMessage: lastAuctionMessage,
+        lastAuctionMessageType: lastAuctionMessageType
     };
     auctionHistory.push(currentState);
 
     const playerName = currentActivePlayer.name;
     unsoldPlayers.push(currentActivePlayer);
 
-    const announcementEl = document.getElementById("sold-announcement");
-    if (announcementEl) {
-        announcementEl.innerText = `⚠️ ${playerName} marked as UNSOLD and moved to the Unsold Players column.`;
-        announcementEl.style.color = "#f87171";
-    }
+    lastAuctionMessage = `⚠️ ${playerName} marked as UNSOLD and moved to the Unsold Players column.`;
+    lastAuctionMessageType = "danger";
 
     currentActivePlayer = null;
     currentHighestBid = 50;
@@ -393,7 +429,9 @@ function submitBid() {
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
         players: [...players],
         unsoldPlayers: [...unsoldPlayers],
-        currentHighestBid: currentHighestBid
+        currentHighestBid: currentHighestBid,
+        lastAuctionMessage: lastAuctionMessage,
+        lastAuctionMessageType: lastAuctionMessageType
     };
     auctionHistory.push(currentState);
 
@@ -404,11 +442,8 @@ function submitBid() {
     team.points -= bidAmount;
     team.squad.push({ name: playerName, category: currentActivePlayer.category, cost: bidAmount });
 
-    const announcementEl = document.getElementById("sold-announcement");
-    if (announcementEl) {
-        announcementEl.innerText = `🎉 ${playerName} Sold to ${teamName} (${captainName}) for ${bidAmount} pts!`;
-        announcementEl.style.color = "#34d399";
-    }
+    lastAuctionMessage = `🎉 ${playerName} Sold to ${teamName} (${captainName}) for ${bidAmount} pts!`;
+    lastAuctionMessageType = "success";
 
     currentActivePlayer = null;
     currentHighestBid = 50;
@@ -428,9 +463,8 @@ function undoLastBid() {
     players = previousState.players;
     unsoldPlayers = previousState.unsoldPlayers || [];
     currentHighestBid = previousState.currentHighestBid !== undefined ? previousState.currentHighestBid : 50;
-
-    const announcementEl = document.getElementById("sold-announcement");
-    if (announcementEl) announcementEl.innerText = "↩️ Last action undone.";
+    lastAuctionMessage = previousState.lastAuctionMessage !== undefined ? previousState.lastAuctionMessage : "↩️ Last action undone.";
+    lastAuctionMessageType = previousState.lastAuctionMessageType || "";
 
     saveStateToStorage();
     updateUI();
