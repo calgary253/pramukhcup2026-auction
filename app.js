@@ -52,7 +52,6 @@ function nextPlayer() {
         alert("All players have been auctioned!");
         return;
     }
-    
     currentActivePlayer = players.shift(); // Pulls the first player from the queue
     updateUI();
 }
@@ -151,11 +150,11 @@ function renderTeams() {
         // Generate an itemized list of players bought by this team
         let squadListHTML = "";
         if (team.squad.length === 0) {
-            squadListHTML = `<p class="purchased-players" style="font-style: italic;">No players bought yet.</p>`;
+            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted);">No players bought yet.</p>`;
         } else {
             squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
             team.squad.forEach(player => {
-                squadListHTML += `<li>${player.name} <span style="color: #34d399;">[Cat ${player.category}]</span> - <strong>${player.cost} pts</strong></li>`;
+                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">[Cat ${player.category}]</span> - <strong>${player.cost} pts</strong></li>`;
             });
             squadListHTML += `</ul></div>`;
         }
@@ -167,7 +166,7 @@ function renderTeams() {
                 <span>${team.points} / 5000</span>
             </div>
             <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-muted);">
-                Squad: <strong>${team.squad.length} / 10</strong> players
+                Squad Progress: <strong>${team.squad.length} / 10</strong> players
             </div>
             <div class="squad-progress">
                 <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
@@ -183,7 +182,7 @@ function renderPlayerPool() {
     list.innerHTML = "";
     players.forEach(p => {
         let li = document.createElement("li");
-        li.innerText = `${p.name} [Cat ${p.category}]`;
+        li.innerHTML = `${p.name} <strong style="color: #34d399;">[Cat ${p.category}]</strong>`;
         list.appendChild(li);
     });
 }
