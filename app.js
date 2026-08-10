@@ -17,23 +17,7 @@ let initialTeams = [
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
-// --- Firebase Configuration ---
-// TODO: Replace with your web app's Firebase configuration from your Firebase Console
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const AUCTION_DOC_ID = "live_auction_state"; // Document key in Firestore
-
-// Helper function to map category numbers to letters (A, B, C)
+// Helper function to map category numbers to plain letters (A, B, C)
 function getCategoryLetter(cat) {
     if (cat === 1 || cat === "1") return "A";
     if (cat === 2 || cat === "2") return "B";
@@ -41,45 +25,39 @@ function getCategoryLetter(cat) {
     return cat || "-";
 }
 
-// Initialize application on load & pull from Cloud Database
+// Initialize application on load
 window.onload = async function() {
     try {
-        const docRef = db.collection("auctions").doc(AUCTION_DOC_ID);
-        const doc = await docRef.get();
+        const savedPlayers = localStorage.getItem('auction_players');
+        const savedTeams = localStorage.getItem('auction_teams');
+        const savedActivePlayer = localStorage.getItem('auction_active_player');
+        const savedHistory = localStorage.getItem('auction_history');
 
-        if (doc.exists) {
-            const data = doc.data();
-            players = data.players || [];
-            teams = data.teams || initialTeams;
-            currentActivePlayer = data.currentActivePlayer || null;
-            auctionHistory = data.auctionHistory || [];
+        if (savedPlayers && savedTeams) {
+            players = JSON.parse(savedPlayers);
+            teams = JSON.parse(savedTeams);
+            currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
+            auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
         } else {
-            // First time load: fetch from players.json and set default state in DB
+            // First time load: fetch from players.json
             let response = await fetch('players.json');
             players = await response.json();
             teams = JSON.parse(JSON.stringify(initialTeams));
-            await saveStateToStorage();
+            saveStateToStorage();
         }
         
         updateUI();
     } catch (error) {
-        console.error("Error loading auction state from database:", error);
+        console.error("Could not load players.json", error);
     }
 };
 
-// Save current state into Firebase Firestore Database
-async function saveStateToStorage() {
-    try {
-        await db.collection("auctions").doc(AUCTION_DOC_ID).set({
-            players: players,
-            teams: teams,
-            currentActivePlayer: currentActivePlayer,
-            auctionHistory: auctionHistory,
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    } catch (error) {
-        console.error("Error saving state to database:", error);
-    }
+// Helper function to save current state into browser storage
+function saveStateToStorage() {
+    localStorage.setItem('auction_players', JSON.stringify(players));
+    localStorage.setItem('auction_teams', JSON.stringify(teams));
+    localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
+    localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
 }
 
 function updateUI() {
@@ -104,7 +82,7 @@ function renderActivePlayer() {
     catEl.innerText = getCategoryLetter(currentActivePlayer.category);
 }
 
-async function nextPlayer() {
+function nextPlayer() {
     if (players.length === 0) {
         alert("All players have been auctioned!");
         return;
@@ -122,7 +100,7 @@ async function nextPlayer() {
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "";
 
-    await saveStateToStorage();
+    saveStateToStorage();
     updateUI();
 }
 
@@ -138,7 +116,7 @@ function populateTeamDropdown() {
     });
 }
 
-async function submitBid() {
+function submitBid() {
     if (!currentActivePlayer) {
         alert("Please select an active player first!");
         return;
@@ -188,11 +166,11 @@ async function submitBid() {
     }
 
     currentActivePlayer = null;
-    await saveStateToStorage();
+    saveStateToStorage();
     updateUI();
 }
 
-async function undoLastBid() {
+function undoLastBid() {
     if (auctionHistory.length === 0) {
         alert("No recent bids to undo!");
         return;
@@ -206,7 +184,7 @@ async function undoLastBid() {
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "↩️ Last action undone.";
 
-    await saveStateToStorage();
+    saveStateToStorage();
     updateUI();
 }
 
@@ -287,4 +265,3 @@ function downloadSquadCSV() {
     link.click();
     document.body.removeChild(link);
 }
-
