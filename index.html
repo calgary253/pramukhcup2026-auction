@@ -12,7 +12,7 @@
 
     <header class="dashboard-header">
         <div class="header-content">
-            <h1>Pramukh Cup - 2026 Calgary Team Auction</h1>
+            <h1>Pramukh Cup - 2026 Team Auction</h1>
             <p>Live Team Bidding & Squad Management Dashboard</p>
         </div>
     </header>
@@ -32,8 +32,9 @@
             <!-- On-Screen Sale Celebration Announcement -->
             <div id="sold-announcement" class="sold-announcement"></div>
 
-            <div class="controls">
-                <button onclick="nextPlayer()" class="btn primary btn-full">Next Player from List ➔</button>
+            <div class="controls" style="display: flex; gap: 8px;">
+                <button onclick="nextPlayer()" class="btn primary" style="flex: 1;">Next Player ➔</button>
+                <button onclick="markAsUnsold()" class="btn danger" style="flex: 1; background-color: #dc2626;">Mark Unsold</button>
             </div>
 
             <div class="bidding-panel">
@@ -53,11 +54,13 @@
                 <div style="margin-top: 15px;">
                     <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
                 </div>
-                
-                <!-- Emergency Backup & Recovery Controls (Standard Buttons) -->
+
+                <!-- Emergency Backup & Recovery Controls -->
                 <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
                     <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
-                    <button onclick="triggerRestoreBackup()" class="btn primary-outline btn-full">📂 Restore from Backup</button>
+                    <label class="btn primary-outline btn-full" style="display: block; text-align: center; cursor: pointer;">
+                        📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
+                    </label>
                 </div>
             </div>
         </section>
