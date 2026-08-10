@@ -4,7 +4,7 @@ let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
 
 // 8 Teams with pre-assigned Captains and 5000 starting points
-let teams = [
+let initialTeams = [
     { name: "Team 1", captain: "Pavan Patel", points: 5000, squad: [] },
     { name: "Team 2", captain: "Jaimin Patel", points: 5000, squad: [] },
     { name: "Team 3", captain: "Meet Patel", points: 5000, squad: [] },
@@ -15,16 +15,43 @@ let teams = [
     { name: "Team 8", captain: "Smit Patel", points: 5000, squad: [] }
 ];
 
+let teams = JSON.parse(JSON.stringify(initialTeams));
+
 // Initialize application on load
 window.onload = async function() {
     try {
-        let response = await fetch('players.json');
-        players = await response.json();
+        // Check if saved state exists in localStorage
+        const savedPlayers = localStorage.getItem('auction_players');
+        const savedTeams = localStorage.getItem('auction_teams');
+        const savedActivePlayer = localStorage.getItem('auction_active_player');
+        const savedHistory = localStorage.getItem('auction_history');
+
+        if (savedPlayers && savedTeams) {
+            players = JSON.parse(savedPlayers);
+            teams = JSON.parse(savedTeams);
+            currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
+            auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
+        } else {
+            // First time load: fetch from players.json
+            let response = await fetch('players.json');
+            players = await response.json();
+            teams = JSON.parse(JSON.stringify(initialTeams));
+            saveStateToStorage();
+        }
+        
         updateUI();
     } catch (error) {
         console.error("Could not load players.json", error);
     }
 };
+
+// Helper function to save current state into browser storage
+function saveStateToStorage() {
+    localStorage.setItem('auction_players', JSON.stringify(players));
+    localStorage.setItem('auction_teams', JSON.stringify(teams));
+    localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
+    localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
+}
 
 function updateUI() {
     renderActivePlayer();
@@ -52,17 +79,28 @@ function nextPlayer() {
         alert("All players have been auctioned!");
         return;
     }
+
+    // Save history state before shifting to the next player
+    const currentState = {
+        teams: JSON.parse(JSON.stringify(teams)),
+        currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
+        players: [...players]
+    };
+    auctionHistory.push(currentState);
+
     currentActivePlayer = players.shift(); // Pulls the first player from the queue
+    
+    saveStateToStorage();
     updateUI();
 }
 
 function populateTeamDropdown() {
     const select = document.getElementById("bidder-select");
+    if (!select) return;
     select.innerHTML = "";
     teams.forEach((team, index) => {
         let opt = document.createElement("option");
         opt.value = index;
-        // Total players needed to buy from auction is 10
         opt.innerText = `${team.name} (${team.captain}) - Left: ${team.points} pts, Bought: ${team.squad.length}/10`;
         select.appendChild(opt);
     });
@@ -115,8 +153,9 @@ function submitBid() {
 
     alert(`${currentActivePlayer.name} sold to ${team.name} (${team.captain}) for ${bidAmount} points!`);
 
-    // Reset current player and refresh UI
+    // Reset current player, save state, and refresh UI
     currentActivePlayer = null;
+    saveStateToStorage();
     updateUI();
 }
 
@@ -132,12 +171,14 @@ function undoLastBid() {
     currentActivePlayer = previousState.currentActivePlayer;
     players = previousState.players;
 
+    saveStateToStorage();
     updateUI();
-    alert("Last bid successfully undone!");
+    alert("Last action successfully undone!");
 }
 
 function renderTeams() {
     const container = document.getElementById("teams-container");
+    if (!container) return;
     container.innerHTML = "";
 
     teams.forEach(team => {
@@ -179,6 +220,7 @@ function renderTeams() {
 
 function renderPlayerPool() {
     const list = document.getElementById("player-pool-list");
+    if (!list) return;
     list.innerHTML = "";
     players.forEach(p => {
         let li = document.createElement("li");
