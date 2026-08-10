@@ -21,7 +21,7 @@ let players = [];
 let unsoldPlayers = []; 
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
-let currentViewMode = 'admin'; // 'admin' or 'captain'
+let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; // Persist view mode across refreshes
 
 let initialTeams = [
     { name: "Team 1", captain: "Pavan Patel", points: 5000, squad: [] },
@@ -65,6 +65,8 @@ window.onload = async function() {
             saveStateToStorage();
         }
         
+        // Apply the remembered view mode on load so refreshes stick to captain or admin view
+        switchView(currentViewMode, false);
         updateUI();
     } catch (error) {
         console.error("Could not load players.json", error);
@@ -88,27 +90,37 @@ function saveStateToStorage() {
     });
 }
 
-function switchView(mode) {
+function switchView(mode, savePreference = true) {
     currentViewMode = mode;
+    if (savePreference) {
+        localStorage.setItem('auction_view_mode', mode);
+    }
+
     const adminContainer = document.getElementById("admin-view-container");
     const captainContainer = document.getElementById("captain-view-container");
     const btnAdmin = document.getElementById("btn-view-admin");
     const btnCaptain = document.getElementById("btn-view-captain");
 
+    if (!adminContainer || !captainContainer) return;
+
     if (mode === 'admin') {
         adminContainer.style.display = "grid";
         captainContainer.style.display = "none";
-        btnAdmin.style.background = "#0284c7";
-        btnAdmin.style.color = "white";
-        btnCaptain.style.background = "transparent";
-        btnCaptain.style.color = "#a7f3d0";
+        if (btnAdmin && btnCaptain) {
+            btnAdmin.style.background = "#0284c7";
+            btnAdmin.style.color = "white";
+            btnCaptain.style.background = "transparent";
+            btnCaptain.style.color = "#a7f3d0";
+        }
     } else {
         adminContainer.style.display = "none";
         captainContainer.style.display = "grid";
-        btnCaptain.style.background = "#0284c7";
-        btnCaptain.style.color = "white";
-        btnAdmin.style.background = "transparent";
-        btnAdmin.style.color = "#a7f3d0";
+        if (btnAdmin && btnCaptain) {
+            btnCaptain.style.background = "#0284c7";
+            btnCaptain.style.color = "white";
+            btnAdmin.style.background = "transparent";
+            btnAdmin.style.color = "#a7f3d0";
+        }
     }
     updateUI();
 }
@@ -168,6 +180,8 @@ function renderActivePlayer() {
     const nameEl = document.getElementById("active-player-name");
     const catEl = document.getElementById("active-player-cat");
     
+    if (!nameEl || !catEl) return;
+
     if (!currentActivePlayer) {
         nameEl.innerText = "Select 'Next Player' to begin";
         catEl.innerText = "-";
@@ -185,7 +199,7 @@ function renderCaptainView() {
     const leftContainer = document.getElementById("captain-teams-left");
     const rightContainer = document.getElementById("captain-teams-right");
 
-    if (!leftContainer || !rightContainer) return;
+    if (!capNameEl || !capCatEl || !capBidEl) return;
 
     if (!currentActivePlayer) {
         capNameEl.innerText = "Waiting for next player...";
@@ -197,17 +211,19 @@ function renderCaptainView() {
         capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)}`;
     }
 
-    // Render Teams 1 to 4 on the left side-by-side horizontally
-    leftContainer.innerHTML = "";
-    teams.slice(0, 4).forEach(team => {
-        leftContainer.appendChild(createCaptainTeamCard(team));
-    });
+    if (leftContainer) {
+        leftContainer.innerHTML = "";
+        teams.slice(0, 4).forEach(team => {
+            leftContainer.appendChild(createCaptainTeamCard(team));
+        });
+    }
 
-    // Render Teams 5 to 8 on the right side-by-side horizontally
-    rightContainer.innerHTML = "";
-    teams.slice(4, 8).forEach(team => {
-        rightContainer.appendChild(createCaptainTeamCard(team));
-    });
+    if (rightContainer) {
+        rightContainer.innerHTML = "";
+        teams.slice(4, 8).forEach(team => {
+            rightContainer.appendChild(createCaptainTeamCard(team));
+        });
+    }
 }
 
 function createCaptainTeamCard(team) {
