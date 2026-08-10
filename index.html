@@ -77,11 +77,11 @@
 
                     <!-- Emergency Backup & Player Pool CSV Upload Controls -->
                     <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
-                        <label class="btn primary-outline btn-full" style="margin-bottom: 8px;">
+                        <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
                             📂 Upload Player Pool CSV <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolCSV(event)" accept=".csv" style="display: none;">
                         </label>
                         <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
-                        <label class="btn primary-outline btn-full">
+                        <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block;">
                             📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
                         </label>
                     </div>
@@ -122,6 +122,7 @@
                 <h2>Live Auction Status</h2>
                 <div class="player-display" style="max-width: 100%; margin: 15px 0;">
                     <div id="captain-active-cat" class="category-badge">-</div>
+                    <!-- Main player name display (turns red when marked unsold) -->
                     <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
                     <!-- Skill Level and Notes Displayed in Projector View -->
                     <div id="captain-player-meta" style="font-size: 1.15em; color: #f3f4f6; margin-bottom: 8px; font-weight: 500;"></div>
@@ -130,9 +131,6 @@
                     <div id="captain-leading-display" style="font-size: 1.05em; color: #60a5fa; font-weight: 600; margin-top: 12px;">
                         Leading Team: None
                     </div>
-                    <!-- Unsold Red Status Message (Exclusively replaces duplicate banners) -->
-                    <div id="captain-unsold-display" style="font-size: 1.25em; color: #ef4444; font-weight: 700; margin-top: 15px; display: none;"></div>
-                    <div id="captain-sold-announcement" class="sold-announcement" style="margin-top: 15px;"></div>
                 </div>
             </section>
 
