@@ -11,6 +11,7 @@ auctionChannel.onmessage = (event) => {
     teams = state.teams;
     currentActivePlayer = state.currentActivePlayer;
     auctionHistory = state.auctionHistory;
+    currentHighestBid = state.currentHighestBid !== undefined ? state.currentHighestBid : 50;
     
     // Instantly update whichever view is open on this device
     updateUI();
@@ -21,6 +22,7 @@ let players = [];
 let unsoldPlayers = []; 
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
+let currentHighestBid = 50; // Track the current live bidding amount/level
 let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; // Persist view mode across refreshes
 
 let initialTeams = [
@@ -50,6 +52,7 @@ window.onload = async function() {
         const savedTeams = localStorage.getItem('auction_teams');
         const savedActivePlayer = localStorage.getItem('auction_active_player');
         const savedHistory = localStorage.getItem('auction_history');
+        const savedHighestBid = localStorage.getItem('auction_highest_bid');
 
         if (savedPlayers && savedTeams) {
             players = JSON.parse(savedPlayers);
@@ -57,11 +60,13 @@ window.onload = async function() {
             teams = JSON.parse(savedTeams);
             currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
             auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
+            currentHighestBid = savedHighestBid ? JSON.parse(savedHighestBid) : 50;
         } else {
             let response = await fetch('players.json');
             players = await response.json();
             unsoldPlayers = [];
             teams = JSON.parse(JSON.stringify(initialTeams));
+            currentHighestBid = 50;
             saveStateToStorage();
         }
         
@@ -79,6 +84,7 @@ function saveStateToStorage() {
     localStorage.setItem('auction_teams', JSON.stringify(teams));
     localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
+    localStorage.setItem('auction_highest_bid', JSON.stringify(currentHighestBid));
 
     // Broadcast the updated state to all other open screens/devices on the same Wi-Fi
     auctionChannel.postMessage({
@@ -86,7 +92,8 @@ function saveStateToStorage() {
         unsoldPlayers,
         teams,
         currentActivePlayer,
-        auctionHistory
+        auctionHistory,
+        currentHighestBid
     });
 }
 
@@ -132,6 +139,7 @@ function downloadAuctionBackup() {
         teams: teams,
         currentActivePlayer: currentActivePlayer,
         auctionHistory: auctionHistory,
+        currentHighestBid: currentHighestBid,
         timestamp: new Date().toISOString()
     };
 
@@ -157,6 +165,7 @@ function importAuctionState(event) {
             teams = imported.teams || [];
             currentActivePlayer = imported.currentActivePlayer || null;
             auctionHistory = imported.auctionHistory || [];
+            currentHighestBid = imported.currentHighestBid !== undefined ? imported.currentHighestBid : 50;
             
             saveStateToStorage();
             updateUI();
@@ -179,17 +188,20 @@ function updateUI() {
 function renderActivePlayer() {
     const nameEl = document.getElementById("active-player-name");
     const catEl = document.getElementById("active-player-cat");
+    const bidDisplayEl = document.getElementById("current-bid-display");
     
     if (!nameEl || !catEl) return;
 
     if (!currentActivePlayer) {
         nameEl.innerText = "Select 'Next Player' to begin";
         catEl.innerText = "-";
+        if (bidDisplayEl) bidDisplayEl.innerText = "0";
         return;
     }
 
     nameEl.innerText = currentActivePlayer.name;
     catEl.innerText = getCategoryLetter(currentActivePlayer.category);
+    if (bidDisplayEl) bidDisplayEl.innerText = currentHighestBid;
 }
 
 function renderCaptainView() {
@@ -208,7 +220,7 @@ function renderCaptainView() {
     } else {
         capNameEl.innerText = currentActivePlayer.name;
         capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
-        capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)}`;
+        capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)} | Current Bid: ${currentHighestBid} pts`;
     }
 
     if (leftContainer) {
@@ -281,11 +293,13 @@ function nextPlayer() {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
         players: [...players],
-        unsoldPlayers: [...unsoldPlayers]
+        unsoldPlayers: [...unsoldPlayers],
+        currentHighestBid: currentHighestBid
     };
     auctionHistory.push(currentState);
 
     currentActivePlayer = players.shift(); 
+    currentHighestBid = 50; // Reset starting bid amount for the new player
     
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "";
@@ -304,7 +318,8 @@ function markAsUnsold() {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
         players: [...players],
-        unsoldPlayers: [...unsoldPlayers]
+        unsoldPlayers: [...unsoldPlayers],
+        currentHighestBid: currentHighestBid
     };
     auctionHistory.push(currentState);
 
@@ -318,6 +333,7 @@ function markAsUnsold() {
     }
 
     currentActivePlayer = null;
+    currentHighestBid = 50;
     saveStateToStorage();
     updateUI();
 }
@@ -359,16 +375,25 @@ function submitBid() {
         return;
     }
 
+    if (bidAmount < currentHighestBid) {
+        alert(`Bid amount must be at least equal to current highest bid (${currentHighestBid} points).`);
+        return;
+    }
+
     if (bidAmount > maxAllowedBid) {
         alert(`Bid Rejected! Max safe bid is ${maxAllowedBid} points.`);
         return;
     }
 
+    // Update the live bidding state
+    currentHighestBid = bidAmount;
+
     const currentState = {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
         players: [...players],
-        unsoldPlayers: [...unsoldPlayers]
+        unsoldPlayers: [...unsoldPlayers],
+        currentHighestBid: currentHighestBid
     };
     auctionHistory.push(currentState);
 
@@ -386,6 +411,7 @@ function submitBid() {
     }
 
     currentActivePlayer = null;
+    currentHighestBid = 50;
     saveStateToStorage();
     updateUI();
 }
@@ -401,6 +427,7 @@ function undoLastBid() {
     currentActivePlayer = previousState.currentActivePlayer;
     players = previousState.players;
     unsoldPlayers = previousState.unsoldPlayers || [];
+    currentHighestBid = previousState.currentHighestBid !== undefined ? previousState.currentHighestBid : 50;
 
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "↩️ Last action undone.";
