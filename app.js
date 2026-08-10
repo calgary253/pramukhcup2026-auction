@@ -1,3 +1,21 @@
+// ==========================================
+// LOCAL NETWORK SYNC VIA BROADCAST CHANNEL
+// ==========================================
+const auctionChannel = new BroadcastChannel('pramukh_cup_local_network_auction');
+
+// Listen for updates sent from the Admin screen to update Captain screens instantly
+auctionChannel.onmessage = (event) => {
+    const state = event.data;
+    players = state.players;
+    unsoldPlayers = state.unsoldPlayers;
+    teams = state.teams;
+    currentActivePlayer = state.currentActivePlayer;
+    auctionHistory = state.auctionHistory;
+    
+    // Instantly update whichever view is open on this device
+    updateUI();
+};
+
 // State Management
 let players = [];
 let unsoldPlayers = []; 
@@ -59,6 +77,15 @@ function saveStateToStorage() {
     localStorage.setItem('auction_teams', JSON.stringify(teams));
     localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
+
+    // Broadcast the updated state to all other open screens/devices on the same Wi-Fi
+    auctionChannel.postMessage({
+        players,
+        unsoldPlayers,
+        teams,
+        currentActivePlayer,
+        auctionHistory
+    });
 }
 
 function switchView(mode) {
