@@ -252,11 +252,11 @@ function renderCaptainView() {
     if (!currentActivePlayer) {
         capNameEl.innerText = "Waiting for next player...";
         capCatEl.innerText = "-";
-        capBidEl.innerText = "Current Bidding Level / Status: Standby";
+        capBidEl.innerText = "Current Bidding Level / Status: Standby | Current Highest Bid: 0 pts";
     } else {
         capNameEl.innerText = currentActivePlayer.name;
         capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
-        capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)} | Current Bid: ${currentHighestBid} pts`;
+        capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)} | Current Highest Bid: ${currentHighestBid} pts`;
     }
 
     if (leftContainer) {
