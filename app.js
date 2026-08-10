@@ -1,6 +1,6 @@
 // State Management
 let players = [];
-let unsoldPlayers = []; // Track players who went unsold
+let unsoldPlayers = []; 
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
 
@@ -132,14 +132,19 @@ function renderActivePlayer() {
 }
 
 function nextPlayer() {
-    // If main pool is empty, start second round using unsold players
+    // If main pool is empty, check for unsold players and prompt reauction
     if (players.length === 0) {
         if (unsoldPlayers.length > 0) {
-            players = [...unsoldPlayers];
-            unsoldPlayers = [];
-            alert("Main player pool finished! Starting second round for Unsold Players.");
+            const startReauction = confirm("Main player pool is completely finished! Would you like to start re-auctioning the Unsold Players now?");
+            if (startReauction) {
+                players = [...unsoldPlayers];
+                unsoldPlayers = [];
+                alert("Unsold pool loaded back in! Starting Re-Auction round.");
+            } else {
+                return;
+            }
         } else {
-            alert("All players have been auctioned or processed!");
+            alert("All players have been successfully auctioned or processed!");
             return;
         }
     }
@@ -161,7 +166,7 @@ function nextPlayer() {
     updateUI();
 }
 
-// Function to mark current active player as Unsold
+// Function to mark current active player as Unsold with clear display messaging
 function markAsUnsold() {
     if (!currentActivePlayer) {
         alert("No active player to mark as unsold!");
@@ -176,11 +181,13 @@ function markAsUnsold() {
     };
     auctionHistory.push(currentState);
 
+    const playerName = currentActivePlayer.name;
     unsoldPlayers.push(currentActivePlayer);
 
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) {
-        announcementEl.innerText = `⚠️ ${currentActivePlayer.name} went Unsold and moved to the end queue.`;
+        announcementEl.innerText = `⚠️ ${playerName} marked as UNSOLD and moved to the Unsold Players column.`;
+        announcementEl.style.color = "#f87171";
     }
 
     currentActivePlayer = null;
@@ -248,6 +255,7 @@ function submitBid() {
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) {
         announcementEl.innerText = `🎉 ${playerName} Sold to ${teamName} (${captainName}) for ${bidAmount} pts!`;
+        announcementEl.style.color = "#34d399";
     }
 
     currentActivePlayer = null;
@@ -319,6 +327,7 @@ function renderPlayerPool() {
     if (!list) return;
     list.innerHTML = "";
     
+    // Render main available pool
     players.forEach(p => {
         let catLetter = getCategoryLetter(p.category);
         let li = document.createElement("li");
@@ -326,16 +335,17 @@ function renderPlayerPool() {
         list.appendChild(li);
     });
 
+    // Render separate Unsold Players Column section if items exist
     if (unsoldPlayers.length > 0) {
-        let divider = document.createElement("li");
-        divider.innerHTML = `<hr style="border-color: #374151; margin: 8px 0;"><span style="color: #f87171; font-size: 0.85em; font-weight: bold;">Unsold Queue (${unsoldPlayers.length}):</span>`;
-        list.appendChild(divider);
+        let headerLi = document.createElement("li");
+        headerLi.innerHTML = `<hr style="border-color: #374151; margin: 12px 0 8px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
+        list.appendChild(headerLi);
 
         unsoldPlayers.forEach(p => {
             let catLetter = getCategoryLetter(p.category);
             let li = document.createElement("li");
             li.style.color = "#9ca3af";
-            li.innerHTML = `${p.name} <strong style="color: #f87171;">${catLetter}</strong> (Unsold)`;
+            li.innerHTML = `${p.name} <strong style="color: #f87171;">${catLetter}</strong>`;
             list.appendChild(li);
         });
     }
