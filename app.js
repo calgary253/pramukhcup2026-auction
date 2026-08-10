@@ -237,7 +237,8 @@ function createCaptainTeamCard(team) {
     } else {
         squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
         team.squad.forEach(player => {
-            squadListHTML += `<li style="margin: 2px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
+            let catLetter = getCategoryLetter(player.category);
+            squadListHTML += `<li style="margin: 2px 0;">${player.name} <span style="color: #34d399;">${catLetter}</span></li>`;
         });
         squadListHTML += `</ul></div>`;
     }
