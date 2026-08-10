@@ -365,7 +365,7 @@ function markAsUnsold() {
     const playerName = currentActivePlayer.name;
     unsoldPlayers.push(currentActivePlayer);
 
-    lastAuctionMessage = `⚠️ ${playerName} marked as UNSOLD`;
+    lastAuctionMessage = `${playerName} marked as UNSOLD`;
     lastAuctionMessageType = "danger";
 
     currentActivePlayer = null;
