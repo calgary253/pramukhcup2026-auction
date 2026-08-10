@@ -90,6 +90,10 @@ function nextPlayer() {
 
     currentActivePlayer = players.shift(); // Pulls the first player from the queue
     
+    // Clear previous sold announcement when next player is queued
+    const announcementEl = document.getElementById("sold-announcement");
+    if (announcementEl) announcementEl.innerText = "";
+
     saveStateToStorage();
     updateUI();
 }
@@ -147,11 +151,20 @@ function submitBid() {
     };
     auctionHistory.push(currentState);
 
+    // Capture player/team info for on-screen announcement
+    const playerName = currentActivePlayer.name;
+    const teamName = team.name;
+    const captainName = team.captain;
+
     // Execute the purchase
     team.points -= bidAmount;
-    team.squad.push({ name: currentActivePlayer.name, category: currentActivePlayer.category, cost: bidAmount });
+    team.squad.push({ name: playerName, category: currentActivePlayer.category, cost: bidAmount });
 
-    alert(`${currentActivePlayer.name} sold to ${team.name} (${team.captain}) for ${bidAmount} points!`);
+    // Display the Sold announcement on screen
+    const announcementEl = document.getElementById("sold-announcement");
+    if (announcementEl) {
+        announcementEl.innerText = `🎉 ${playerName} Sold to ${teamName} (${captainName}) for ${bidAmount} pts!`;
+    }
 
     // Reset current player, save state, and refresh UI
     currentActivePlayer = null;
@@ -171,9 +184,11 @@ function undoLastBid() {
     currentActivePlayer = previousState.currentActivePlayer;
     players = previousState.players;
 
+    const announcementEl = document.getElementById("sold-announcement");
+    if (announcementEl) announcementEl.innerText = "↩️ Last action undone.";
+
     saveStateToStorage();
     updateUI();
-    alert("Last action successfully undone!");
 }
 
 function renderTeams() {
