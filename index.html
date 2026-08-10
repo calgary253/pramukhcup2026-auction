@@ -77,11 +77,11 @@
 
                     <!-- Emergency Backup & Player Pool CSV Upload Controls -->
                     <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
-                        <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block; margin-bottom: 8px; background: #0284c7; color: white;">
+                        <label class="btn primary-outline btn-full" style="margin-bottom: 8px;">
                             📂 Upload Player Pool CSV <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolCSV(event)" accept=".csv" style="display: none;">
                         </label>
                         <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
-                        <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block;">
+                        <label class="btn primary-outline btn-full">
                             📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
                         </label>
                     </div>
