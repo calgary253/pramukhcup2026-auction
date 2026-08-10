@@ -1,5 +1,4 @@
 /* Professional & Aesthetic UI Update for Cricket Auction */
-
 :root {
     --bg-color: #0b0f19;
     --card-bg: #131c2e;
@@ -140,6 +139,8 @@ header p {
     border-radius: 8px;
     color: var(--text-main);
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .bidding-panel select:focus, .bidding-panel input:focus {
@@ -157,6 +158,7 @@ header p {
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    width: 100%;
 }
 
 .btn:active {
@@ -168,7 +170,6 @@ header p {
     color: white; 
 }
 .btn.primary:hover { 
-    background-color: #0284c7; 
     filter: brightness(1.1);
 }
 
@@ -181,12 +182,12 @@ header p {
     background-color: var(--accent-emerald-hover); 
 }
 
-/* Style for the Undo Button added previously */
-button[onclick="undoLastBid()"], .btn.danger {
-    background-color: var(--danger-red) !important;
-    color: white !important;
+.btn.danger {
+    background-color: var(--danger-red);
+    color: white;
+    margin-top: 5px;
 }
-button[onclick="undoLastBid()"]:hover, .btn.danger:hover {
+.btn.danger:hover {
     filter: brightness(1.1);
 }
 
@@ -212,10 +213,10 @@ button[onclick="undoLastBid()"]:hover, .btn.danger:hover {
 .teams-grid::-webkit-scrollbar, .purchased-players::-webkit-scrollbar, .player-pool-container::-webkit-scrollbar {
     width: 6px;
 }
-.teams-grid::-webkit-scrollbar-track, .purchased-players::-webkit-scrollbar-track, .player-pool-container::-webkit-scrollbar-track {
+.teams-grid::-webkit-scrollbar-track, .purchased-players::-webkit-scrollbar-track {
     background: var(--card-bg);
 }
-.teams-grid::-webkit-scrollbar-thumb, .purchased-players::-webkit-scrollbar-thumb, .player-pool-container::-webkit-scrollbar-thumb {
+.teams-grid::-webkit-scrollbar-thumb, .purchased-players::-webkit-scrollbar-thumb {
     background: #334155;
     border-radius: 3px;
 }
@@ -228,9 +229,7 @@ button[onclick="undoLastBid()"]:hover, .btn.danger:hover {
     border-left: 5px solid var(--accent-emerald);
     padding: 16px;
     border-radius: 10px;
-    border-top: 1px solid var(--card-border);
-    border-right: 1px solid var(--card-border);
-    border-bottom: 1px solid var(--card-border);
+    border: 1px solid var(--card-border);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -250,40 +249,6 @@ button[onclick="undoLastBid()"]:hover, .btn.danger:hover {
     margin: 6px 0;
     font-size: 0.9em;
     color: var(--text-muted);
-}
-
-.points-display {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    color: #34d399;
-}
-
-.squad-progress {
-    height: 6px;
-    background: #0b0f19;
-    border-radius: 3px;
-    margin-top: 10px;
-    overflow: hidden;
-    border: 1px solid var(--card-border);
-}
-
-.squad-progress-bar {
-    height: 100%;
-    background: var(--accent-emerald);
-    transition: width 0.4s ease;
-}
-
-.purchased-players {
-    margin-top: 10px;
-    font-size: 0.85em;
-    color: var(--text-muted);
-    max-height: 60px;
-    overflow-y: auto;
-    background: rgba(11, 15, 25, 0.5);
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .pool-section {
