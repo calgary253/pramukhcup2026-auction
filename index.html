@@ -40,24 +40,13 @@
                 </div>
                 <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
                 <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
+                <div id="sold-announcement" style="margin-top: 12px; font-weight: bold; color: #34d399; text-align: center; min-height: 24px; font-size: 1.05em;"></div>
+</div>
 <button onclick="downloadSquadCSV()" class="btn primary" style="margin-top: 5px;">📥 Download Squad Lists (CSV)</button>
             </div>
         </div>
 
-        <div class="bidding-panel">
-    <h3>Place Bid</h3>
-    <div class="form-group">
-        <label for="bidder-select">Select Team/Captain:</label>
-        <select id="bidder-select"></select>
-    </div>
-    <div class="form-group">
-        <label for="bid-amount">Bid Amount (Points):</label>
-        <input type="number" id="bid-amount" min="50" step="50" value="50">
-    </div>
-    <div class="bid-buttons">
-        <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
-        <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
-    </div>
+   
     
     <!-- ADD THIS LINE BELOW TO SHOW THE ANNOUNCEMENT -->
     <div id="sold-announcement" style="margin-top: 12px; font-weight: bold; color: #34d399; text-align: center; min-height: 24px; font-size: 1.05em;"></div>
