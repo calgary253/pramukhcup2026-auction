@@ -7,20 +7,6 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Styling for inline error banner in the center */
-        .error-banner {
-            background-color: #fee2e2;
-            border: 1px solid #ef4444;
-            color: #b91c1c;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: 600;
-            text-align: center;
-            display: none;
-        }
-    </style>
 </head>
 <body>
 
@@ -52,10 +38,6 @@
 
             <div class="bidding-panel">
                 <h3>Place Bid</h3>
-                
-                <!-- Centered Inline Error Message Box -->
-                <div id="error-message-box" class="error-banner"></div>
-
                 <div class="form-group">
                     <label for="bidder-select">Select Team / Captain:</label>
                     <select id="bidder-select" class="form-control"></select>
@@ -121,24 +103,6 @@
             return cat || "-";
         }
 
-        // Helper function to display errors in the center error banner instead of pop-ups
-        function showError(message) {
-            const errorBox = document.getElementById("error-message-box");
-            if (errorBox) {
-                errorBox.innerText = message;
-                errorBox.style.display = "block";
-            }
-        }
-
-        // Clear error message when actions are performed successfully
-        function clearError() {
-            const errorBox = document.getElementById("error-message-box");
-            if (errorBox) {
-                errorBox.innerText = "";
-                errorBox.style.display = "none";
-            }
-        }
-
         window.onload = async function() {
             try {
                 const savedPlayers = localStorage.getItem('auction_players');
@@ -192,9 +156,8 @@
         }
 
         function nextPlayer() {
-            clearError();
             if (players.length === 0) {
-                showError("All players have been auctioned!");
+                alert("All players have been auctioned!");
                 return;
             }
 
@@ -227,10 +190,8 @@
         }
 
         function submitBid() {
-            clearError();
-
             if (!currentActivePlayer) {
-                showError("Please select an active player first!");
+                alert("Please select an active player first!");
                 return;
             }
 
@@ -244,17 +205,17 @@
             const maxAllowedBid = team.points - mandatoryReserveForOthers;
 
             if (team.squad.length >= 10) {
-                showError(`${team.name} already has a full squad of 10 auction players!`);
+                alert(`${team.name} already has a full squad of 10 auction players!`);
                 return;
             }
 
             if (bidAmount < 50) {
-                showError("Minimum bid amount is 50 points.");
+                alert("Minimum bid amount is 50 points.");
                 return;
             }
 
             if (bidAmount > maxAllowedBid) {
-                showError(`Bid Rejected! Max safe bid is ${maxAllowedBid} points.`);
+                alert(`Bid Rejected! Max safe bid is ${maxAllowedBid} points.`);
                 return;
             }
 
@@ -283,9 +244,8 @@
         }
 
         function undoLastBid() {
-            clearError();
             if (auctionHistory.length === 0) {
-                showError("No recent bids to undo!");
+                alert("No recent bids to undo!");
                 return;
             }
 
@@ -354,7 +314,6 @@
         }
 
         function downloadSquadCSV() {
-            clearError();
             let csvContent = "data:text/csv;charset=utf-8,";
             csvContent += "Team Name,Captain,Points Left,Player Name,Category,Cost (Points)\n";
 
