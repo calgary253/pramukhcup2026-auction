@@ -1,39 +1,56 @@
-/* Professional UI Update for Cricket Auction */
+/* Professional & Aesthetic UI Update for Cricket Auction */
+
+:root {
+    --bg-color: #0b0f19;
+    --card-bg: #131c2e;
+    --card-border: #1e293b;
+    --accent-emerald: #10b981;
+    --accent-emerald-hover: #059669;
+    --accent-blue: #38bdf8;
+    --danger-red: #f43f5e;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+}
 
 body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #121212; /* Deep dark mode */
-    color: #e0e0e0; /* Light text */
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
     margin: 0;
     padding: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    -webkit-font-smoothing: antialiased;
 }
 
 header {
     text-align: center;
     margin-bottom: 30px;
-    background: linear-gradient(to right, #1b4332, #2d6a4f);
-    padding: 25px 40px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    padding: 30px 40px;
+    border-radius: 16px;
     width: 100%;
     max-width: 1200px;
     box-sizing: border-box;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 header h1 {
     color: #ffffff;
     margin: 0 0 8px 0;
-    font-size: 2.2em;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    font-size: 2.4em;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 header p {
-    color: #c8e6c9;
+    color: #a7f3d0;
     margin: 0;
-    font-size: 1.05em;
+    font-size: 1.1em;
+    font-weight: 500;
 }
 
 .auction-grid {
@@ -52,36 +69,40 @@ header p {
 }
 
 .card {
-    background: #1e1e1e;
+    background: var(--card-bg);
     padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    border: 1px solid #2c2c2c;
+    border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
 }
 
 .player-display {
-    background: #252525;
+    background: linear-gradient(180deg, rgba(19, 28, 46, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
     padding: 25px;
-    border-radius: 8px;
+    border-radius: 12px;
     text-align: center;
     margin-bottom: 20px;
-    border: 2px dashed #2d6a4f;
+    border: 2px dashed rgba(16, 185, 129, 0.4);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 #active-player-name {
-    color: #81c784;
-    margin: 10px 0 5px 0;
-    font-size: 2em;
-    font-weight: bold;
+    color: #34d399;
+    margin: 12px 0 8px 0;
+    font-size: 2.2em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 #active-player-cat {
-    background: #2d6a4f;
-    color: #ffffff;
-    padding: 3px 12px;
-    border-radius: 12px;
-    font-weight: bold;
+    display: inline-block;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 600;
     font-size: 0.9em;
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .controls {
@@ -93,56 +114,89 @@ header p {
 .bidding-panel {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    border-top: 1px solid #2c2c2c;
+    gap: 14px;
+    border-top: 1px solid var(--card-border);
     padding-top: 20px;
 }
 
 .bidding-panel h3 {
     margin: 0;
     font-size: 1.1em;
-    color: #a5d6a7;
+    color: #34d399;
+    font-weight: 600;
 }
 
 .bidding-panel label {
     font-size: 0.9em;
-    color: #b0bec5;
+    color: var(--text-muted);
+    font-weight: 500;
 }
 
 .bidding-panel select, .bidding-panel input {
-    padding: 12px;
+    padding: 12px 16px;
     font-size: 16px;
-    background: #252525;
-    border: 1px solid #444;
-    border-radius: 6px;
-    color: #e0e0e0;
-    transition: border-color 0.3s;
+    background: #0b0f19;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-main);
+    transition: all 0.2s ease;
 }
 
 .bidding-panel select:focus, .bidding-panel input:focus {
-    border-color: #4caf50;
+    border-color: var(--accent-emerald);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
     outline: none;
 }
 
 .btn {
-    padding: 12px 20px;
+    padding: 13px 20px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
-.btn.primary { background-color: #0077b6; color: white; }
-.btn.success { background-color: #2d6a4f; color: white; margin-top: 5px; }
-.btn:hover { opacity: 0.85; }
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn.primary { 
+    background-color: #0284c7; 
+    color: white; 
+}
+.btn.primary:hover { 
+    background-color: #0284c7; 
+    filter: brightness(1.1);
+}
+
+.btn.success { 
+    background-color: var(--accent-emerald); 
+    color: white; 
+    margin-top: 5px; 
+}
+.btn.success:hover { 
+    background-color: var(--accent-emerald-hover); 
+}
+
+/* Style for the Undo Button added previously */
+button[onclick="undoLastBid()"], .btn.danger {
+    background-color: var(--danger-red) !important;
+    color: white !important;
+}
+button[onclick="undoLastBid()"]:hover, .btn.danger:hover {
+    filter: brightness(1.1);
+}
 
 .teams-section h2, .pool-section h2, .current-player-section h2 {
     margin-top: 0;
-    color: #c8e6c9;
-    font-size: 1.4em;
+    color: #34d399;
+    font-size: 1.3em;
+    font-weight: 700;
     margin-bottom: 15px;
+    letter-spacing: -0.01em;
 }
 
 .teams-grid {
@@ -154,66 +208,82 @@ header p {
     padding-right: 5px;
 }
 
-/* Custom Scrollbar */
-.teams-grid::-webkit-scrollbar, .purchased-players::-webkit-scrollbar {
+/* Custom Sleek Scrollbar */
+.teams-grid::-webkit-scrollbar, .purchased-players::-webkit-scrollbar, .player-pool-container::-webkit-scrollbar {
     width: 6px;
 }
-.teams-grid::-webkit-scrollbar-track, .purchased-players::-webkit-scrollbar-track {
-    background: #1e1e1e;
+.teams-grid::-webkit-scrollbar-track, .purchased-players::-webkit-scrollbar-track, .player-pool-container::-webkit-scrollbar-track {
+    background: var(--card-bg);
 }
-.teams-grid::-webkit-scrollbar-thumb, .purchased-players::-webkit-scrollbar-thumb {
-    background: #2d6a4f;
+.teams-grid::-webkit-scrollbar-thumb, .purchased-players::-webkit-scrollbar-thumb, .player-pool-container::-webkit-scrollbar-thumb {
+    background: #334155;
     border-radius: 3px;
+}
+.teams-grid::-webkit-scrollbar-thumb:hover, .purchased-players::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-emerald);
 }
 
 .team-card {
-    background: #252525;
-    border-left: 5px solid #2d6a4f;
-    padding: 15px;
-    border-radius: 6px;
-    border-top: 1px solid #333;
-    border-right: 1px solid #333;
-    border-bottom: 1px solid #333;
+    background: #182238;
+    border-left: 5px solid var(--accent-emerald);
+    padding: 16px;
+    border-radius: 10px;
+    border-top: 1px solid var(--card-border);
+    border-right: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.4);
 }
 
 .team-card h3 {
     margin: 0 0 10px 0;
     font-size: 1.1em;
-    color: #a5d6a7;
+    color: #f1f5f9;
+    font-weight: 600;
 }
 
 .team-card p {
-    margin: 4px 0;
+    margin: 6px 0;
     font-size: 0.9em;
+    color: var(--text-muted);
 }
 
 .points-display {
     display: flex;
     justify-content: space-between;
-    font-weight: bold;
-    color: #81c784;
+    font-weight: 600;
+    color: #34d399;
 }
 
 .squad-progress {
     height: 6px;
-    background: #333;
+    background: #0b0f19;
     border-radius: 3px;
-    margin-top: 8px;
+    margin-top: 10px;
     overflow: hidden;
+    border: 1px solid var(--card-border);
 }
 
 .squad-progress-bar {
     height: 100%;
-    background: #4caf50;
+    background: var(--accent-emerald);
     transition: width 0.4s ease;
 }
 
 .purchased-players {
-    margin-top: 8px;
+    margin-top: 10px;
     font-size: 0.85em;
-    color: #b0bec5;
-    max-height: 50px;
+    color: var(--text-muted);
+    max-height: 60px;
     overflow-y: auto;
+    background: rgba(11, 15, 25, 0.5);
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .pool-section {
@@ -232,14 +302,15 @@ header p {
 }
 
 .player-list li {
-    background: #252525;
-    color: #e0e0e0;
-    padding: 6px 12px;
-    border-radius: 16px;
+    background: #182238;
+    color: var(--text-main);
+    padding: 8px 14px;
+    border-radius: 20px;
     font-size: 0.9em;
-    border: 1px solid #444;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .player-list li strong {
-    color: #81c784;
+    color: #34d399;
 }
