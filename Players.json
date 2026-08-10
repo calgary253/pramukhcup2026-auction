@@ -1,0 +1,11 @@
+[
+  { "id": 1, "name": "Biren", "category": "A", "basePrice": 50 },
+  { "id": 2, "name": "Virag", "category": "A", "basePrice": 50 },
+  { "id": 3, "name": "Vrushank", "category": "A", "basePrice": 50 },
+  { "id": 4, "name": "Jigar Amin", "category": "A", "basePrice": 50 },
+  { "id": 5, "name": "Player A1", "category": "A", "basePrice": 50 },
+  { "id": 6, "name": "Player B1", "category": "B", "basePrice": 50 },
+  { "id": 7, "name": "Player B2", "category": "B", "basePrice": 50 },
+  { "id": 8, "name": "Player C1", "category": "C", "basePrice": 50 },
+  { "id": 9, "name": "Player C2", "category": "C", "basePrice": 50 }
+]
