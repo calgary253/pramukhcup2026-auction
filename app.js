@@ -79,6 +79,7 @@ function renderActivePlayer() {
     }
 
     nameEl.innerText = currentActivePlayer.name;
+    // Updated here to show strictly [A], [B], or [C] without "Cat"
     catEl.innerText = `[${getCategoryLetter(currentActivePlayer.category)}]`;
 }
 
