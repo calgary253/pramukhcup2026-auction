@@ -17,6 +17,14 @@ let initialTeams = [
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
+// Helper function to map category numbers to letters (A, B, C)
+function getCategoryLetter(cat) {
+    if (cat === 1 || cat === "1") return "A";
+    if (cat === 2 || cat === "2") return "B";
+    if (cat === 3 || cat === "3") return "C";
+    return cat || "-";
+}
+
 // Initialize application on load
 window.onload = async function() {
     try {
@@ -71,7 +79,7 @@ function renderActivePlayer() {
     }
 
     nameEl.innerText = currentActivePlayer.name;
-    catEl.innerText = currentActivePlayer.category;
+    catEl.innerText = `Cat ${getCategoryLetter(currentActivePlayer.category)}`;
 }
 
 function nextPlayer() {
@@ -210,7 +218,8 @@ function renderTeams() {
         } else {
             squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
             team.squad.forEach(player => {
-                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">[Cat ${player.category}]</span> - <strong>${player.cost} pts</strong></li>`;
+                let catLetter = getCategoryLetter(player.category);
+                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">[Cat ${catLetter}]</span> - <strong>${player.cost} pts</strong></li>`;
             });
             squadListHTML += `</ul></div>`;
         }
@@ -238,8 +247,9 @@ function renderPlayerPool() {
     if (!list) return;
     list.innerHTML = "";
     players.forEach(p => {
+        let catLetter = getCategoryLetter(p.category);
         let li = document.createElement("li");
-        li.innerHTML = `${p.name} <strong style="color: #34d399;">[Cat ${p.category}]</strong>`;
+        li.innerHTML = `${p.name} <strong style="color: #34d399;">[Cat ${catLetter}]</strong>`;
         list.appendChild(li);
     });
 }
@@ -257,7 +267,8 @@ function downloadSquadCSV() {
             csvContent += row + "\n";
         } else {
             team.squad.forEach(player => {
-                let row = `"${team.name}","${team.captain}",${team.points},"${player.name}","${player.category}",${player.cost}`;
+                let catLetter = getCategoryLetter(player.category);
+                let row = `"${team.name}","${team.captain}",${team.points},"${player.name}","${catLetter}",${player.cost}`;
                 csvContent += row + "\n";
             });
         }
