@@ -17,6 +17,22 @@ let initialTeams = [
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
+// --- Firebase Configuration ---
+// TODO: Replace with your web app's Firebase configuration from your Firebase Console
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const AUCTION_DOC_ID = "live_auction_state"; // Document key in Firestore
+
 // Helper function to map category numbers to letters (A, B, C)
 function getCategoryLetter(cat) {
     if (cat === 1 || cat === "1") return "A";
@@ -25,40 +41,45 @@ function getCategoryLetter(cat) {
     return cat || "-";
 }
 
-// Initialize application on load
+// Initialize application on load & pull from Cloud Database
 window.onload = async function() {
     try {
-        // Check if saved state exists in localStorage
-        const savedPlayers = localStorage.getItem('auction_players');
-        const savedTeams = localStorage.getItem('auction_teams');
-        const savedActivePlayer = localStorage.getItem('auction_active_player');
-        const savedHistory = localStorage.getItem('auction_history');
+        const docRef = db.collection("auctions").doc(AUCTION_DOC_ID);
+        const doc = await docRef.get();
 
-        if (savedPlayers && savedTeams) {
-            players = JSON.parse(savedPlayers);
-            teams = JSON.parse(savedTeams);
-            currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
-            auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
+        if (doc.exists) {
+            const data = doc.data();
+            players = data.players || [];
+            teams = data.teams || initialTeams;
+            currentActivePlayer = data.currentActivePlayer || null;
+            auctionHistory = data.auctionHistory || [];
         } else {
-            // First time load: fetch from players.json
+            // First time load: fetch from players.json and set default state in DB
             let response = await fetch('players.json');
             players = await response.json();
             teams = JSON.parse(JSON.stringify(initialTeams));
-            saveStateToStorage();
+            await saveStateToStorage();
         }
         
         updateUI();
     } catch (error) {
-        console.error("Could not load players.json", error);
+        console.error("Error loading auction state from database:", error);
     }
 };
 
-// Helper function to save current state into browser storage
-function saveStateToStorage() {
-    localStorage.setItem('auction_players', JSON.stringify(players));
-    localStorage.setItem('auction_teams', JSON.stringify(teams));
-    localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
-    localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
+// Save current state into Firebase Firestore Database
+async function saveStateToStorage() {
+    try {
+        await db.collection("auctions").doc(AUCTION_DOC_ID).set({
+            players: players,
+            teams: teams,
+            currentActivePlayer: currentActivePlayer,
+            auctionHistory: auctionHistory,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error saving state to database:", error);
+    }
 }
 
 function updateUI() {
@@ -79,17 +100,16 @@ function renderActivePlayer() {
     }
 
     nameEl.innerText = currentActivePlayer.name;
-    // Updated here to show strictly [A], [B], or [C] without "Cat"
+    // Displays purely as [A], [B], or [C]
     catEl.innerText = `[${getCategoryLetter(currentActivePlayer.category)}]`;
 }
 
-function nextPlayer() {
+async function nextPlayer() {
     if (players.length === 0) {
         alert("All players have been auctioned!");
         return;
     }
 
-    // Save history state before shifting to the next player
     const currentState = {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
@@ -97,13 +117,12 @@ function nextPlayer() {
     };
     auctionHistory.push(currentState);
 
-    currentActivePlayer = players.shift(); // Pulls the first player from the queue
+    currentActivePlayer = players.shift(); 
     
-    // Clear previous sold announcement when next player is queued
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "";
 
-    saveStateToStorage();
+    await saveStateToStorage();
     updateUI();
 }
 
@@ -119,7 +138,7 @@ function populateTeamDropdown() {
     });
 }
 
-function submitBid() {
+async function submitBid() {
     if (!currentActivePlayer) {
         alert("Please select an active player first!");
         return;
@@ -131,14 +150,11 @@ function submitBid() {
 
     const totalAuctionPicksNeeded = 10;
     const picksRemainingToBuy = totalAuctionPicksNeeded - team.squad.length;
-
-    // Mathematical Guardrail: Must reserve 50 points for each remaining unpurchased slot
     const mandatoryReserveForOthers = (picksRemainingToBuy - 1) * 50;
     const maxAllowedBid = team.points - mandatoryReserveForOthers;
 
-    // Validation checks
     if (team.squad.length >= 10) {
-        alert(`${team.name} already has a full squad of 10 auction players (plus their captain)!`);
+        alert(`${team.name} already has a full squad of 10 auction players!`);
         return;
     }
 
@@ -148,11 +164,10 @@ function submitBid() {
     }
 
     if (bidAmount > maxAllowedBid) {
-        alert(`Bid Rejected! ${team.name} must retain at least 50 points for each of their remaining ${picksRemainingToBuy - 1} auction slots.\nMax safe bid for this team right now is: ${maxAllowedBid} points.`);
+        alert(`Bid Rejected! Max safe bid is ${maxAllowedBid} points.`);
         return;
     }
 
-    // Save a deep snapshot of the state *right before* executing the purchase
     const currentState = {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
@@ -160,34 +175,29 @@ function submitBid() {
     };
     auctionHistory.push(currentState);
 
-    // Capture player/team info for on-screen announcement
     const playerName = currentActivePlayer.name;
     const teamName = team.name;
     const captainName = team.captain;
 
-    // Execute the purchase
     team.points -= bidAmount;
     team.squad.push({ name: playerName, category: currentActivePlayer.category, cost: bidAmount });
 
-    // Display the Sold announcement on screen
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) {
         announcementEl.innerText = `🎉 ${playerName} Sold to ${teamName} (${captainName}) for ${bidAmount} pts!`;
     }
 
-    // Reset current player, save state, and refresh UI
     currentActivePlayer = null;
-    saveStateToStorage();
+    await saveStateToStorage();
     updateUI();
 }
 
-function undoLastBid() {
+async function undoLastBid() {
     if (auctionHistory.length === 0) {
         alert("No recent bids to undo!");
         return;
     }
 
-    // Pop the previous state from history stack and restore it
     const previousState = auctionHistory.pop();
     teams = previousState.teams;
     currentActivePlayer = previousState.currentActivePlayer;
@@ -196,7 +206,7 @@ function undoLastBid() {
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "↩️ Last action undone.";
 
-    saveStateToStorage();
+    await saveStateToStorage();
     updateUI();
 }
 
@@ -208,11 +218,8 @@ function renderTeams() {
     teams.forEach(team => {
         let div = document.createElement("div");
         div.className = "team-card";
-        
-        // Calculate progress percentage for squad size (max 10 players)
         const progressPercent = (team.squad.length / 10) * 100;
 
-        // Generate an itemized list of players bought by this team
         let squadListHTML = "";
         if (team.squad.length === 0) {
             squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted);">No players bought yet.</p>`;
@@ -257,11 +264,8 @@ function renderPlayerPool() {
 
 function downloadSquadCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
-    
-    // CSV Header row
     csvContent += "Team Name,Captain,Points Left,Player Name,Category,Cost (Points)\n";
 
-    // Loop through each team and each player in their squad
     teams.forEach(team => {
         if (team.squad.length === 0) {
             let row = `"${team.name}","${team.captain}",${team.points},"None","N/A",0`;
@@ -275,7 +279,6 @@ function downloadSquadCSV() {
         }
     });
 
-    // Encode and trigger download
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
