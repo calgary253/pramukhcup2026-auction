@@ -231,13 +231,13 @@ function renderActivePlayer() {
     if (!currentActivePlayer) {
         nameEl.innerText = "Select 'Next Player' to begin";
         catEl.innerText = "-";
-        if (bidDisplayEl) bidDisplayEl.innerText = "0";
+        if (bidDisplayEl) bidDisplayEl.innerHTML = "<strong>0</strong>";
         return;
     }
 
     nameEl.innerText = currentActivePlayer.name;
     catEl.innerText = getCategoryLetter(currentActivePlayer.category);
-    if (bidDisplayEl) bidDisplayEl.innerText = currentHighestBid;
+    if (bidDisplayEl) bidDisplayEl.innerHTML = `<strong>${currentHighestBid}</strong>`;
 }
 
 function renderCaptainView() {
@@ -252,11 +252,11 @@ function renderCaptainView() {
     if (!currentActivePlayer) {
         capNameEl.innerText = "Waiting for next player...";
         capCatEl.innerText = "-";
-        capBidEl.innerText = "Current Bidding Level / Status: Standby | Current Highest Bid: 0 pts";
+        capBidEl.innerHTML = "Status: Standby | <strong>Current Bid: 0 pts</strong>";
     } else {
         capNameEl.innerText = currentActivePlayer.name;
         capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
-        capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)} | Current Highest Bid: ${currentHighestBid} pts`;
+        capBidEl.innerHTML = `Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)} | <strong>Current Bid: ${currentHighestBid} pts</strong>`;
     }
 
     if (leftContainer) {
@@ -365,7 +365,7 @@ function markAsUnsold() {
     const playerName = currentActivePlayer.name;
     unsoldPlayers.push(currentActivePlayer);
 
-    lastAuctionMessage = `⚠️ ${playerName} marked as UNSOLD.`;
+    lastAuctionMessage = `⚠️ ${playerName} marked as UNSOLD`;
     lastAuctionMessageType = "danger";
 
     currentActivePlayer = null;
