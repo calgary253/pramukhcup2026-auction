@@ -11,64 +11,73 @@
 </head>
 <body>
 
-    <header>
-        <h1>Pramukh Cup - 2026 Team Auction</h1>
-        <p>Live Team Bidding & Squad Management Dashboard</p>
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>Pramukh Cup - 2026 Team Auction</h1>
+            <p>Live Team Bidding & Squad Management Dashboard</p>
+        </div>
+        <div class="header-action">
+            <button onclick="downloadSquadCSV()" class="btn primary-outline">📥 Export Squads (CSV)</button>
+        </div>
     </header>
 
-    <div class="auction-grid">
+    <main class="auction-grid">
         <!-- Left Column: Active Player & Bidding Controls -->
-        <div class="card current-player-section">
-            <h2>Current Player</h2>
-            <div class="player-display">
-                <div id="active-player-cat">-</div>
-                <div id="active-player-name">Select 'Next Player' to begin</div>
+        <section class="card current-player-section">
+            <div class="card-header">
+                <h2>Active Player</h2>
             </div>
+            
+            <div class="player-display">
+                <div id="active-player-cat" class="category-badge">-</div>
+                <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
+            </div>
+
+            <!-- On-Screen Sale Celebration Announcement -->
+            <div id="sold-announcement" class="sold-announcement"></div>
+
             <div class="controls">
-                <button onclick="nextPlayer()" class="btn primary">Next Player from List</button>
+                <button onclick="nextPlayer()" class="btn primary btn-full">Next Player from List ➔</button>
             </div>
 
             <div class="bidding-panel">
                 <h3>Place Bid</h3>
                 <div class="form-group">
-                    <label for="bidder-select">Select Team/Captain:</label>
-                    <select id="bidder-select"></select>
+                    <label for="bidder-select">Select Team / Captain:</label>
+                    <select id="bidder-select" class="form-control"></select>
                 </div>
                 <div class="form-group">
                     <label for="bid-amount">Bid Amount (Points):</label>
-                    <input type="number" id="bid-amount" value="50" min="50">
+                    <input type="number" id="bid-amount" class="form-control" min="50" step="50" value="50">
                 </div>
-                <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
-                <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
-                <div id="sold-announcement" style="margin-top: 12px; font-weight: bold; color: #34d399; text-align: center; min-height: 24px; font-size: 1.05em;"></div>
-</div>
-<button onclick="downloadSquadCSV()" class="btn primary" style="margin-top: 5px;">📥 Download Squad Lists (CSV)</button>
+                <div class="bid-buttons">
+                    <button onclick="submitBid()" class="btn success">Confirm Winning Bid</button>
+                    <button onclick="undoLastBid()" class="btn danger">Undo Last Bid</button>
+                </div>
             </div>
-        </div>
+        </section>
 
-   
-    
-    <!-- ADD THIS LINE BELOW TO SHOW THE ANNOUNCEMENT -->
-    <div id="sold-announcement" style="margin-top: 12px; font-weight: bold; color: #34d399; text-align: center; min-height: 24px; font-size: 1.05em;"></div>
-</div>
-
-        <!-- Right Column: Team Standings -->
-        <div class="card teams-section">
-            <h2>Team Standings & Budgets</h2>
-            <div id="teams-container" class="teams-grid">
-                <!-- Teams rendered dynamically via JS -->
+        <!-- Right Column: Teams Overview & Player Pool -->
+        <section class="dashboard-right-column">
+            <div class="card teams-overview-card">
+                <h2>Team Squads & Standings</h2>
+                <div id="teams-container" class="teams-grid">
+                    <!-- Dynamic team cards will render here -->
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Remaining Player Pool Section -->
-    <div class="card pool-section">
-        <h2>Remaining Player Pool</h2>
-        <ul id="player-pool-list" class="player-list">
-            <!-- Player pool rendered dynamically via JS -->
-        </ul>
-    </div>
+            <div class="card player-pool-card">
+                <h2>Remaining Player Pool</h2>
+                <div class="player-pool-wrapper">
+                    <ul id="player-pool-list" class="player-pool-list">
+                        <!-- Remaining players render here -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
 
+    <!-- Link to your JavaScript file -->
     <script src="app.js"></script>
 </body>
 </html>
