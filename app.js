@@ -77,7 +77,7 @@ function switchView(mode) {
         btnCaptain.style.color = "#a7f3d0";
     } else {
         adminContainer.style.display = "none";
-        captainContainer.style.display = "grid";
+        captainContainer.style.display = "flex";
         btnCaptain.style.background = "#0284c7";
         btnCaptain.style.color = "white";
         btnAdmin.style.background = "transparent";
@@ -172,30 +172,31 @@ function renderCaptainView() {
     capTeamsContainer.innerHTML = "";
     teams.forEach(team => {
         let div = document.createElement("div");
-        div.className = "team-card captain-compact-card";
+        div.className = "captain-team-column";
         const progressPercent = (team.squad.length / 10) * 100;
 
         let squadListHTML = "";
         if (team.squad.length === 0) {
-            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
+            squadListHTML = `<p class="captain-purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0; text-align: center;">No players bought yet.</p>`;
         } else {
-            squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
+            squadListHTML = `<div class="captain-purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
             team.squad.forEach(player => {
-                squadListHTML += `<li style="margin: 1px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
+                squadListHTML += `<li style="margin: 2px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
             });
             squadListHTML += `</ul></div>`;
         }
 
         div.innerHTML = `
-            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
+            <h3>${team.name}</h3>
+            <div style="font-size: 0.8em; color: var(--text-muted); margin-bottom: 6px;">(${team.captain})</div>
             <div class="points-display">
                 <span>Points Left:</span>
                 <span><strong>${team.points}</strong> / 5000</span>
             </div>
-            <div style="margin-top: 2px; font-size: 0.8em; color: var(--text-muted);">
+            <div style="margin-top: 4px; font-size: 0.8em; color: var(--text-muted);">
                 Squad: <strong>${team.squad.length} / 10</strong>
             </div>
-            <div class="squad-progress" style="margin: 2px 0 4px 0;">
+            <div class="squad-progress" style="margin: 4px 0 8px 0;">
                 <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
             </div>
             ${squadListHTML}
