@@ -228,3 +228,32 @@ function renderPlayerPool() {
         list.appendChild(li);
     });
 }
+
+function downloadSquadCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // CSV Header row
+    csvContent += "Team Name,Captain,Points Left,Player Name,Category,Cost (Points)\n";
+
+    // Loop through each team and each player in their squad
+    teams.forEach(team => {
+        if (team.squad.length === 0) {
+            let row = `"${team.name}","${team.captain}",${team.points},"None","N/A",0`;
+            csvContent += row + "\n";
+        } else {
+            team.squad.forEach(player => {
+                let row = `"${team.name}","${team.captain}",${team.points},"${player.name}","${player.category}",${player.cost}`;
+                csvContent += row + "\n";
+            });
+        }
+    });
+
+    // Encode and trigger download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Pramukh_Cup_2026_Squads.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
