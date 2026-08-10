@@ -172,42 +172,30 @@ function renderCaptainView() {
     capTeamsContainer.innerHTML = "";
     teams.forEach(team => {
         let div = document.createElement("div");
-        div.className = "team-card";
+        div.className = "team-card captain-compact-card";
         const progressPercent = (team.squad.length / 10) * 100;
-
-        let catCounts = { A: 0, B: 0, C: 0 };
-        team.squad.forEach(p => {
-            let l = getCategoryLetter(p.category);
-            if (catCounts[l] !== undefined) catCounts[l]++;
-        });
 
         let squadListHTML = "";
         if (team.squad.length === 0) {
-            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted);">No players bought yet.</p>`;
+            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
         } else {
             squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
             team.squad.forEach(player => {
-                let catLetter = getCategoryLetter(player.category);
-                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">${catLetter}</span> - <strong>${player.cost} pts</strong></li>`;
+                squadListHTML += `<li style="margin: 1px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
             });
             squadListHTML += `</ul></div>`;
         }
 
         div.innerHTML = `
-            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9em;">(${team.captain})</span></h3>
+            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
             <div class="points-display">
                 <span>Points Left:</span>
-                <span><strong>${team.points}</strong> / 5000 pts</span>
+                <span><strong>${team.points}</strong> / 5000</span>
             </div>
-            <div style="margin: 6px 0; font-size: 0.85em; display: flex; justify-content: space-between; background: #0f172a; padding: 6px 10px; border-radius: 6px;">
-                <span>Cat A: <strong style="color:#34d399">${catCounts.A}</strong></span>
-                <span>Cat B: <strong style="color:#34d399">${catCounts.B}</strong></span>
-                <span>Cat C: <strong style="color:#34d399">${catCounts.C}</strong></span>
+            <div style="margin-top: 2px; font-size: 0.8em; color: var(--text-muted);">
+                Squad: <strong>${team.squad.length} / 10</strong>
             </div>
-            <div style="margin-top: 6px; font-size: 0.9em; color: var(--text-muted);">
-                Squad Progress: <strong>${team.squad.length} / 10</strong>
-            </div>
-            <div class="squad-progress">
+            <div class="squad-progress" style="margin: 2px 0 4px 0;">
                 <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
             </div>
             ${squadListHTML}
@@ -375,37 +363,26 @@ function renderTeams() {
         div.className = "team-card";
         const progressPercent = (team.squad.length / 10) * 100;
 
-        let catCounts = { A: 0, B: 0, C: 0 };
-        team.squad.forEach(p => {
-            let l = getCategoryLetter(p.category);
-            if (catCounts[l] !== undefined) catCounts[l]++;
-        });
-
         let squadListHTML = "";
         if (team.squad.length === 0) {
-            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted);">No players bought yet.</p>`;
+            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
         } else {
             squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
             team.squad.forEach(player => {
                 let catLetter = getCategoryLetter(player.category);
-                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">${catLetter}</span> - <strong>${player.cost} pts</strong></li>`;
+                squadListHTML += `<li style="margin: 2px 0;">${player.name} <span style="color: #34d399;">${catLetter}</span> - <strong>${player.cost}p</strong></li>`;
             });
             squadListHTML += `</ul></div>`;
         }
 
         div.innerHTML = `
-            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9em;">(${team.captain})</span></h3>
+            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
             <div class="points-display">
                 <span>Points Left:</span>
                 <span>${team.points} / 5000</span>
             </div>
-            <div style="margin: 6px 0; font-size: 0.85em; display: flex; justify-content: space-between; background: #0f172a; padding: 6px 10px; border-radius: 6px;">
-                <span>Cat A: <strong style="color:#34d399">${catCounts.A}</strong></span>
-                <span>Cat B: <strong style="color:#34d399">${catCounts.B}</strong></span>
-                <span>Cat C: <strong style="color:#34d399">${catCounts.C}</strong></span>
-            </div>
-            <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-muted);">
-                Squad Progress: <strong>${team.squad.length} / 10</strong> players
+            <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted);">
+                Squad: <strong>${team.squad.length} / 10</strong> players
             </div>
             <div class="squad-progress">
                 <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
@@ -430,7 +407,7 @@ function renderPlayerPool() {
 
     if (unsoldPlayers.length > 0) {
         let headerLi = document.createElement("li");
-        headerLi.innerHTML = `<hr style="border-color: #374151; margin: 12px 0 8px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
+        headerLi.innerHTML = `<hr style="border-color: #374151; margin: 8px 0 6px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
         list.appendChild(headerLi);
 
         unsoldPlayers.forEach(p => {
