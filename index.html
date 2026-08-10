@@ -126,10 +126,12 @@
                     <!-- Skill Level and Notes Displayed in Projector View -->
                     <div id="captain-player-meta" style="font-size: 1.15em; color: #f3f4f6; margin-bottom: 8px; font-weight: 500;"></div>
                     <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
-                    <!-- Leading Bidder / Team Status Info Message for Captains/Projector -->
+                    <!-- Leading Bidder / Team Status Info Message for Captains/Projector (Hidden when unsold) -->
                     <div id="captain-leading-display" style="font-size: 1.05em; color: #60a5fa; font-weight: 600; margin-top: 12px;">
                         Leading Team: None
                     </div>
+                    <!-- Unsold Red Status Message (Exclusively replaces duplicate banners) -->
+                    <div id="captain-unsold-display" style="font-size: 1.25em; color: #ef4444; font-weight: 700; margin-top: 15px; display: none;"></div>
                     <div id="captain-sold-announcement" class="sold-announcement" style="margin-top: 15px;"></div>
                 </div>
             </section>
