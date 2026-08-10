@@ -3,8 +3,8 @@ let players = [];
 let unsoldPlayers = []; 
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
+let currentViewMode = 'admin'; // 'admin' or 'captain'
 
-// 8 Teams with pre-assigned Captains and 5000 starting points
 let initialTeams = [
     { name: "Team 1", captain: "Pavan Patel", points: 5000, squad: [] },
     { name: "Team 2", captain: "Jaimin Patel", points: 5000, squad: [] },
@@ -18,7 +18,6 @@ let initialTeams = [
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
-// Helper function to map category numbers to plain letters (A, B, C)
 function getCategoryLetter(cat) {
     if (cat === 1 || cat === "1") return "A";
     if (cat === 2 || cat === "2") return "B";
@@ -26,7 +25,6 @@ function getCategoryLetter(cat) {
     return cat || "-";
 }
 
-// Initialize application on load
 window.onload = async function() {
     try {
         const savedPlayers = localStorage.getItem('auction_players');
@@ -42,7 +40,6 @@ window.onload = async function() {
             currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
             auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
         } else {
-            // First time load: fetch from players.json
             let response = await fetch('players.json');
             players = await response.json();
             unsoldPlayers = [];
@@ -56,7 +53,6 @@ window.onload = async function() {
     }
 };
 
-// Helper function to save current state into browser storage
 function saveStateToStorage() {
     localStorage.setItem('auction_players', JSON.stringify(players));
     localStorage.setItem('auction_unsold_players', JSON.stringify(unsoldPlayers));
@@ -65,7 +61,31 @@ function saveStateToStorage() {
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
 }
 
-// Emergency Backup Download Function
+function switchView(mode) {
+    currentViewMode = mode;
+    const adminContainer = document.getElementById("admin-view-container");
+    const captainContainer = document.getElementById("captain-view-container");
+    const btnAdmin = document.getElementById("btn-view-admin");
+    const btnCaptain = document.getElementById("btn-view-captain");
+
+    if (mode === 'admin') {
+        adminContainer.style.display = "grid";
+        captainContainer.style.display = "none";
+        btnAdmin.style.background = "#0284c7";
+        btnAdmin.style.color = "white";
+        btnCaptain.style.background = "transparent";
+        btnCaptain.style.color = "#a7f3d0";
+    } else {
+        adminContainer.style.display = "none";
+        captainContainer.style.display = "grid";
+        btnCaptain.style.background = "#0284c7";
+        btnCaptain.style.color = "white";
+        btnAdmin.style.background = "transparent";
+        btnAdmin.style.color = "#a7f3d0";
+    }
+    updateUI();
+}
+
 function downloadAuctionBackup() {
     const backupData = {
         players: players,
@@ -85,7 +105,6 @@ function downloadAuctionBackup() {
     downloadAnchor.remove();
 }
 
-// Emergency State Restoration Function
 function importAuctionState(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -115,6 +134,7 @@ function updateUI() {
     renderTeams();
     renderPlayerPool();
     populateTeamDropdown();
+    renderCaptainView();
 }
 
 function renderActivePlayer() {
@@ -131,8 +151,72 @@ function renderActivePlayer() {
     catEl.innerText = getCategoryLetter(currentActivePlayer.category);
 }
 
+function renderCaptainView() {
+    const capNameEl = document.getElementById("captain-active-name");
+    const capCatEl = document.getElementById("captain-active-cat");
+    const capBidEl = document.getElementById("captain-active-bid");
+    const capTeamsContainer = document.getElementById("captain-teams-container");
+
+    if (!capTeamsContainer) return;
+
+    if (!currentActivePlayer) {
+        capNameEl.innerText = "Waiting for next player...";
+        capCatEl.innerText = "-";
+        capBidEl.innerText = "Current Bidding Level / Status: Standby";
+    } else {
+        capNameEl.innerText = currentActivePlayer.name;
+        capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
+        capBidEl.innerText = `Current Bidding Level / Status: Active Player in Category ${getCategoryLetter(currentActivePlayer.category)}`;
+    }
+
+    capTeamsContainer.innerHTML = "";
+    teams.forEach(team => {
+        let div = document.createElement("div");
+        div.className = "team-card";
+        const progressPercent = (team.squad.length / 10) * 100;
+
+        let catCounts = { A: 0, B: 0, C: 0 };
+        team.squad.forEach(p => {
+            let l = getCategoryLetter(p.category);
+            if (catCounts[l] !== undefined) catCounts[l]++;
+        });
+
+        let squadListHTML = "";
+        if (team.squad.length === 0) {
+            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted);">No players bought yet.</p>`;
+        } else {
+            squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
+            team.squad.forEach(player => {
+                let catLetter = getCategoryLetter(player.category);
+                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">${catLetter}</span> - <strong>${player.cost} pts</strong></li>`;
+            });
+            squadListHTML += `</ul></div>`;
+        }
+
+        div.innerHTML = `
+            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9em;">(${team.captain})</span></h3>
+            <div class="points-display">
+                <span>Points Left:</span>
+                <span><strong>${team.points}</strong> / 5000 pts</span>
+            </div>
+            <div style="margin: 6px 0; font-size: 0.85em; display: flex; justify-content: space-between; background: #0f172a; padding: 6px 10px; border-radius: 6px;">
+                <span>Cat A: <strong style="color:#34d399">${catCounts.A}</strong></span>
+                <span>Cat B: <strong style="color:#34d399">${catCounts.B}</strong></span>
+                <span>Cat C: <strong style="color:#34d399">${catCounts.C}</strong></span>
+            </div>
+            <div style="margin-top: 6px; font-size: 0.9em; color: var(--text-muted);">
+                Squad Progress: <strong>${team.squad.length} / 10</strong>
+            </div>
+            <div class="squad-progress">
+                <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
+            </div>
+            ${squadListHTML}
+        `;
+        capTeamsContainer.appendChild(div);
+    });
+}
+
 function nextPlayer() {
-    // If main pool is empty, check for unsold players and prompt reauction
     if (players.length === 0) {
         if (unsoldPlayers.length > 0) {
             const startReauction = confirm("Main player pool is completely finished! Would you like to start re-auctioning the Unsold Players now?");
@@ -166,7 +250,6 @@ function nextPlayer() {
     updateUI();
 }
 
-// Function to mark current active player as Unsold with clear display messaging
 function markAsUnsold() {
     if (!currentActivePlayer) {
         alert("No active player to mark as unsold!");
@@ -292,6 +375,12 @@ function renderTeams() {
         div.className = "team-card";
         const progressPercent = (team.squad.length / 10) * 100;
 
+        let catCounts = { A: 0, B: 0, C: 0 };
+        team.squad.forEach(p => {
+            let l = getCategoryLetter(p.category);
+            if (catCounts[l] !== undefined) catCounts[l]++;
+        });
+
         let squadListHTML = "";
         if (team.squad.length === 0) {
             squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted);">No players bought yet.</p>`;
@@ -310,6 +399,11 @@ function renderTeams() {
                 <span>Points Left:</span>
                 <span>${team.points} / 5000</span>
             </div>
+            <div style="margin: 6px 0; font-size: 0.85em; display: flex; justify-content: space-between; background: #0f172a; padding: 6px 10px; border-radius: 6px;">
+                <span>Cat A: <strong style="color:#34d399">${catCounts.A}</strong></span>
+                <span>Cat B: <strong style="color:#34d399">${catCounts.B}</strong></span>
+                <span>Cat C: <strong style="color:#34d399">${catCounts.C}</strong></span>
+            </div>
             <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-muted);">
                 Squad Progress: <strong>${team.squad.length} / 10</strong> players
             </div>
@@ -327,7 +421,6 @@ function renderPlayerPool() {
     if (!list) return;
     list.innerHTML = "";
     
-    // Render main available pool
     players.forEach(p => {
         let catLetter = getCategoryLetter(p.category);
         let li = document.createElement("li");
@@ -335,7 +428,6 @@ function renderPlayerPool() {
         list.appendChild(li);
     });
 
-    // Render separate Unsold Players Column section if items exist
     if (unsoldPlayers.length > 0) {
         let headerLi = document.createElement("li");
         headerLi.innerHTML = `<hr style="border-color: #374151; margin: 12px 0 8px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
