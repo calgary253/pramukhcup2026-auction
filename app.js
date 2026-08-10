@@ -4,7 +4,6 @@ let unsoldPlayers = [];
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
 
-// 8 Teams with pre-assigned Captains and 5000 starting points
 let initialTeams = [
     { name: "Team 1", captain: "Pavan Patel", points: 5000, squad: [] },
     { name: "Team 2", captain: "Jaimin Patel", points: 5000, squad: [] },
@@ -18,7 +17,6 @@ let initialTeams = [
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
-// Helper function to map category numbers to plain letters (A, B, C)
 function getCategoryLetter(cat) {
     if (cat === 1 || cat === "1") return "A";
     if (cat === 2 || cat === "2") return "B";
@@ -26,7 +24,27 @@ function getCategoryLetter(cat) {
     return cat || "-";
 }
 
-// Initialize application on load
+// Switch between Admin and Captain views
+function switchView(viewType) {
+    const adminView = document.getElementById("admin-view");
+    const captainView = document.getElementById("captain-view");
+    const adminBtn = document.getElementById("nav-admin-btn");
+    const captainBtn = document.getElementById("nav-captain-btn");
+
+    if (viewType === 'admin') {
+        adminView.style.display = "block";
+        captainView.style.display = "none";
+        adminBtn.classList.add("active");
+        captainBtn.classList.remove("active");
+    } else {
+        adminView.style.display = "none";
+        captainView.style.display = "block";
+        captainBtn.classList.add("active");
+        adminBtn.classList.remove("active");
+        renderCaptainView();
+    }
+}
+
 window.onload = async function() {
     try {
         const savedPlayers = localStorage.getItem('auction_players');
@@ -42,7 +60,6 @@ window.onload = async function() {
             currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
             auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
         } else {
-            // First time load: fetch from players.json
             let response = await fetch('players.json');
             players = await response.json();
             unsoldPlayers = [];
@@ -56,7 +73,6 @@ window.onload = async function() {
     }
 };
 
-// Helper function to save current state into browser storage
 function saveStateToStorage() {
     localStorage.setItem('auction_players', JSON.stringify(players));
     localStorage.setItem('auction_unsold_players', JSON.stringify(unsoldPlayers));
@@ -65,7 +81,6 @@ function saveStateToStorage() {
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
 }
 
-// Emergency Backup Download Function
 function downloadAuctionBackup() {
     const backupData = {
         players: players,
@@ -85,7 +100,6 @@ function downloadAuctionBackup() {
     downloadAnchor.remove();
 }
 
-// Emergency State Restoration Function
 function importAuctionState(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -115,6 +129,11 @@ function updateUI() {
     renderTeams();
     renderPlayerPool();
     populateTeamDropdown();
+    
+    // If captain view is active, update it simultaneously
+    if (document.getElementById("captain-view").style.display !== "none") {
+        renderCaptainView();
+    }
 }
 
 function renderActivePlayer() {
@@ -132,7 +151,6 @@ function renderActivePlayer() {
 }
 
 function nextPlayer() {
-    // If main pool is empty, check for unsold players and prompt reauction
     if (players.length === 0) {
         if (unsoldPlayers.length > 0) {
             const startReauction = confirm("Main player pool is completely finished! Would you like to start re-auctioning the Unsold Players now?");
@@ -166,7 +184,6 @@ function nextPlayer() {
     updateUI();
 }
 
-// Function to mark current active player as Unsold with clear display messaging
 function markAsUnsold() {
     if (!currentActivePlayer) {
         alert("No active player to mark as unsold!");
@@ -322,12 +339,65 @@ function renderTeams() {
     });
 }
 
+function renderCaptainView() {
+    // Render the active player banner on top
+    const capActiveEl = document.getElementById("captain-active-player");
+    if (capActiveEl) {
+        if (!currentActivePlayer) {
+            capActiveEl.innerHTML = `<span style="color: var(--text-muted);">Awaiting next player...</span>`;
+        } else {
+            let catLetter = getCategoryLetter(currentActivePlayer.category);
+            capActiveEl.innerHTML = `<span style="color: #ffffff;">${currentActivePlayer.name}</span> <span class="category-badge" style="margin-left: 8px;">Cat ${catLetter}</span>`;
+        }
+    }
+
+    // Render 4x2 Compact Grid of all 8 Teams
+    const capContainer = document.getElementById("captain-teams-container");
+    if (!capContainer) return;
+    capContainer.innerHTML = "";
+
+    teams.forEach(team => {
+        let card = document.createElement("div");
+        card.className = "captain-team-card";
+        const progressPercent = (team.squad.length / 10) * 100;
+
+        let squadHtml = "";
+        if (team.squad.length === 0) {
+            squadHtml = `<div class="captain-squad-empty">No players bought</div>`;
+        } else {
+            squadHtml = `<div class="captain-squad-list"><ul>`;
+            team.squad.forEach(p => {
+                let catLetter = getCategoryLetter(p.category);
+                squadHtml += `<li><span>${p.name} <strong style="color: #34d399;">(${catLetter})</strong></span><strong>${p.cost}p</strong></li>`;
+            });
+            squadHtml += `</ul></div>`;
+        }
+
+        card.innerHTML = `
+            <div class="captain-card-header">
+                <div>
+                    <h4>${team.name}</h4>
+                    <span class="captain-name-sub">${team.captain}</span>
+                </div>
+                <div class="captain-points-badge">
+                    <span>${team.points} pts</span>
+                </div>
+            </div>
+            <div class="captain-progress-container">
+                <div class="captain-progress-bar" style="width: ${progressPercent}%;"></div>
+            </div>
+            <div class="captain-squad-count">Squad: <strong>${team.squad.length}/10</strong></div>
+            ${squadHtml}
+        `;
+        capContainer.appendChild(card);
+    });
+}
+
 function renderPlayerPool() {
     const list = document.getElementById("player-pool-list");
     if (!list) return;
     list.innerHTML = "";
     
-    // Render main available pool
     players.forEach(p => {
         let catLetter = getCategoryLetter(p.category);
         let li = document.createElement("li");
@@ -335,7 +405,6 @@ function renderPlayerPool() {
         list.appendChild(li);
     });
 
-    // Render separate Unsold Players Column section if items exist
     if (unsoldPlayers.length > 0) {
         let headerLi = document.createElement("li");
         headerLi.innerHTML = `<hr style="border-color: #374151; margin: 12px 0 8px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
