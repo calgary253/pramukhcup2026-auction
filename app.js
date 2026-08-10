@@ -100,8 +100,8 @@ function renderActivePlayer() {
     }
 
     nameEl.innerText = currentActivePlayer.name;
-    // Displays purely as [A], [B], or [C]
-    catEl.innerText = `[${getCategoryLetter(currentActivePlayer.category)}]`;
+    // Displays purely as A, B, or C without brackets
+    catEl.innerText = getCategoryLetter(currentActivePlayer.category);
 }
 
 async function nextPlayer() {
@@ -227,7 +227,7 @@ function renderTeams() {
             squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
             team.squad.forEach(player => {
                 let catLetter = getCategoryLetter(player.category);
-                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">[${catLetter}]</span> - <strong>${player.cost} pts</strong></li>`;
+                squadListHTML += `<li style="margin: 4px 0;">${player.name} <span style="color: #34d399;">${catLetter}</span> - <strong>${player.cost} pts</strong></li>`;
             });
             squadListHTML += `</ul></div>`;
         }
@@ -257,7 +257,7 @@ function renderPlayerPool() {
     players.forEach(p => {
         let catLetter = getCategoryLetter(p.category);
         let li = document.createElement("li");
-        li.innerHTML = `${p.name} <strong style="color: #34d399;">[${catLetter}]</strong>`;
+        li.innerHTML = `${p.name} <strong style="color: #34d399;">${catLetter}</strong>`;
         list.appendChild(li);
     });
 }
