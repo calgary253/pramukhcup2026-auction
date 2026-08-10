@@ -38,7 +38,7 @@
                     <div id="active-player-cat" class="category-badge">-</div>
                     <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
                     <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;">
-                        <strong>Current Bid:</strong> <span id="current-bid-display">50 pts</span>
+                        <strong>Current Bid:</strong> <span id="current-bid-display">50</span> pts
                     </div>
                 </div>
 
@@ -51,20 +51,20 @@
                 </div>
 
                 <div class="bidding-panel">
-                    <h3>Live Bidding Controls</h3>
+                    <h3>Place Bid</h3>
                     <div class="form-group">
-                        <label for="bidder-select">Select Captain / Team:</label>
+                        <label for="bidder-select">Select Team / Captain:</label>
                         <select id="bidder-select" class="form-control"></select>
                     </div>
                     <div class="form-group">
                         <label for="bid-amount">Bid Raise Amount (Points):</label>
                         <input type="number" id="bid-amount" class="form-control" min="10" step="10" value="50">
                     </div>
-                    <div style="display: flex; gap: 8px; margin-top: 12px;">
-                        <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0284c7;">Raise / Add Bid</button>
-                        <button onclick="finalizeBid()" class="btn success" style="flex: 1; background-color: #10b981;">Finalize Winning Bid</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0284c7;">Raise Bid</button>
+                        <button onclick="finalizeBid()" class="btn success" style="flex: 1; background-color: #10b981;">Finalize Sale</button>
                     </div>
-                    <div style="margin-top: 10px;">
+                    <div style="margin-top: 8px;">
                         <button onclick="undoLastBid()" class="btn secondary" style="width: 100%; background-color: #4b5563;">Undo Last Action</button>
                     </div>
                 </div>
