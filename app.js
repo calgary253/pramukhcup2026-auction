@@ -1,5 +1,6 @@
 // State Management
 let players = [];
+let unsoldPlayers = []; // Track players who went unsold
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
 
@@ -29,12 +30,14 @@ function getCategoryLetter(cat) {
 window.onload = async function() {
     try {
         const savedPlayers = localStorage.getItem('auction_players');
+        const savedUnsold = localStorage.getItem('auction_unsold_players');
         const savedTeams = localStorage.getItem('auction_teams');
         const savedActivePlayer = localStorage.getItem('auction_active_player');
         const savedHistory = localStorage.getItem('auction_history');
 
         if (savedPlayers && savedTeams) {
             players = JSON.parse(savedPlayers);
+            unsoldPlayers = savedUnsold ? JSON.parse(savedUnsold) : [];
             teams = JSON.parse(savedTeams);
             currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
             auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
@@ -42,6 +45,7 @@ window.onload = async function() {
             // First time load: fetch from players.json
             let response = await fetch('players.json');
             players = await response.json();
+            unsoldPlayers = [];
             teams = JSON.parse(JSON.stringify(initialTeams));
             saveStateToStorage();
         }
@@ -55,6 +59,7 @@ window.onload = async function() {
 // Helper function to save current state into browser storage
 function saveStateToStorage() {
     localStorage.setItem('auction_players', JSON.stringify(players));
+    localStorage.setItem('auction_unsold_players', JSON.stringify(unsoldPlayers));
     localStorage.setItem('auction_teams', JSON.stringify(teams));
     localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
     localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
@@ -64,6 +69,7 @@ function saveStateToStorage() {
 function downloadAuctionBackup() {
     const backupData = {
         players: players,
+        unsoldPlayers: unsoldPlayers,
         teams: teams,
         currentActivePlayer: currentActivePlayer,
         auctionHistory: auctionHistory,
@@ -89,6 +95,7 @@ function importAuctionState(event) {
         try {
             const imported = JSON.parse(e.target.result);
             players = imported.players || [];
+            unsoldPlayers = imported.unsoldPlayers || [];
             teams = imported.teams || [];
             currentActivePlayer = imported.currentActivePlayer || null;
             auctionHistory = imported.auctionHistory || [];
@@ -121,20 +128,27 @@ function renderActivePlayer() {
     }
 
     nameEl.innerText = currentActivePlayer.name;
-    // Displays purely as A, B, or C without brackets
     catEl.innerText = getCategoryLetter(currentActivePlayer.category);
 }
 
 function nextPlayer() {
+    // If main pool is empty, start second round using unsold players
     if (players.length === 0) {
-        alert("All players have been auctioned!");
-        return;
+        if (unsoldPlayers.length > 0) {
+            players = [...unsoldPlayers];
+            unsoldPlayers = [];
+            alert("Main player pool finished! Starting second round for Unsold Players.");
+        } else {
+            alert("All players have been auctioned or processed!");
+            return;
+        }
     }
 
     const currentState = {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
-        players: [...players]
+        players: [...players],
+        unsoldPlayers: [...unsoldPlayers]
     };
     auctionHistory.push(currentState);
 
@@ -143,6 +157,33 @@ function nextPlayer() {
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "";
 
+    saveStateToStorage();
+    updateUI();
+}
+
+// Function to mark current active player as Unsold
+function markAsUnsold() {
+    if (!currentActivePlayer) {
+        alert("No active player to mark as unsold!");
+        return;
+    }
+
+    const currentState = {
+        teams: JSON.parse(JSON.stringify(teams)),
+        currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
+        players: [...players],
+        unsoldPlayers: [...unsoldPlayers]
+    };
+    auctionHistory.push(currentState);
+
+    unsoldPlayers.push(currentActivePlayer);
+
+    const announcementEl = document.getElementById("sold-announcement");
+    if (announcementEl) {
+        announcementEl.innerText = `⚠️ ${currentActivePlayer.name} went Unsold and moved to the end queue.`;
+    }
+
+    currentActivePlayer = null;
     saveStateToStorage();
     updateUI();
 }
@@ -192,7 +233,8 @@ function submitBid() {
     const currentState = {
         teams: JSON.parse(JSON.stringify(teams)),
         currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
-        players: [...players]
+        players: [...players],
+        unsoldPlayers: [...unsoldPlayers]
     };
     auctionHistory.push(currentState);
 
@@ -215,7 +257,7 @@ function submitBid() {
 
 function undoLastBid() {
     if (auctionHistory.length === 0) {
-        alert("No recent bids to undo!");
+        alert("No recent actions to undo!");
         return;
     }
 
@@ -223,6 +265,7 @@ function undoLastBid() {
     teams = previousState.teams;
     currentActivePlayer = previousState.currentActivePlayer;
     players = previousState.players;
+    unsoldPlayers = previousState.unsoldPlayers || [];
 
     const announcementEl = document.getElementById("sold-announcement");
     if (announcementEl) announcementEl.innerText = "↩️ Last action undone.";
@@ -275,12 +318,27 @@ function renderPlayerPool() {
     const list = document.getElementById("player-pool-list");
     if (!list) return;
     list.innerHTML = "";
+    
     players.forEach(p => {
         let catLetter = getCategoryLetter(p.category);
         let li = document.createElement("li");
         li.innerHTML = `${p.name} <strong style="color: #34d399;">${catLetter}</strong>`;
         list.appendChild(li);
     });
+
+    if (unsoldPlayers.length > 0) {
+        let divider = document.createElement("li");
+        divider.innerHTML = `<hr style="border-color: #374151; margin: 8px 0;"><span style="color: #f87171; font-size: 0.85em; font-weight: bold;">Unsold Queue (${unsoldPlayers.length}):</span>`;
+        list.appendChild(divider);
+
+        unsoldPlayers.forEach(p => {
+            let catLetter = getCategoryLetter(p.category);
+            let li = document.createElement("li");
+            li.style.color = "#9ca3af";
+            li.innerHTML = `${p.name} <strong style="color: #f87171;">${catLetter}</strong> (Unsold)`;
+            list.appendChild(li);
+        });
+    }
 }
 
 function downloadSquadCSV() {
