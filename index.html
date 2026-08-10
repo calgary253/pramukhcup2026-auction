@@ -54,12 +54,10 @@
                     <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
                 </div>
                 
-                <!-- Emergency Backup & Recovery Controls -->
+                <!-- Emergency Backup & Recovery Controls (Standard Buttons) -->
                 <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
                     <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
-                    <label class="btn primary-outline btn-full" style="display: block; text-align: center; cursor: pointer;">
-                        📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
-                    </label>
+                    <button onclick="triggerRestoreBackup()" class="btn primary-outline btn-full">📂 Restore from Backup</button>
                 </div>
             </div>
         </section>
