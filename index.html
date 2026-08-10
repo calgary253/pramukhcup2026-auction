@@ -11,13 +11,21 @@
 <body>
 
     <header class="dashboard-header">
-        <div class="header-content">
-            <h1>Pramukh Cup - 2026 Team Auction</h1>
-            <p>Live Team Bidding & Squad Management Dashboard</p>
+        <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <h1>Pramukh Cup - 2026 Team Auction</h1>
+                <p>Live Team Bidding & Squad Management Dashboard</p>
+            </div>
+            <!-- View Mode Switcher -->
+            <div class="view-switcher" style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; margin-right: 4px;">Admin View</button>
+                <button onclick="switchView('captain')" id="btn-view-captain" class="btn-sm" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: transparent; color: #a7f3d0;">Captain / Projector View</button>
+            </div>
         </div>
     </header>
 
-    <main class="auction-grid-3col">
+    <!-- ADMIN VIEW CONTAINER -->
+    <main id="admin-view-container" class="auction-grid-3col">
         <!-- Column 1: Active Player & Bidding Controls -->
         <section class="card current-player-section">
             <div class="card-header">
@@ -80,6 +88,27 @@
                 <ul id="player-pool-list" class="player-pool-list">
                     <!-- Remaining players & unsold section render here -->
                 </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- CAPTAIN & PROJECTOR VIEW CONTAINER -->
+    <main id="captain-view-container" class="auction-grid-2col" style="display: none;">
+        <!-- Left: Live Auction Status Banner -->
+        <section class="card current-player-section" style="grid-column: 1 / -1; text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
+            <h2>Live Auction Status</h2>
+            <div class="player-display" style="max-width: 600px; margin: 0 auto;">
+                <div id="captain-active-cat" class="category-badge">-</div>
+                <div id="captain-active-name" style="color: #34d399; font-size: 2.5em; font-weight: 700; margin: 10px 0;">Waiting for next player...</div>
+                <div id="captain-active-bid" style="font-size: 1.2em; color: var(--text-muted);">Current Bidding Level / Status: Active</div>
+            </div>
+        </section>
+
+        <!-- Right / Full Grid: Team Squads & Category Counts -->
+        <section class="card teams-overview-card" style="grid-column: 1 / -1;">
+            <h2>All Team Squads & Category Counts</h2>
+            <div id="captain-teams-container" class="teams-grid-responsive">
+                <!-- Dynamic captain team cards render here -->
             </div>
         </section>
     </main>
