@@ -17,6 +17,7 @@ let unsoldPlayers = [];
 let currentActivePlayer = null;
 let auctionHistory = []; 
 let currentHighestBid = 0; 
+let currentBidIncrement = 50; // Base increment / starting jump amount
 let currentLeaderText = "None"; 
 let lastAuctionMessage = "";
 let lastAuctionMessageType = ""; 
@@ -68,6 +69,7 @@ window.onload = async function() {
             currentActivePlayer = cloudState.currentActivePlayer || null;
             auctionHistory = cloudState.auctionHistory || [];
             currentHighestBid = cloudState.currentHighestBid !== undefined ? cloudState.currentHighestBid : 0;
+            currentBidIncrement = cloudState.currentBidIncrement !== undefined ? cloudState.currentBidIncrement : 50;
             currentLeaderText = cloudState.currentLeaderText || "None";
             lastAuctionMessage = cloudState.lastAuctionMessage || "";
             lastAuctionMessageType = cloudState.lastAuctionMessageType || "";
@@ -113,6 +115,7 @@ async function loadInitialPlayerPool() {
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
     currentHighestBid = 0;
+    currentBidIncrement = 50;
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system ready. Click 'Next Player' to begin.";
     lastAuctionMessageType = "info";
@@ -144,6 +147,7 @@ async function resetEntireAuction() {
     currentActivePlayer = null; 
     auctionHistory = [];
     currentHighestBid = 0;
+    currentBidIncrement = 50;
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system fully reset! Click 'Next Player' to start.";
     lastAuctionMessageType = "info";
@@ -161,6 +165,7 @@ function saveStateToCloud() {
         currentActivePlayer,
         auctionHistory,
         currentHighestBid,
+        currentBidIncrement,
         currentLeaderText,
         lastAuctionMessage,
         lastAuctionMessageType
@@ -209,7 +214,8 @@ function nextPlayer() {
     }
 
     currentActivePlayer = players.shift();
-    currentHighestBid = 50;
+    currentBidIncrement = 100; // Set base starting/step increment (adjust if base start should be different, e.g., 50 or 100)
+    currentHighestBid = currentBidIncrement; // First initial bid defaults to base step
     currentLeaderText = "None";
     lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name}`;
     lastAuctionMessageType = "info";
@@ -229,6 +235,7 @@ function markAsUnsold() {
 
     currentActivePlayer = null;
     currentHighestBid = 0;
+    currentBidIncrement = 50;
     currentLeaderText = "None";
 
     saveStateToCloud();
@@ -244,15 +251,23 @@ function submitBid() {
     const amountEl = document.getElementById('bid-amount');
 
     const teamIndex = parseInt(selectEl.value);
-    const bidAmount = parseInt(amountEl.value);
+    
+    // If an explicit amount is typed/provided, validate it follows increments. Otherwise, auto-calculate next step (add increment)
+    let bidAmount = parseInt(amountEl.value);
+    
+    const targetNextBid = currentHighestBid === 0 ? currentBidIncrement : currentHighestBid + currentBidIncrement;
+
+    if (isNaN(bidAmount) || bidAmount <= 0) {
+        bidAmount = targetNextBid; // Default to exact next increment step if input is blank/invalid
+    }
 
     if (isNaN(teamIndex) || teamIndex < 0 || teamIndex >= teams.length) {
         alert("Please select a valid team.");
         return;
     }
 
-    if (bidAmount <= currentHighestBid) {
-        alert(`Bid must be higher than the current highest bid of ${currentHighestBid} pts.`);
+    if (bidAmount < targetNextBid) {
+        alert(`Bid must be at least ${targetNextBid} pts (incrementing by ${currentBidIncrement} pts).`);
         return;
     }
 
@@ -306,7 +321,7 @@ function finalizeBid() {
         return;
     }
 
-    // STEP 2: Safety check to ensure squad array exists before pushing
+    // Safety check to ensure squad array exists before pushing
     if (!winningTeam.squad) {
         winningTeam.squad = [];
     }
@@ -322,6 +337,7 @@ function finalizeBid() {
 
     currentActivePlayer = null;
     currentHighestBid = 0;
+    currentBidIncrement = 50;
     currentLeaderText = "None";
 
     saveStateToCloud();
@@ -340,7 +356,7 @@ function undoLastBid() {
             currentHighestBid = previousBid.amount;
             currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
         } else {
-            currentHighestBid = 50;
+            currentHighestBid = currentBidIncrement;
             currentLeaderText = "None";
         }
         lastAuctionMessage = "Last bid undone.";
@@ -361,7 +377,7 @@ function updateUI() {
 
     if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `Category ${getCategoryLetter(currentActivePlayer.category)}` : "-";
     if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
-    if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
+    if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong> (Next Step: +${currentBidIncrement})`;
     if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
 
     if (announcementEl) {
@@ -567,7 +583,7 @@ function downloadSquadCSV() {
 }
 
 function downloadAuctionBackup() {
-    const state = { players, unsoldPlayers, teams, currentActivePlayer, auctionHistory, currentHighestBid, currentLeaderText };
+    const state = { players, unsoldPlayers, teams, currentActivePlayer, auctionHistory, currentHighestBid, currentBidIncrement, currentLeaderText };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
     const dlAnchor = document.createElement('a');
     dlAnchor.setAttribute("href", dataStr);
@@ -590,6 +606,7 @@ function importAuctionState(event) {
             currentActivePlayer = imported.currentActivePlayer || null;
             auctionHistory = imported.auctionHistory || [];
             currentHighestBid = imported.currentHighestBid || 0;
+            currentBidIncrement = imported.currentBidIncrement || 50;
             currentLeaderText = imported.currentLeaderText || "None";
             saveStateToCloud();
             alert("Auction state successfully restored from backup!");
@@ -626,6 +643,7 @@ function importPlayerPoolCSV(event) {
             unsoldPlayers = [];
             currentActivePlayer = null;
             currentHighestBid = 0;
+            currentBidIncrement = 50;
             currentLeaderText = "None";
             saveStateToCloud();
             alert(`Successfully loaded ${newPlayers.length} players into pool!`);
