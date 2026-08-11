@@ -49,6 +49,15 @@ function getCategoryLetter(cat) {
     return cleanCat.replace(/CAT\s*/gi, ''); 
 }
 
+// Helper to sort players by category alphabetically (A -> B -> C -> Others)
+function sortPlayersByCategory(playerList) {
+    return [...playerList].sort((a, b) => {
+        const catA = getCategoryLetter(a.category);
+        const catB = getCategoryLetter(b.category);
+        return catA.localeCompare(catB);
+    });
+}
+
 window.onload = async function() {
     const urlParams = new URLSearchParams(window.location.search);
     const viewParam = urlParams.get('view');
@@ -467,7 +476,10 @@ function renderPlayerPool() {
         return;
     }
 
-    players.forEach(p => {
+    // Sort players alphabetically by category (A, B, C...) before rendering
+    const sortedPlayers = sortPlayersByCategory(players);
+
+    sortedPlayers.forEach(p => {
         const li = document.createElement('li');
         li.className = 'player-pool-item';
         li.style.display = 'flex';
@@ -489,7 +501,9 @@ function renderPlayerPool() {
         headerLi.innerHTML = `<h3 style="color: #f87171; margin: 15px 0 5px 0; font-size: 0.95rem;">Unsold Section</h3>`;
         poolList.appendChild(headerLi);
 
-        unsoldPlayers.forEach(p => {
+        const sortedUnsold = sortPlayersByCategory(unsoldPlayers);
+
+        sortedUnsold.forEach(p => {
             const li = document.createElement('li');
             li.style.padding = '6px';
             li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
