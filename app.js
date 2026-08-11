@@ -27,11 +27,11 @@ let initialTeams = [
     { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
     { name: "Yagnapurush Yodha", captain: "Jaimin Patel", points: 5000, squad: [] },
     { name: "Varni Warriors", captain: "Meet Patel", points: 5000, squad: [] },
-    { name: "Gunatit Challenders", captain: "Saral Patel", points: 5000, squad: [] },
-    { name: "Not Decided Yet", captain: "Chintal Patel", points: 5000, squad: [] },
+    { name: "Rajipo Royals", captain: "Saral Patel", points: 5000, squad: [] },
+    { name: "Akshar United", captain: "Chintal Patel", points: 5000, squad: [] },
     { name: "Sahjanand Strikers", captain: "Nikunj Patel", points: 5000, squad: [] },
-    { name: "Not Decided Yet", captain: "Vivek Patel", points: 5000, squad: [] },
-    { name: "Not Decided Yet", captain: "Smit Patel", points: 5000, squad: [] }
+    { name: "Sarang Sirens", captain: "Vivek Patel", points: 5000, squad: [] },
+    { name: "Keshav Challengers", captain: "Smit Patel", points: 5000, squad: [] }
 ];
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
