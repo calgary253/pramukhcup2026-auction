@@ -465,7 +465,7 @@ function renderCaptainTeamsGrid() {
         card.style.padding = "10px";
         card.style.marginBottom = "8px";
 
-        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin: 2px; color: #e2e8f0;">${p.name} (${p.purchasePrice})</span>`).join('');
+        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin: 2px; color: #e2e8f0;">${p.name}</span>`).join('');
 
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
