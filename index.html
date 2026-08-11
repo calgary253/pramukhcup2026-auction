@@ -7,22 +7,72 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Custom modal and dropdown enhancements */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            width: 90%;
+            max-width: 650px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #f8fafc;
+        }
+
+        .captain-link-item {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captain-link-item span {
+            font-size: 0.85rem;
+            word-break: break-all;
+            color: #94a3b8;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Header aligned to match layout width and center -->
-    <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center;">
+    <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center; margin: 0 auto;">
         <header class="dashboard-header" style="width: 100%; box-sizing: border-box;">
-            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div>
-                    <h1>Pramukh Cup - 2026 Calgary Team Auction</h1>
-                    <p>Live Team Bidding & Squad Management Dashboard</p>
+            <div class="header-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; position: relative;">
+                
+                <!-- View Mode Switcher / Admin Mode Button Top Right -->
+                <div class="view-switcher" style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: #0284c7; color: #fff;">Admin Mode</button>
                 </div>
-                <!-- View Mode Switcher -->
-                <div class="view-switcher" style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; margin-right: 4px;">Admin View</button>
-                    <button onclick="switchView('captain')" id="btn-view-captain" class="btn-sm" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: transparent; color: #a7f3d0;">Captain / Projector View</button>
+
+                <!-- Centered Title and Subtitle -->
+                <div style="margin-top: 5px;">
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 6px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
+                    <p style="font-size: 1.1rem; color: #94a3b8; font-weight: 500;">Live Team Bidding & Squad Management Dashboard</p>
                 </div>
+
+                <!-- Captains' Remote Links Option Button -->
+                <div style="margin-top: 15px;">
+                    <button onclick="openRemoteLinksModal()" class="btn primary-outline" style="font-size: 0.9rem; padding: 8px 16px; cursor: pointer; background: transparent; border: 1px solid #0284c7; color: #38bdf8; border-radius: 6px; font-weight: 600;">🔗 Captains' Remote Links</button>
+                </div>
+
             </div>
         </header>
 
@@ -120,7 +170,11 @@
             <!-- Center Column: Live Auction Status Main Focus -->
             <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
                 <h2>Live Auction Status</h2>
-                <div class="player-display" style="max-width: 100%; margin: 15px 0;">
+                
+                <!-- Captain Announcement Sync -->
+                <div id="captain-sold-announcement" style="font-weight: bold; font-size: 1.15rem; min-height: 30px; margin-bottom: 10px;"></div>
+
+                <div class="player-display" style="max-width: 100%; margin: 10px 0;">
                     <div id="captain-active-cat" class="category-badge">-</div>
                     <!-- Main player name display (turns red when marked unsold) -->
                     <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
@@ -144,7 +198,56 @@
         </main>
     </div>
 
+    <!-- CAPTAINS' REMOTE LINKS MODAL -->
+    <div id="remote-links-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; border: none; font-size: 1.2rem;">Captains' Personal Remote Links</h2>
+                <button onclick="closeRemoteLinksModal()" class="btn danger" style="padding: 4px 10px; font-size: 0.8rem; background-color: #dc2626; border: none; color: white; border-radius: 4px; cursor: pointer;">✕ Close</button>
+            </div>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
+                Share each captain's unique personal link so they can view the live auction and track team budgets directly from their devices:
+            </p>
+            <div id="remote-links-list">
+                <!-- Populated via JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <!-- Application Script -->
     <script src="app.js"></script>
+    <script>
+        function openRemoteLinksModal() {
+            const modal = document.getElementById("remote-links-modal");
+            const listContainer = document.getElementById("remote-links-list");
+            if (!modal || !listContainer) return;
+
+            listContainer.innerHTML = "";
+            const baseUrl = window.location.origin + window.location.pathname;
+
+            teams.forEach((team, index) => {
+                const teamNum = index + 1;
+                const link = `${baseUrl}?view=captain&team=${teamNum}`;
+
+                const item = document.createElement("div");
+                item.className = "captain-link-item";
+                item.innerHTML = `
+                    <div>
+                        <strong style="color: #f8fafc;">${team.name} (${team.captain})</strong><br>
+                        <span>${link}</span>
+                    </div>
+                    <button class="btn primary" style="font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; background: #0284c7; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="navigator.clipboard.writeText('${link}').then(() => alert('Link copied for ${team.name}!'))">Copy Link</button>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            modal.style.display = "flex";
+        }
+
+        function closeRemoteLinksModal() {
+            const modal = document.getElementById("remote-links-modal");
+            if (modal) modal.style.display = "none";
+        }
+    </script>
 </body>
 </html>
