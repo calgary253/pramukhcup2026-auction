@@ -11,7 +11,7 @@ if (!firebase.apps.length) {
 }
 const dbRef = firebase.database().ref('auction_state');
 
-// State Management variables
+// State Management variables (Player pool starts completely empty)
 let players = [];
 let unsoldPlayers = []; 
 let currentActivePlayer = null;
@@ -22,7 +22,6 @@ let lastAuctionMessage = "";
 let lastAuctionMessageType = ""; 
 let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; 
 
-// STEP 1: Updated initialTeams with explicit squad array
 let initialTeams = [
     { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
     { name: "Yagnapurush Yodha", captain: "Jaimin Patel", points: 5000, squad: [] },
@@ -76,7 +75,7 @@ window.onload = async function() {
             
             updateUI();
         } else {
-            // If cloud state is completely empty on first load, populate default player pool
+            // If cloud state is completely empty on first load, initialize with empty player pool
             await loadInitialPlayerPool();
         }
     });
@@ -98,25 +97,13 @@ window.onload = async function() {
 };
 
 async function loadInitialPlayerPool() {
-    try {
-        let response = await fetch('players.json');
-        if (!response.ok) throw new Error("Network response failed");
-        players = await response.json();
-    } catch (error) {
-        console.warn("Could not load players.json (CORS/Missing file). Using default fallback pool:", error);
-        players = [
-            { name: "Sample Player 1", category: "1", skillLevel: "Advanced", notes: "All-rounder" },
-            { name: "Sample Player 2", category: "2", skillLevel: "Intermediate", notes: "Batsman" },
-            { name: "Sample Player 3", category: "3", skillLevel: "Beginner", notes: "Bowler" }
-        ];
-    }
-    
+    players = []; // Starts completely empty until CSV import
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
-    currentHighestBid = 50; // Initial default base bid starts at 50 points
+    currentHighestBid = 50; 
     currentLeaderText = "None";
-    lastAuctionMessage = "Auction system ready. Click 'Next Player' to begin.";
+    lastAuctionMessage = "Auction system ready. Please import a player CSV/Excel file to start.";
     lastAuctionMessageType = "info";
     
     saveStateToCloud();
@@ -124,34 +111,22 @@ async function loadInitialPlayerPool() {
 
 // Complete Auction & Player Pool Reset Feature
 async function resetEntireAuction() {
-    if (!confirm("⚠️ Are you sure you want to completely reset all teams, squads, and player pools? This will erase all history and cannot be undone!")) {
+    if (!confirm("⚠️ Are you sure you want to completely reset all teams, squads, and player pools? This will clear the player pool and all history!")) {
         return;
     }
 
-    try {
-        let response = await fetch('players.json');
-        if (!response.ok) throw new Error("Network response failed");
-        players = await response.json();
-    } catch (error) {
-        console.warn("Could not load players.json, using fallback pool:", error);
-        players = [
-            { name: "Sample Player 1", category: "1", skillLevel: "Advanced", notes: "All-rounder" },
-            { name: "Sample Player 2", category: "2", skillLevel: "Intermediate", notes: "Batsman" },
-            { name: "Sample Player 3", category: "3", skillLevel: "Beginner", notes: "Bowler" }
-        ];
-    }
-    
+    players = []; // Fully clears player pool on reset
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
     auctionHistory = [];
     currentHighestBid = 50;
     currentLeaderText = "None";
-    lastAuctionMessage = "Auction system fully reset! Click 'Next Player' to start.";
+    lastAuctionMessage = "Auction system reset! Please import your player CSV/Excel file.";
     lastAuctionMessageType = "info";
     
     saveStateToCloud();
-    alert("Auction has been successfully reset!");
+    alert("Auction has been successfully reset with an empty player pool!");
 }
 
 // Save state to Firebase Cloud (instant broadcast to all remote captains)
@@ -206,7 +181,7 @@ function switchView(mode, savePreference = true) {
 // ==========================================
 function nextPlayer() {
     if (players.length === 0) {
-        alert("No players remaining in the pool!");
+        alert("No players remaining in the pool! Please upload a CSV/Excel file containing players.");
         return;
     }
 
@@ -319,7 +294,6 @@ function finalizeBid() {
         return;
     }
 
-    // Safety check: ensure squad array exists before pushing
     if (!winningTeam.squad) {
         winningTeam.squad = [];
     }
@@ -373,7 +347,7 @@ function updateUI() {
     const announcementEl = document.getElementById('sold-announcement');
 
     if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
-    if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
+    if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
     if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
     if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
 
@@ -390,7 +364,7 @@ function updateUI() {
     const captainAnnouncement = document.getElementById('captain-sold-announcement');
 
     if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
-    if (captainActiveName) captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
+    if (captainActiveName) captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
     if (captainPlayerMeta) {
         captainPlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
     }
@@ -489,7 +463,7 @@ function renderPlayerPool() {
     poolList.innerHTML = "";
 
     if (players.length === 0 && unsoldPlayers.length === 0) {
-        poolList.innerHTML = `<li style="text-align: center; color: #64748b; padding: 20px;">Player pool is empty.</li>`;
+        poolList.innerHTML = `<li style="text-align: center; color: #64748b; padding: 20px;">Player pool is empty.<br><span style="font-size: 0.8rem;">Upload a CSV or Excel file to populate players.</span></li>`;
         return;
     }
 
