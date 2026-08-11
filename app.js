@@ -112,7 +112,7 @@ async function loadInitialPlayerPool() {
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
-    currentHighestBid = 50;
+    currentHighestBid = 50; // Initial default base bid starts at 50 points
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system ready. Click 'Next Player' to begin.";
     lastAuctionMessageType = "info";
@@ -209,7 +209,7 @@ function nextPlayer() {
     }
 
     currentActivePlayer = players.shift();
-    currentHighestBid = 50; // Base bid starts at 50 points
+    currentHighestBid = 50; // Base bid starts at 50 points for each new player
     currentLeaderText = "None";
     lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name}`;
     lastAuctionMessageType = "info";
@@ -244,28 +244,22 @@ function submitBid() {
     const amountEl = document.getElementById('bid-amount');
 
     const teamIndex = parseInt(selectEl.value);
-    
-    // Dynamic Doubling Logic:
-    // - If no one has bid yet (currentLeaderText === "None"), the first captain can bid any amount >= base 50 (e.g., 400).
-    // - Once a captain has placed a bid, subsequent bids must be double the current highest bid (e.g., if 400, next must be at least 800).
-    let requiredBid = currentLeaderText === "None" ? 50 : currentHighestBid * 2;
-    
-    let bidAmount = parseInt(amountEl.value);
-    if (isNaN(bidAmount) || bidAmount <= 0) {
-        bidAmount = requiredBid; // Default input automatically to the required amount (50 initially, or double the previous bid)
-    }
+    const bidAmount = parseInt(amountEl.value);
 
     if (isNaN(teamIndex) || teamIndex < 0 || teamIndex >= teams.length) {
         alert("Please select a valid team.");
         return;
     }
 
-    if (bidAmount < requiredBid) {
-        if (currentLeaderText === "None") {
-            alert(`Initial bid must be at least the base 50 pts.`);
-        } else {
-            alert(`Subsequent bid must be at least ${requiredBid} pts (double the current highest bid of ${currentHighestBid} pts).`);
-        }
+    if (isNaN(bidAmount) || bidAmount <= 0) {
+        alert("Please enter a valid bid amount.");
+        return;
+    }
+
+    // Accumulative Bidding Rule: Every new bid submitted must be HIGHER than the previous highest bid.
+    // The current highest bid replaces the old one and becomes the new baseline.
+    if (bidAmount <= currentHighestBid) {
+        alert(`New bid must be strictly greater than the current highest bid (${currentHighestBid} pts).`);
         return;
     }
 
@@ -300,15 +294,20 @@ function finalizeBid() {
     const bidAmount = parseInt(amountEl.value);
 
     let targetTeamIndex = teamIndex;
-    let finalSaleAmount = bidAmount;
+    let finalSaleAmount = currentHighestBid;
 
     const lastBidAction = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === currentActivePlayer.name);
     
     if (lastBidAction) {
         targetTeamIndex = lastBidAction.teamIndex;
         finalSaleAmount = lastBidAction.amount;
-    } else if (isNaN(targetTeamIndex) || isNaN(finalSaleAmount) || finalSaleAmount <= 0) {
-        alert("Please select a team and enter a valid winning bid amount before finalizing.");
+    } else if (!isNaN(bidAmount) && bidAmount > 0) {
+        targetTeamIndex = teamIndex;
+        finalSaleAmount = bidAmount;
+    }
+
+    if (isNaN(targetTeamIndex) || targetTeamIndex < 0 || targetTeamIndex >= teams.length) {
+        alert("Please select a team before finalizing.");
         return;
     }
 
@@ -648,4 +647,3 @@ function importPlayerPoolCSV(event) {
     };
     reader.readAsText(file);
 }
-
