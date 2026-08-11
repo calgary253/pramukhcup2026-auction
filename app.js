@@ -130,7 +130,7 @@ async function loadInitialPlayerPool() {
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
-    currentHighestBid = 50; 
+    currentHighestBid = 0; 
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system ready. Please import a player CSV/Excel file to start.";
     lastAuctionMessageType = "info";
@@ -149,7 +149,7 @@ async function resetEntireAuction() {
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
     auctionHistory = [];
-    currentHighestBid = 50;
+    currentHighestBid = 0;
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system reset! Please import your player CSV/Excel file.";
     lastAuctionMessageType = "info";
@@ -222,7 +222,7 @@ function nextPlayer() {
 
     currentActivePlayer = players.shift();
 
-    currentHighestBid = 50; 
+    currentHighestBid = 0; 
     currentLeaderText = "None";
     lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name} (Cat: ${getCategoryLetter(currentActivePlayer.category)})`;
     lastAuctionMessageType = "info";
@@ -247,7 +247,7 @@ function markAsUnsold() {
     lastAuctionMessageType = "warning";
 
     currentActivePlayer = null;
-    currentHighestBid = 50;
+    currentHighestBid = 0;
     currentLeaderText = "None";
 
     saveStateToCloud();
@@ -355,7 +355,7 @@ function finalizeBid() {
     lastAuctionMessageType = "success";
 
     currentActivePlayer = null;
-    currentHighestBid = 50;
+    currentHighestBid = 0;
     currentLeaderText = "None";
 
     saveStateToCloud();
@@ -375,7 +375,7 @@ function undoLastBid() {
             currentHighestBid = previousBid.amount;
             currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
         } else {
-            currentHighestBid = 50;
+            currentHighestBid = 0;
             currentLeaderText = "None";
         }
         lastAuctionMessage = "Last bid undone.";
@@ -393,7 +393,7 @@ function undoLastBid() {
         
         players.unshift(lastAction.player);
         currentActivePlayer = null; 
-        currentHighestBid = 50;
+        currentHighestBid = 0;
         currentLeaderText = "None";
         
         lastAuctionMessage = `Undo: ${lastAction.player.name} returned to the pool.`;
@@ -407,7 +407,7 @@ function undoLastBid() {
         
         players.unshift(lastAction.player);
         currentActivePlayer = null; 
-        currentHighestBid = 50;
+        currentHighestBid = 0;
         currentLeaderText = "None";
         
         lastAuctionMessage = `Undo: ${lastAction.player.name} returned to the pool from unsold.`;
@@ -552,6 +552,7 @@ function renderCaptainTeamsGrid() {
         card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
+        // Updated: Removed purchasePrice from the captain's view team squad chips
         let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 5px 9px; border-radius: 6px; font-size: 0.9rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name}</span>`).join('');
 
         card.innerHTML = `
@@ -692,7 +693,7 @@ function importAuctionState(event) {
             teams = imported.teams || teams;
             currentActivePlayer = imported.currentActivePlayer || null;
             auctionHistory = imported.auctionHistory || [];
-            currentHighestBid = imported.currentHighestBid || 50;
+            currentHighestBid = imported.currentHighestBid || 0;
             currentLeaderText = imported.currentLeaderText || "None";
             saveStateToCloud();
             alert("Auction state successfully restored from backup!");
@@ -759,7 +760,7 @@ function processImportedRows(rows) {
         players = randomizePlayerPool(rawPlayers);
         unsoldPlayers = [];
         currentActivePlayer = null;
-        currentHighestBid = 50;
+        currentHighestBid = 0;
         currentLeaderText = "None";
         auctionHistory = [];
         saveStateToCloud();
