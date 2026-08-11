@@ -22,6 +22,7 @@ let lastAuctionMessage = "";
 let lastAuctionMessageType = ""; 
 let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; 
 
+// STEP 1: Updated initialTeams with explicit squad array
 let initialTeams = [
     { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
     { name: "Yagnapurush Yodha", captain: "Jaimin Patel", points: 5000, squad: [] },
@@ -305,6 +306,11 @@ function finalizeBid() {
         return;
     }
 
+    // STEP 2: Safety check to ensure squad array exists before pushing
+    if (!winningTeam.squad) {
+        winningTeam.squad = [];
+    }
+
     winningTeam.points -= finalSaleAmount;
     winningTeam.squad.push({
         ...currentActivePlayer,
@@ -543,7 +549,7 @@ function openRemoteLinksModal() {
 function downloadSquadCSV() {
     let csvContent = "data:text/csv;charset=utf-8,Team Name,Captain,Remaining Points,Player Name,Category,Purchase Price\n";
     teams.forEach(team => {
-        if (team.squad.length === 0) {
+        if (!team.squad || team.squad.length === 0) {
             csvContent += `"${team.name}","${team.captain}",${team.points},,,\n`;
         } else {
             team.squad.forEach(p => {
