@@ -10,6 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
+    <!-- SheetJS (XLSX) Library for Excel and CSV Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         /* Custom modal and dropdown enhancements */
         .modal {
@@ -137,7 +140,7 @@
                     <!-- Emergency Backup, Reset & Player Pool Upload Controls -->
                     <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
                         <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
-                            📂 Upload Player Pool CSV <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolCSV(event)" accept=".csv" style="display: none;">
+                            📂 Upload Player Pool File <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolFile(event)" accept=".csv, .xlsx, .xls" style="display: none;">
                         </label>
                         <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
                         <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
