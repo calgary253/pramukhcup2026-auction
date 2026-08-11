@@ -85,6 +85,26 @@ window.onload = async function() {
             saveStateToStorage();
         }
         
+        // Check for URL parameters (?view=captain&team=X)
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = urlParams.get('view');
+        const teamParam = urlParams.get('team');
+
+        if (viewParam === 'captain') {
+            currentViewMode = 'captain';
+        }
+
+        if (teamParam) {
+            const badge = document.getElementById("remote-captain-badge");
+            if (badge) {
+                badge.style.display = "block";
+                const matchedTeam = teams.find((t, index) => (index + 1).toString() === teamParam || t.name.toLowerCase().includes(teamParam.toLowerCase()));
+                if (matchedTeam) {
+                    badge.innerText = `Remote View: ${matchedTeam.name} (${matchedTeam.captain})`;
+                }
+            }
+        }
+        
         switchView(currentViewMode, false);
         updateUI();
     } catch (error) {
@@ -149,6 +169,97 @@ function switchView(mode, savePreference = true) {
         }
     }
     updateUI();
+}
+
+function openRemoteLinkModal() {
+    const modal = document.getElementById("remote-links-modal");
+    const container = document.getElementById("remote-links-container");
+    if (!modal || !container) return;
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    container.innerHTML = "";
+
+    teams.forEach((team, index) => {
+        const teamNum = index + 1;
+        const link = `${baseUrl}?view=captain&team=${teamNum}`;
+
+        let item = document.createElement("div");
+        item.style.cssText = "background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
+        item.innerHTML = `
+            <div style="overflow: hidden;">
+                <strong style="color: #34d399; display: block; margin-bottom: 2px;">${team.name} (${team.captain})</strong>
+                <span style="font-size: 0.8em; color: #94a3b8; word-break: break-all;">${link}</span>
+            </div>
+            <button onclick="navigator.clipboard.writeText('${link}'); alert('Link copied for ${team.name}!');" class="btn-sm" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap;">Copy Link</button>
+        `;
+        container.appendChild(item);
+    });
+
+    modal.style.display = "flex";
+}
+
+function closeRemoteLinkModal() {
+    const modal = document.getElementById("remote-links-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function importPlayerPoolCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split("\n");
+        let newPlayers = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+            
+            // Basic CSV parsing handling potential quotes
+            let row = [];
+            let inQuotes = false;
+            let currentVal = "";
+            for (let char of line) {
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    row.push(currentVal.trim());
+                    currentVal = "";
+                } else {
+                    currentVal += char;
+                }
+            }
+            row.push(currentVal.trim());
+
+            if (row.length >= 2) {
+                newPlayers.push({
+                    name: row[0].replace(/^["']|["']$/g, ''),
+                    category: row[1].replace(/^["']|["']$/g, ''),
+                    skill: row[2] ? row[2].replace(/^["']|["']$/g, '') : '',
+                    notes: row[3] ? row[3].replace(/^["']|["']$/g, '') : ''
+                });
+            }
+        }
+
+        if (newPlayers.length > 0) {
+            players = newPlayers;
+            unsoldPlayers = [];
+            currentActivePlayer = null;
+            auctionHistory = [];
+            currentHighestBid = 50;
+            currentLeaderText = "No bids yet";
+            lastAuctionMessage = "📂 Player pool successfully imported from CSV!";
+            lastAuctionMessageType = "success";
+            saveStateToStorage();
+            updateUI();
+            alert(`Successfully loaded ${newPlayers.length} players from CSV!`);
+        } else {
+            alert("Could not parse valid player records from the CSV file.");
+        }
+    };
+    reader.readAsText(file);
 }
 
 function downloadAuctionBackup() {
@@ -219,7 +330,7 @@ function renderAnnouncements() {
         if (!el) return;
         el.innerText = lastAuctionMessage;
         if (lastAuctionMessageType === "danger") {
-            el.style.color = "#f87171";
+            el.style.color = "#ef4444";
         } else if (lastAuctionMessageType === "success") {
             el.style.color = "#34d399";
         } else {
@@ -232,20 +343,25 @@ function renderActivePlayer() {
     const nameEl = document.getElementById("active-player-name");
     const catEl = document.getElementById("active-player-cat");
     const bidDisplayEl = document.getElementById("current-bid-display");
+    const leadingEl = document.getElementById("leading-bidder-display");
     
     if (!nameEl || !catEl) return;
 
     if (!currentActivePlayer) {
         nameEl.innerText = "Select 'Next Player' to begin";
         catEl.innerText = "-";
-        if (bidDisplayEl) bidDisplayEl.innerHTML = "<strong>0</strong>";
+        if (bidDisplayEl) bidDisplayEl.innerHTML = "Current Highest Bid: <strong>50 pts</strong> (No bids yet)";
+        if (leadingEl) leadingEl.innerText = "Leading Team: None";
         return;
     }
 
     nameEl.innerText = currentActivePlayer.name;
     catEl.innerText = getCategoryLetter(currentActivePlayer.category);
     if (bidDisplayEl) {
-        bidDisplayEl.innerHTML = `<strong>Current Bid: ${currentHighestBid} pts</strong> <span style="font-size: 0.6em; display: block; color: var(--text-muted); font-weight: normal;">Leading: ${currentLeaderText}</span>`;
+        bidDisplayEl.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
+    }
+    if (leadingEl) {
+        leadingEl.innerText = `Leading Team: ${currentLeaderText}`;
     }
 }
 
@@ -253,19 +369,47 @@ function renderCaptainView() {
     const capNameEl = document.getElementById("captain-active-name");
     const capCatEl = document.getElementById("captain-active-cat");
     const capBidEl = document.getElementById("captain-active-bid");
+    const capLeadingEl = document.getElementById("captain-leading-display");
+    const capMetaEl = document.getElementById("captain-player-meta");
     const leftContainer = document.getElementById("captain-teams-left");
     const rightContainer = document.getElementById("captain-teams-right");
 
     if (!capNameEl || !capCatEl || !capBidEl) return;
 
     if (!currentActivePlayer) {
-        capNameEl.innerText = lastAuctionMessage ? lastAuctionMessage : "Waiting for next player...";
-        capCatEl.innerText = "-";
-        capBidEl.innerHTML = "Status: Standby | <strong>Current Bid: 0 pts</strong>";
+        if (lastAuctionMessageType === "danger" && lastAuctionMessage) {
+            capNameEl.innerText = lastAuctionMessage;
+            capNameEl.style.color = "#ef4444";
+            capCatEl.innerText = "-";
+            if (capMetaEl) capMetaEl.innerText = "";
+            if (capBidEl) capBidEl.innerHTML = "";
+            if (capLeadingEl) capLeadingEl.innerHTML = "";
+        } else {
+            capNameEl.innerText = "Waiting for next player...";
+            capNameEl.style.color = "#34d399";
+            capCatEl.innerText = "-";
+            if (capMetaEl) capMetaEl.innerText = "";
+            if (capBidEl) capBidEl.innerHTML = "Current Bidding Level / Status: Active";
+            if (capLeadingEl) capLeadingEl.innerHTML = "Leading Team: None";
+        }
     } else {
         capNameEl.innerText = currentActivePlayer.name;
+        capNameEl.style.color = "#ef4444";
         capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
-        capBidEl.innerHTML = `<strong>Current Bid: ${currentHighestBid} pts</strong> <span style="font-size: 0.85em; color: var(--text-muted); display: block;">Leading: ${currentLeaderText}</span>`;
+        
+        if (capMetaEl) {
+            let metaText = "";
+            if (currentActivePlayer.skill) metaText += `Skill: ${currentActivePlayer.skill}`;
+            if (currentActivePlayer.notes) metaText += (metaText ? " | " : "") + `Notes: ${currentActivePlayer.notes}`;
+            capMetaEl.innerText = metaText;
+        }
+
+        if (capBidEl) {
+            capBidEl.innerHTML = `Current Bidding Level / Status: Active (Highest Bid: ${currentHighestBid} pts)`;
+        }
+        if (capLeadingEl) {
+            capLeadingEl.innerHTML = `Leading Team: ${currentLeaderText}`;
+        }
     }
 
     if (leftContainer) {
@@ -348,7 +492,7 @@ function nextPlayer() {
 
     currentActivePlayer = players.shift(); 
     currentHighestBid = 50; // Reset starting bid amount for new player
-    currentLeaderText = "No bids yet";
+    currentLeaderText = "None";
     lastAuctionMessage = "";
     lastAuctionMessageType = "";
 
@@ -382,7 +526,7 @@ function markAsUnsold() {
 
     currentActivePlayer = null;
     currentHighestBid = 50;
-    currentLeaderText = "No bids yet";
+    currentLeaderText = "None";
     saveStateToStorage();
     updateUI();
 }
@@ -418,7 +562,6 @@ function submitBid() {
     const picksRemainingToBuy = totalAuctionPicksNeeded - team.squad.length;
     const mandatoryReserveForOthers = (picksRemainingToBuy - 1) * 50;
     
-    // Sum the incremental bid into the current cumulative bidding total
     const newTotalBid = currentHighestBid + bidRaiseAmount;
     const maxAllowedBid = team.points - mandatoryReserveForOthers;
 
@@ -432,9 +575,8 @@ function submitBid() {
         return;
     }
 
-    // Update cumulative highest bid level and leading bidder text
     currentHighestBid = newTotalBid;
-    currentLeaderText = `${team.name} (${team.captain}) [Total: ${currentHighestBid} pts]`;
+    currentLeaderText = `${team.name} (${team.captain})`;
 
     lastAuctionMessage = `📈 ${team.name} raised bid by +${bidRaiseAmount} pts! Total: ${currentHighestBid} pts`;
     lastAuctionMessageType = "";
@@ -449,8 +591,7 @@ function finalizeBid() {
         return;
     }
 
-    // Check if any team has actually taken the lead
-    if (currentLeaderText === "No bids yet" || currentHighestBid <= 50) {
+    if (currentLeaderText === "None" || currentHighestBid < 50) {
         const confirmBase = confirm("No bids have been raised above the base. Would you like to mark this player as UNSOLD instead?");
         if (confirmBase) {
             markAsUnsold();
@@ -458,8 +599,6 @@ function finalizeBid() {
         return;
     }
 
-    // Find the winning team based on currentLeaderText string matching or prompt admin to select the winner if needed
-    // We can evaluate which team name is inside currentLeaderText
     let winningTeam = teams.find(t => currentLeaderText.includes(t.name));
     if (!winningTeam) {
         alert("Could not automatically determine winning team from leader text. Please check or use standard bidding.");
@@ -487,7 +626,7 @@ function finalizeBid() {
 
     currentActivePlayer = null;
     currentHighestBid = 50;
-    currentLeaderText = "No bids yet";
+    currentLeaderText = "None";
     saveStateToStorage();
     updateUI();
 }
@@ -504,7 +643,7 @@ function undoLastBid() {
     players = previousState.players;
     unsoldPlayers = previousState.unsoldPlayers || [];
     currentHighestBid = previousState.currentHighestBid !== undefined ? previousState.currentHighestBid : 50;
-    currentLeaderText = previousState.currentLeaderText || "No bids yet";
+    currentLeaderText = previousState.currentLeaderText || "None";
     lastAuctionMessage = previousState.lastAuctionMessage !== undefined ? previousState.lastAuctionMessage : "↩️ Last action undone.";
     lastAuctionMessageType = previousState.lastAuctionMessageType || "";
 
