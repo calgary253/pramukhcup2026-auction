@@ -346,17 +346,38 @@ function undoLastBid() {
     }
 
     const lastAction = auctionHistory.pop();
+
     if (lastAction.type === 'bid') {
+        // Find the team that won or was winning this player
+        const targetTeam = teams[lastAction.teamIndex];
+
+        // Check if this player was actually added to the team's squad (in case it was a finalization)
+        if (targetTeam && targetTeam.squad) {
+            const playerIndex = targetTeam.squad.findIndex(p => p.name === lastAction.player.name);
+            if (playerIndex !== -1) {
+                // Refund points and remove player from squad
+                targetTeam.points += lastAction.amount;
+                targetTeam.squad.splice(playerIndex, 1);
+            }
+        }
+
+        // Find the previous highest bid for the active player to reset the state
         const previousBid = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === lastAction.player.name);
+        
         if (previousBid) {
             currentHighestBid = previousBid.amount;
             currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
+            currentActivePlayer = lastAction.player; // Ensure active player is restored if it was closed out
         } else {
             currentHighestBid = 50;
             currentLeaderText = "None";
+            currentActivePlayer = lastAction.player;
         }
-        lastAuctionMessage = "Last bid undone.";
+
+        lastAuctionMessage = `Undid last action for ${lastAction.player.name}.`;
         lastAuctionMessageType = "info";
+        
+        // Broadcast the corrected state immediately to Firebase so captains update instantly
         saveStateToCloud();
     }
 }
