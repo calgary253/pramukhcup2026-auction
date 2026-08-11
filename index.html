@@ -59,6 +59,11 @@
         body.captain-view-mode .view-switcher {
             display: none !important;
         }
+
+        /* Hides the Captains' Remote Links option container specifically when in Captain/Projector View */
+        body.captain-view-mode .remote-links-container {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -80,8 +85,8 @@
                     <p style="font-size: 1.1rem; color: #94a3b8; font-weight: 500;">Live Team Bidding & Squad Management Dashboard</p>
                 </div>
 
-                <!-- Captains' Remote Links Option Button -->
-                <div style="margin-top: 15px;">
+                <!-- Captains' Remote Links Option Button (Wrapped with class to hide in captain view) -->
+                <div class="remote-links-container" style="margin-top: 15px;">
                     <button onclick="openRemoteLinksModal()" class="btn primary-outline" style="font-size: 0.9rem; padding: 8px 16px; cursor: pointer; background: transparent; border: 1px solid #0284c7; color: #38bdf8; border-radius: 6px; font-weight: 600;">🔗 Captains' Remote Links</button>
                 </div>
 
