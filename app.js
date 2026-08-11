@@ -633,38 +633,72 @@ function importAuctionState(event) {
     reader.readAsText(file);
 }
 
-function importPlayerPoolCSV(event) {
+function importPlayerPoolFile(event) {
     const file = event.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.split('\n');
-        let newPlayers = [];
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            const cols = line.split(',');
-            if (cols.length >= 2) {
-                newPlayers.push({
-                    name: cols[0].replace(/^"|"$/g, '').trim(),
-                    category: cols[1].replace(/^"|"$/g, '').trim(),
-                    skillLevel: cols[2] ? cols[2].replace(/^"|"$/g, '').trim() : '',
-                    notes: cols[3] ? cols[3].replace(/^"|"$/g, '').trim() : ''
-                });
+    const fileName = file.name.toLowerCase();
+
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        // Handle Excel files using SheetJS
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Read the first worksheet
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Convert worksheet to JSON rows (array of arrays)
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                processImportedRows(rows);
+            } catch (err) {
+                console.error("Excel parse error:", err);
+                alert("Invalid Excel file format.");
             }
-        }
-        if (newPlayers.length > 0) {
-            players = newPlayers;
-            unsoldPlayers = [];
-            currentActivePlayer = null;
-            currentHighestBid = 50;
-            currentLeaderText = "None";
-            saveStateToCloud();
-            alert(`Successfully loaded ${newPlayers.length} players into pool!`);
-        } else {
-            alert("No valid players found in CSV.");
-        }
-    };
+        };
+        reader.readAsArrayBuffer(file);
+    } else {
+        // Handle CSV files
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const lines = text.split('\n');
+            let rows = lines.map(line => line.split(',').map(col => col.replace(/^"|"$/g, '').trim()));
+            processImportedRows(rows);
+        };
+        reader.readAsText(file);
+    }
+}
+
+// Helper function to map rows into player objects consistently
+function processImportedRows(rows) {
+    let newPlayers = [];
+    // Assuming row 0 is headers, start looping from index 1
+    for (let i = 1; i < rows.length; i++) {
+        const cols = rows[i];
+        if (!cols || cols.length === 0 || !cols[0]) continue;
+        
+        newPlayers.push({
+            name: String(cols[0] || '').trim(),
+            category: String(cols[1] || '1').trim(),
+            skillLevel: String(cols[2] || '').trim(),
+            notes: String(cols[3] || '').trim()
+        });
+    }
+
+    if (newPlayers.length > 0) {
+        players = newPlayers;
+        unsoldPlayers = [];
+        currentActivePlayer = null;
+        currentHighestBid = 50;
+        currentLeaderText = "None";
+        saveStateToCloud();
+        alert(`Successfully loaded ${newPlayers.length} players into the pool!`);
+    } else {
+        alert("No valid players found in the file.");
+    }
+}
     reader.readAsText(file);
 }
