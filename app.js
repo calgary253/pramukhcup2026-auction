@@ -534,8 +534,11 @@ function renderPlayerPool() {
             li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
             li.style.opacity = '0.7';
             li.innerHTML = `
-                <strong style="color: #fca5a5; font-size: 0.85rem;">${p.name}</strong> 
-                <span style="font-size: 0.75rem; color: #94a3b8;">(${getCategoryLetter(p.category)})</span>
+                <div>
+                    <strong style="color: #fca5a5; font-size: 0.85rem;">${p.name}</strong> 
+                    <span style="font-size: 0.75rem; color: #94a3b8;">(${getCategoryLetter(p.category)})</span>
+                    <div style="font-size: 0.7rem; color: #94a3b8;">Skill Level: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
+                </div>
             `;
             poolList.appendChild(li);
         });
