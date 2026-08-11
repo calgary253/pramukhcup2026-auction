@@ -59,10 +59,10 @@ window.onload = async function() {
     // Listen to real-time changes from Firebase Cloud Database
     dbRef.on('value', (snapshot) => {
         const cloudState = snapshot.val();
-        if (cloudState && (cloudState.players || cloudState.teams)) {
+        if (cloudState && cloudState.teams && cloudState.teams.length > 0) {
             players = cloudState.players || [];
             unsoldPlayers = cloudState.unsoldPlayers || [];
-            teams = cloudState.teams || JSON.parse(JSON.stringify(initialTeams));
+            teams = cloudState.teams;
             currentActivePlayer = cloudState.currentActivePlayer || null;
             auctionHistory = cloudState.auctionHistory || [];
             currentHighestBid = cloudState.currentHighestBid !== undefined ? cloudState.currentHighestBid : 0;
@@ -72,7 +72,7 @@ window.onload = async function() {
             
             updateUI();
         } else {
-            // Seed default data so it never disappears on load
+            // Only seed if cloud data is completely uninitialized
             loadInitialPlayerPool();
         }
     });
@@ -96,10 +96,10 @@ window.onload = async function() {
 async function loadInitialPlayerPool() {
     try {
         let response = await fetch('players.json');
-        if (!response.ok) throw new Error("Network response was not ok");
+        if (!response.ok) throw new Error("Network response failed");
         players = await response.json();
     } catch (error) {
-        console.warn("Could not load players.json (likely due to local CORS restrictions). Using built-in sample pool:", error);
+        console.warn("Could not load players.json (CORS/Missing file). Using default fallback pool:", error);
         players = [
             { name: "Sample Player 1", category: "1", skillLevel: "Advanced", notes: "All-rounder" },
             { name: "Sample Player 2", category: "2", skillLevel: "Intermediate", notes: "Batsman" },
@@ -111,8 +111,9 @@ async function loadInitialPlayerPool() {
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentHighestBid = 0;
     currentLeaderText = "None";
-    lastAuctionMessage = "Player pool initialized successfully";
+    lastAuctionMessage = "Auction system ready";
     lastAuctionMessageType = "info";
+    
     saveStateToCloud();
 }
 
