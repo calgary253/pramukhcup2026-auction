@@ -82,7 +82,6 @@ window.onload = async function() {
         const badge = document.getElementById("remote-captain-badge");
         if (badge) {
             badge.style.display = "block";
-            // Wait a brief moment for data to sync, then highlight team
             setTimeout(() => {
                 const matchedTeam = teams.find(t => getTeamSlug(t.name) === teamParam || t.name.toLowerCase().includes(teamParam.toLowerCase()));
                 if (matchedTeam) {
@@ -244,7 +243,6 @@ function finalizeBid() {
         return;
     }
 
-    // Find winning team from history or highest bid state
     const lastBidAction = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === currentActivePlayer.name);
     if (!lastBidAction) {
         alert("No valid winning bid found.");
@@ -294,7 +292,6 @@ function undoLastBid() {
 // UI RENDERING ENGINE
 // ==========================================
 function updateUI() {
-    // 1. Render Admin Active Player Section
     const activeCatEl = document.getElementById('active-player-cat');
     const activeNameEl = document.getElementById('active-player-name');
     const currentBidDisplay = document.getElementById('current-bid-display');
@@ -311,7 +308,6 @@ function updateUI() {
         announcementEl.className = `sold-announcement ${lastAuctionMessageType}`;
     }
 
-    // 2. Render Captain / Projector View Section
     const captainActiveCat = document.getElementById('captain-active-cat');
     const captainActiveName = document.getElementById('captain-active-name');
     const captainPlayerMeta = document.getElementById('captain-player-meta');
@@ -328,7 +324,6 @@ function updateUI() {
     if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     if (captainAnnouncement) captainAnnouncement.innerText = lastAuctionMessage;
 
-    // 3. Render Dropdown Options for Bidding Panel
     const bidderSelect = document.getElementById('bidder-select');
     if (bidderSelect) {
         const currentSelectedVal = bidderSelect.value;
@@ -342,11 +337,8 @@ function updateUI() {
         if (currentSelectedVal) bidderSelect.value = currentSelectedVal;
     }
 
-    // 4. Render Team Cards (Admin Overview & Standings)
     renderTeamsContainer();
     renderCaptainTeamsGrid();
-
-    // 5. Render Remaining Player Pool
     renderPlayerPool();
 }
 
@@ -463,7 +455,36 @@ function renderPlayerPool() {
     }
 }
 
-// Backup & CSV Export Helpers
+// ==========================================
+// MODAL & BACKUP / EXPORT HELPERS
+// ==========================================
+function openRemoteLinksModal() {
+    const modal = document.getElementById("remote-links-modal");
+    const listContainer = document.getElementById("remote-links-list");
+    if (!modal || !listContainer) return;
+
+    listContainer.innerHTML = "";
+    const baseUrl = window.location.origin + window.location.pathname;
+
+    teams.forEach(team => {
+        const slug = getTeamSlug(team.name);
+        const captainUrl = `${baseUrl}?view=captain&team=${slug}`;
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'captain-link-item';
+        itemDiv.innerHTML = `
+            <div>
+                <strong style="color: #f8fafc; display: block; font-size: 0.9rem;">${team.name} (${team.captain})</strong>
+                <span>${captainUrl}</span>
+            </div>
+            <button onclick="navigator.clipboard.writeText('${captainUrl}'); alert('Copied link for ${team.name}!');" class="btn primary-outline" style="padding: 6px 10px; font-size: 0.75rem; white-space: nowrap; cursor: pointer; background: #0284c7; color: white; border: none; border-radius: 4px;">Copy Link</button>
+        `;
+        listContainer.appendChild(itemDiv);
+    });
+
+    modal.style.display = "flex";
+}
+
 function downloadSquadCSV() {
     let csvContent = "data:text/csv;charset=utf-8,Team Name,Captain,Remaining Points,Player Name,Category,Purchase Price\n";
     teams.forEach(team => {
@@ -482,4 +503,74 @@ function downloadSquadCSV() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+function downloadAuctionBackup() {
+    const state = { players, unsoldPlayers, teams, currentActivePlayer, auctionHistory, currentHighestBid, currentLeaderText };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", "auction_state_backup.json");
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+}
+
+function importAuctionState(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            players = imported.players || [];
+            unsoldPlayers = imported.unsoldPlayers || [];
+            teams = imported.teams || teams;
+            currentActivePlayer = imported.currentActivePlayer || null;
+            auctionHistory = imported.auctionHistory || [];
+            currentHighestBid = imported.currentHighestBid || 0;
+            currentLeaderText = imported.currentLeaderText || "None";
+            saveStateToCloud();
+            alert("Auction state successfully restored from backup!");
+        } catch (err) {
+            alert("Invalid JSON backup file.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function importPlayerPoolCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        let newPlayers = [];
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const cols = line.split(',');
+            if (cols.length >= 2) {
+                newPlayers.push({
+                    name: cols[0].replace(/^"|"$/g, '').trim(),
+                    category: cols[1].replace(/^"|"$/g, '').trim(),
+                    skillLevel: cols[2] ? cols[2].replace(/^"|"$/g, '').trim() : '',
+                    notes: cols[3] ? cols[3].replace(/^"|"$/g, '').trim() : ''
+                });
+            }
+        }
+        if (newPlayers.length > 0) {
+            players = newPlayers;
+            unsoldPlayers = [];
+            currentActivePlayer = null;
+            currentHighestBid = 0;
+            currentLeaderText = "None";
+            saveStateToCloud();
+            alert(`Successfully loaded ${newPlayers.length} players into pool!`);
+        } else {
+            alert("No valid players found in CSV.");
+        }
+    };
+    reader.readAsText(file);
 }
