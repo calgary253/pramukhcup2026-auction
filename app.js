@@ -32,12 +32,12 @@ let lastAuctionMessageType = ""; // "success", "danger", etc.
 let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; // Persist view mode across refreshes
 
 let initialTeams = [
-    { name: "Team 1", captain: "Pavan Patel", points: 5000, squad: [] },
-    { name: "Team 2", captain: "Jaimin Patel", points: 5000, squad: [] },
-    { name: "Team 3", captain: "Meet Patel", points: 5000, squad: [] },
-    { name: "Team 4", captain: "Saral Patel", points: 5000, squad: [] },
+    { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
+    { name: "Yagnapurush Yodha", captain: "Jaimin Patel", points: 5000, squad: [] },
+    { name: "Varni Warriors", captain: "Meet Patel", points: 5000, squad: [] },
+    { name: "Gunatit Challengers", captain: "Saral Patel", points: 5000, squad: [] },
     { name: "Team 5", captain: "Chintal Patel", points: 5000, squad: [] },
-    { name: "Team 6", captain: "Nikunj Patel", points: 5000, squad: [] },
+    { name: "Sahjanand Strikers", captain: "Nikunj Patel", points: 5000, squad: [] },
     { name: "Team 7", captain: "Vivek Patel", points: 5000, squad: [] },
     { name: "Team 8", captain: "Smit Patel", points: 5000, squad: [] }
 ];
