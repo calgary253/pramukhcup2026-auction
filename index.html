@@ -4,475 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pramukh Cup - 2026 Calgary Team Auction</title>
-    <style>
-        :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --bg-hover: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary: #0284c7;
-            --primary-hover: #0369a1;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --border: #334155;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            margin-bottom: 20px;
-            background: var(--bg-card);
-            padding: 20px 25px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            position: relative;
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            color: var(--text-main);
-            margin-bottom: 5px;
-        }
-
-        header h1 span {
-            color: var(--success);
-        }
-
-        .header-subtitle {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .view-controls {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-success { background: var(--success); }
-        .btn-success:hover { background: #059669; }
-
-        .btn-danger { background: var(--danger); }
-        .btn-danger:hover { background: #dc2626; }
-
-        .btn-warning { background: var(--warning); color: #000; }
-        .btn-warning:hover { background: #d97706; }
-
-        /* Remote Captain Badge */
-        #remote-captain-badge {
-            display: none;
-            background: rgba(2, 132, 199, 0.2);
-            border: 1px solid var(--primary);
-            color: #38bdf8;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        /* Admin Grid Layout */
-        #admin-view-container {
-            display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            gap: 20px;
-            max-width: 1700px;
-            margin: 0 auto;
-        }
-
-        /* Captain Grid Layout */
-        #captain-view-container {
-            display: none;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
-        }
-
-        /* Active Player Section */
-        .active-player-box {
-            text-align: center;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 2px solid var(--primary);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .active-player-box h3 {
-            font-size: 2.2rem;
-            color: var(--success);
-            margin-bottom: 5px;
-        }
-
-        .category-badge {
-            display: inline-block;
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .bid-info {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-        }
-
-        .bid-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .bid-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        select, input {
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 1rem;
-            width: 100%;
-        }
-
-        /* Player Pool List */
-        .player-pool-list {
-            list-style: none;
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .player-pool-list li {
-            padding: 8px 10px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-        }
-
-        /* Teams Grid */
-        .teams-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .team-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .team-card h3 {
-            font-size: 1rem;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .points-display {
-            font-size: 0.9rem;
-            color: var(--success);
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .squad-progress {
-            background: var(--border);
-            border-radius: 4px;
-            height: 6px;
-            width: 100%;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .squad-progress-bar {
-            background: var(--success);
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .purchased-players {
-            font-size: 0.85rem;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .captain-link-item {
-            background: var(--bg-main);
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .captain-link-item span {
-            font-size: 0.9rem;
-            word-break: break-all;
-        }
-
-        /* Responsive */
-        @media(max-width: 1200px) {
-            #admin-view-container {
-                grid-template-columns: 1fr;
-            }
-            .view-controls {
-                position: static;
-                margin-top: 10px;
-            }
-        }
-    </style>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <div class="view-controls">
-            <div id="remote-captain-badge">Captain View</div>
-            <button onclick="switchView('admin')" class="btn" id="admin-mode-btn">Admin Mode</button>
-        </div>
-        <h1>Pramukh Cup - 2026 Calgary Team Auction</h1>
-        <div class="header-subtitle">Live Team Bidding & Squad Management Dashboard</div>
-        <div class="header-controls">
-            <button onclick="openRemoteLinksModal()" class="btn" style="font-size: 0.85rem;">🔗 Captains' Remote Links</button>
-        </div>
-    </header>
-
-    <!-- ADMIN VIEW CONTAINER -->
-    <div id="admin-view-container">
-        
-        <!-- Left Sidebar: Player Pool & Controls -->
-        <div class="card">
-            <h2>Player Pool Management</h2>
-            <div style="margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
-                <button onclick="nextPlayer()" class="btn btn-success" style="flex: 1;">Next Player</button>
-                <button onclick="markAsUnsold()" class="btn btn-danger">Mark Unsold</button>
+    <!-- Header aligned to match layout width and center -->
+    <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center;">
+        <header class="dashboard-header" style="width: 100%; box-sizing: border-box;">
+            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1>Pramukh Cup - 2026 Calgary Team Auction</h1>
+                    <p>Live Team Bidding & Squad Management Dashboard</p>
+                </div>
+                <!-- View Mode Switcher -->
+                <div class="view-switcher" style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; margin-right: 4px;">Admin View</button>
+                    <button onclick="switchView('captain')" id="btn-view-captain" class="btn-sm" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: transparent; color: #a7f3d0;">Captain / Projector View</button>
+                </div>
             </div>
-            <div style="margin-bottom: 15px; display: flex; gap: 8px;">
-                <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="importPlayerPoolCSV(event)">
-                <button onclick="document.getElementById('csv-file-input').click()" class="btn" style="flex: 1; font-size: 0.85rem;">Import Pool CSV</button>
-                <button onclick="downloadAuctionBackup()" class="btn btn-warning" style="font-size: 0.85rem;" title="Download State Backup">Backup</button>
-            </div>
-            <ul id="player-pool-list" class="player-pool-list">
-                <!-- Populated via JavaScript -->
-            </ul>
-        </div>
+        </header>
 
-        <!-- Center Stage: Live Auction Desk -->
-        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h2>Live Bidding Floor</h2>
-                <div class="active-player-box">
-                    <span id="active-player-cat" class="category-badge">-</span>
-                    <h3 id="active-player-name">Select 'Next Player' to begin</h3>
-                    <div id="captain-player-meta" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;"></div>
-                    <div class="bid-info" style="margin-top: 15px;">
-                        <span id="current-bid-display">Current Highest Bid: <strong>0 pts</strong> (No bids yet)</span><br>
-                        <span id="leading-bidder-display" style="font-size: 0.95rem; color: var(--success);">Leading Team: None</span>
+        <!-- ADMIN VIEW CONTAINER -->
+        <main id="admin-view-container" class="auction-grid-3col" style="width: 100%;">
+            <!-- Column 1: Active Player & Bidding Controls -->
+            <section class="card current-player-section">
+                <div class="card-header">
+                    <h2>Active Player</h2>
+                </div>
+                
+                <div class="player-display">
+                    <div id="active-player-cat" class="category-badge">-</div>
+                    <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
+                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;" id="current-bid-display">
+                        Current Highest Bid: <strong>50 pts</strong> (No bids yet)
+                    </div>
+                    <!-- Leading Bidder / Team Status Info Message -->
+                    <div id="leading-bidder-display" style="font-size: 0.95em; color: #60a5fa; font-weight: 500; margin-top: 6px;">
+                        Leading Team: None
                     </div>
                 </div>
 
-                <!-- Bidding Operations -->
-                <div class="card" style="background: rgba(255,255,255,0.02);">
-                    <h2>Live Bid Console</h2>
-                    <div class="bid-controls">
-                        <select id="bidder-select">
-                            <!-- Populated via JavaScript -->
-                        </select>
-                        <div class="bid-row">
-                            <input type="number" id="bid-amount" placeholder="Raise Amount (e.g. 50)" value="50">
-                            <button onclick="submitBid()" class="btn btn-success">Raise Bid</button>
+                <!-- On-Screen Sale & Status Announcement Messages -->
+                <div id="sold-announcement" class="sold-announcement"></div>
+
+                <div class="controls" style="display: flex; gap: 8px;">
+                    <button onclick="nextPlayer()" class="btn primary" style="flex: 1;">Next Player ➔</button>
+                    <button onclick="markAsUnsold()" class="btn danger" style="flex: 1; background-color: #dc2626;">Mark Unsold</button>
+                </div>
+
+                <div class="bidding-panel">
+                    <h3>Place Bid</h3>
+                    <div class="form-group">
+                        <label for="bidder-select">Select Team / Captain:</label>
+                        <select id="bidder-select" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bid-amount">Bid Amount (Points):</label>
+                        <input type="number" id="bid-amount" class="form-control" min="50" step="50" value="50">
+                    </div>
+                    <div class="bid-buttons" style="display: flex; gap: 8px; flex-direction: column;">
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0284c7;">Raise / Add Bid</button>
+                            <button onclick="finalizeBid()" class="btn success" style="flex: 1; background-color: #10b981;">Finalize Sale</button>
                         </div>
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <button onclick="finalizeBid()" class="btn btn-success" style="flex: 2;">Finalize / Sell Player</button>
-                            <button onclick="undoLastBid()" class="btn btn-warning" style="flex: 1;" title="Undo Last Bid or Sale">Undo Action</button>
-                        </div>
+                        <button onclick="undoLastBid()" class="btn danger" style="width: 100%;">Undo Last Bid</button>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
+                    </div>
+
+                    <!-- Emergency Backup & Player Pool CSV Upload Controls -->
+                    <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
+                        <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
+                            📂 Upload Player Pool CSV <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolCSV(event)" accept=".csv" style="display: none;">
+                        </label>
+                        <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
+                        <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block;">
+                            📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
+                        </label>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div style="margin-top: 20px; text-align: center;">
-                <p id="sold-announcement" style="font-weight: bold; font-size: 1.1rem; color: var(--success); min-height: 30px;"></p>
-            </div>
-        </div>
+            <!-- Column 2: Team Squads & Standings -->
+            <section class="card teams-overview-card">
+                <h2>Team Squads & Standings</h2>
+                <div id="teams-container" class="teams-grid">
+                    <!-- Dynamic team cards will render here -->
+                </div>
+            </section>
 
-        <!-- Right Sidebar: Teams Overview -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                <h2 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Teams & Squads</h2>
-                <button onclick="downloadSquadCSV()" class="btn" style="font-size: 0.75rem; padding: 4px 8px;">Export CSV</button>
-            </div>
-            <div id="teams-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 700px; overflow-y: auto; padding-right: 5px;">
-                <!-- Populated via JavaScript -->
-            </div>
-        </div>
+            <!-- Column 3: Remaining Player Pool & Unsold Section -->
+            <section class="card player-pool-card">
+                <h2>Remaining Player Pool</h2>
+                <div class="player-pool-wrapper">
+                    <ul id="player-pool-list" class="player-pool-list">
+                        <!-- Remaining players & unsold section render here with skill levels & notes -->
+                    </ul>
+                </div>
+            </section>
+        </main>
 
-    </div>
+        <!-- CAPTAIN & PROJECTOR VIEW CONTAINER -->
+        <main id="captain-view-container" class="auction-grid-captain-3col" style="display: none; width: 100%;">
+            <!-- Left Column: Teams 1 to 4 -->
+            <section class="card captain-teams-column">
+                <h2>Teams (1 - 4)</h2>
+                <div id="captain-teams-left" class="captain-side-grid-horizontal">
+                    <!-- Teams 1-4 render here side-by-side in 2x2 grid -->
+                </div>
+            </section>
 
-    <!-- CAPTAIN / PROJECTOR VIEW CONTAINER -->
-    <div id="captain-view-container">
-        <div class="card" style="text-align: center; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid var(--success);">
-            <span id="captain-active-cat" class="category-badge">-</span>
-            <h2 id="captain-active-name" style="font-size: 2.8rem; color: var(--success); margin-bottom: 10px; border-bottom: none;">Waiting for next player...</h2>
-            <div id="captain-player-meta" style="font-size: 1rem; color: var(--success); margin-bottom: 10px;"></div>
-            <div style="font-size: 1.3rem; margin-bottom: 5px;" id="captain-active-bid">Status: Standby | Current Bid: 0 pts</div>
-            <div style="font-size: 1.1rem; color: var(--success);" id="captain-leading-display">Leading Team: None</div>
-            <p id="captain-sold-announcement" style="font-weight: bold; font-size: 1.2rem; color: var(--success); margin-top: 15px; min-height: 30px;"></p>
-        </div>
-
-        <!-- Two Columns of Teams for Projector/Captain Display -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="teams-grid" id="captain-teams-left" style="grid-template-columns: repeat(2, 1fr);"></div>
-            <div class="teams-grid" id="captain-teams-right" style="grid-template-columns: repeat(2, 1fr);"></div>
-        </div>
-    </div>
-
-    <!-- CAPTAINS' REMOTE LINKS MODAL -->
-    <div id="remote-links-modal" class="modal">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="margin: 0; border: none;">Captains' Dedicated Remote Links</h2>
-                <button onclick="closeRemoteLinksModal()" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.8rem;">✕ Close</button>
-            </div>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
-                Share these specific links with each captain so they can view the live auction and track team budgets directly from their personal devices:
-            </p>
-            <div id="remote-links-list">
-                <!-- Populated via JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Script File Integration -->
-    <script src="auction.js"></script>
-    <script>
-        function openRemoteLinksModal() {
-            const modal = document.getElementById("remote-links-modal");
-            const listContainer = document.getElementById("remote-links-list");
-            if (!modal || !listContainer) return;
-
-            listContainer.innerHTML = "";
-            const baseUrl = window.location.origin + window.location.pathname;
-
-            teams.forEach((team, index) => {
-                const teamNum = index + 1;
-                const link = `${baseUrl}?view=captain&team=${teamNum}`;
-
-                const item = document.createElement("div");
-                item.className = "captain-link-item";
-                item.innerHTML = `
-                    <div>
-                        <strong>${team.name} (${team.captain})</strong><br>
-                        <span>${link}</span>
+            <!-- Center Column: Live Auction Status Main Focus -->
+            <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
+                <h2>Live Auction Status</h2>
+                <div class="player-display" style="max-width: 100%; margin: 15px 0;">
+                    <div id="captain-active-cat" class="category-badge">-</div>
+                    <!-- Main player name display (turns red when marked unsold) -->
+                    <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
+                    <!-- Skill Level and Notes Displayed in Projector View -->
+                    <div id="captain-player-meta" style="font-size: 1.15em; color: #f3f4f6; margin-bottom: 8px; font-weight: 500;"></div>
+                    <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
+                    <!-- Leading Bidder / Team Status Info Message for Captains/Projector (Hidden when unsold) -->
+                    <div id="captain-leading-display" style="font-size: 1.05em; color: #60a5fa; font-weight: 600; margin-top: 12px;">
+                        Leading Team: None
                     </div>
-                    <button class="btn" style="font-size: 0.8rem; padding: 6px 10px; white-space: nowrap;" onclick="navigator.clipboard.writeText('${link}').then(() => alert('Link copied for ${team.name}!'))">Copy Link</button>
-                `;
-                listContainer.appendChild(item);
-            });
+                </div>
+            </section>
 
-            modal.style.display = "flex";
-        }
+            <!-- Right Column: Teams 5 to 8 -->
+            <section class="card captain-teams-column">
+                <h2>Teams (5 - 8)</h2>
+                <div id="captain-teams-right" class="captain-side-grid-horizontal">
+                    <!-- Teams 5-8 render here side-by-side in 2x2 grid -->
+                </div>
+            </section>
+        </main>
+    </div>
 
-        function closeRemoteLinksModal() {
-            const modal = document.getElementById("remote-links-modal");
-            if (modal) modal.style.display = "none";
-        }
-    </script>
+    <!-- Application Script -->
+    <script src="app.js"></script>
 </body>
 </html>
