@@ -11,8 +11,8 @@ auctionChannel.onmessage = (event) => {
     teams = state.teams;
     currentActivePlayer = state.currentActivePlayer;
     auctionHistory = state.auctionHistory;
-    currentHighestBid = state.currentHighestBid !== undefined ? state.currentHighestBid : 50;
-    currentLeaderText = state.currentLeaderText || "No bids yet";
+    currentHighestBid = state.currentHighestBid !== undefined ? state.currentHighestBid : 0;
+    currentLeaderText = state.currentLeaderText || "None";
     lastAuctionMessage = state.lastAuctionMessage || "";
     lastAuctionMessageType = state.lastAuctionMessageType || "";
     
@@ -25,8 +25,8 @@ let players = [];
 let unsoldPlayers = []; 
 let currentActivePlayer = null;
 let auctionHistory = []; // Stack to keep history for undo functionality
-let currentHighestBid = 50; // Track the current live bidding amount/level
-let currentLeaderText = "No bids yet"; // Tracks the leading team/captain name
+let currentHighestBid = 0; // Track the current live bidding amount/level
+let currentLeaderText = "None"; // Tracks the leading team/captain name
 let lastAuctionMessage = "";
 let lastAuctionMessageType = ""; // "success", "danger", etc.
 let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; // Persist view mode across refreshes
@@ -69,8 +69,8 @@ window.onload = async function() {
             teams = JSON.parse(savedTeams);
             currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
             auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
-            currentHighestBid = savedHighestBid ? JSON.parse(savedHighestBid) : 50;
-            currentLeaderText = savedLeaderText || "No bids yet";
+            currentHighestBid = savedHighestBid !== undefined ? JSON.parse(savedHighestBid) : 0;
+            currentLeaderText = savedLeaderText || "None";
             lastAuctionMessage = savedMessage || "";
             lastAuctionMessageType = savedMessageType || "";
         } else {
@@ -78,8 +78,8 @@ window.onload = async function() {
             players = await response.json();
             unsoldPlayers = [];
             teams = JSON.parse(JSON.stringify(initialTeams));
-            currentHighestBid = 50;
-            currentLeaderText = "No bids yet";
+            currentHighestBid = 0;
+            currentLeaderText = "None";
             lastAuctionMessage = "";
             lastAuctionMessageType = "";
             saveStateToStorage();
@@ -233,8 +233,8 @@ function importPlayerPoolCSV(event) {
             unsoldPlayers = [];
             currentActivePlayer = null;
             auctionHistory = [];
-            currentHighestBid = 50;
-            currentLeaderText = "No bids yet";
+            currentHighestBid = 0;
+            currentLeaderText = "None";
             lastAuctionMessage = "📂 Player pool successfully imported from CSV!";
             lastAuctionMessageType = "success";
             saveStateToStorage();
@@ -283,8 +283,8 @@ function importAuctionState(event) {
             teams = imported.teams || [];
             currentActivePlayer = imported.currentActivePlayer || null;
             auctionHistory = imported.auctionHistory || [];
-            currentHighestBid = imported.currentHighestBid !== undefined ? imported.currentHighestBid : 50;
-            currentLeaderText = imported.currentLeaderText || "No bids yet";
+            currentHighestBid = imported.currentHighestBid !== undefined ? imported.currentHighestBid : 0;
+            currentLeaderText = imported.currentLeaderText || "None";
             lastAuctionMessage = imported.lastAuctionMessage || "";
             lastAuctionMessageType = imported.lastAuctionMessageType || "";
             
@@ -319,7 +319,7 @@ function renderAnnouncements() {
         } else if (lastAuctionMessageType === "success") {
             el.style.color = "#34d399";
         } else {
-            el.style.color = "inherit";
+            el.style.color = "#34d399";
         }
     });
 }
@@ -335,7 +335,7 @@ function renderActivePlayer() {
     if (!currentActivePlayer) {
         nameEl.innerText = "Select 'Next Player' to begin";
         catEl.innerText = "-";
-        if (bidDisplayEl) bidDisplayEl.innerHTML = "Current Highest Bid: <strong>50 pts</strong> (No bids yet)";
+        if (bidDisplayEl) bidDisplayEl.innerHTML = "Current Highest Bid: <strong>0 pts</strong> (No bids yet)";
         if (leadingEl) leadingEl.innerText = "Leading Team: None";
         return;
     }
@@ -362,24 +362,15 @@ function renderCaptainView() {
     if (!capNameEl || !capCatEl || !capBidEl) return;
 
     if (!currentActivePlayer) {
-        if (lastAuctionMessageType === "danger" && lastAuctionMessage) {
-            capNameEl.innerText = lastAuctionMessage;
-            capNameEl.style.color = "#ef4444";
-            capCatEl.innerText = "-";
-            if (capMetaEl) capMetaEl.innerText = "";
-            if (capBidEl) capBidEl.innerHTML = "";
-            if (capLeadingEl) capLeadingEl.innerHTML = "";
-        } else {
-            capNameEl.innerText = "Waiting for next player...";
-            capNameEl.style.color = "#34d399";
-            capCatEl.innerText = "-";
-            if (capMetaEl) capMetaEl.innerText = "";
-            if (capBidEl) capBidEl.innerHTML = "Current Bidding Level / Status: Active";
-            if (capLeadingEl) capLeadingEl.innerHTML = "Leading Team: None";
-        }
+        capNameEl.innerText = "Waiting for next player...";
+        capNameEl.style.color = "#34d399";
+        capCatEl.innerText = "-";
+        if (capMetaEl) capMetaEl.innerText = "";
+        if (capBidEl) capBidEl.innerHTML = "Status: Standby | Current Bid: 0 pts";
+        if (capLeadingEl) capLeadingEl.innerHTML = "Leading Team: None";
     } else {
         capNameEl.innerText = currentActivePlayer.name;
-        capNameEl.style.color = "#ef4444";
+        capNameEl.style.color = "#34d399";
         capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
         
         if (capMetaEl) {
@@ -387,10 +378,11 @@ function renderCaptainView() {
             if (currentActivePlayer.skill) metaText += `Skill: ${currentActivePlayer.skill}`;
             if (currentActivePlayer.notes) metaText += (metaText ? " | " : "") + `Notes: ${currentActivePlayer.notes}`;
             capMetaEl.innerText = metaText;
+            capMetaEl.style.color = "#34d399";
         }
 
         if (capBidEl) {
-            capBidEl.innerHTML = `Current Bidding Level / Status: Active (Highest Bid: ${currentHighestBid} pts)`;
+            capBidEl.innerHTML = `Status: Active | Current Bid: ${currentHighestBid} pts`;
         }
         if (capLeadingEl) {
             capLeadingEl.innerHTML = `Leading Team: ${currentLeaderText}`;
@@ -476,7 +468,7 @@ function nextPlayer() {
     auctionHistory.push(currentState);
 
     currentActivePlayer = players.shift(); 
-    currentHighestBid = 50; 
+    currentHighestBid = 0; 
     currentLeaderText = "None";
     lastAuctionMessage = "";
     lastAuctionMessageType = "";
@@ -510,7 +502,7 @@ function markAsUnsold() {
     lastAuctionMessageType = "danger";
 
     currentActivePlayer = null;
-    currentHighestBid = 50;
+    currentHighestBid = 0;
     currentLeaderText = "None";
     saveStateToStorage();
     updateUI();
@@ -547,7 +539,14 @@ function submitBid() {
     const picksRemainingToBuy = totalAuctionPicksNeeded - team.squad.length;
     const mandatoryReserveForOthers = (picksRemainingToBuy - 1) * 50;
     
-    const newTotalBid = currentHighestBid + bidRaiseAmount;
+    // If no bids yet, first bid must be at least 50
+    let newTotalBid;
+    if (currentHighestBid === 0) {
+        newTotalBid = Math.max(bidRaiseAmount, 50);
+    } else {
+        newTotalBid = currentHighestBid + bidRaiseAmount;
+    }
+
     const maxAllowedBid = team.points - mandatoryReserveForOthers;
 
     if (team.squad.length >= 10) {
@@ -563,8 +562,8 @@ function submitBid() {
     currentHighestBid = newTotalBid;
     currentLeaderText = `${team.name} (${team.captain})`;
 
-    lastAuctionMessage = `📈 ${team.name} raised bid by +${bidRaiseAmount} pts! Total: ${currentHighestBid} pts`;
-    lastAuctionMessageType = "";
+    lastAuctionMessage = `📈 ${team.name} raised bid! Total: ${currentHighestBid} pts`;
+    lastAuctionMessageType = "success";
 
     saveStateToStorage();
     updateUI();
@@ -576,8 +575,8 @@ function finalizeBid() {
         return;
     }
 
-    if (currentLeaderText === "None" || currentHighestBid < 50) {
-        const confirmBase = confirm("No bids have been raised above the base. Would you like to mark this player as UNSOLD instead?");
+    if (currentLeaderText === "None" || currentHighestBid <= 0) {
+        const confirmBase = confirm("No bids have been raised. Would you like to mark this player as UNSOLD instead?");
         if (confirmBase) {
             markAsUnsold();
         }
@@ -610,7 +609,7 @@ function finalizeBid() {
     lastAuctionMessageType = "success";
 
     currentActivePlayer = null;
-    currentHighestBid = 50;
+    currentHighestBid = 0;
     currentLeaderText = "None";
     saveStateToStorage();
     updateUI();
@@ -627,10 +626,10 @@ function undoLastBid() {
     currentActivePlayer = previousState.currentActivePlayer;
     players = previousState.players;
     unsoldPlayers = previousState.unsoldPlayers || [];
-    currentHighestBid = previousState.currentHighestBid !== undefined ? previousState.currentHighestBid : 50;
+    currentHighestBid = previousState.currentHighestBid !== undefined ? previousState.currentHighestBid : 0;
     currentLeaderText = previousState.currentLeaderText || "None";
-    lastAuctionMessage = previousState.lastAuctionMessage !== undefined ? previousState.lastAuctionMessage : "↩️ Last action undone.";
-    lastAuctionMessageType = previousState.lastAuctionMessageType || "";
+    lastAuctionMessage = "↩️ Last action undone.";
+    lastAuctionMessageType = "success";
 
     saveStateToStorage();
     updateUI();
