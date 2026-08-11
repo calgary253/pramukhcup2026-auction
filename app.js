@@ -386,12 +386,13 @@ function undoLastBid() {
             }
         }
         
+        // Return player back to the active pool and clear the current active player box
         players.unshift(lastAction.player);
-        currentActivePlayer = lastAction.player;
-        currentHighestBid = lastAction.amount;
-        currentLeaderText = `${team.name} (${team.captain}) - ${lastAction.amount} pts`;
+        currentActivePlayer = null; 
+        currentHighestBid = 50;
+        currentLeaderText = "None";
         
-        lastAuctionMessage = `Undo: ${lastAction.player.name} restored to active bidding.`;
+        lastAuctionMessage = `Undo: ${lastAction.player.name} returned to the pool.`;
         lastAuctionMessageType = "warning";
     }
     else if (lastAction.type === 'unsold') {
@@ -401,15 +402,16 @@ function undoLastBid() {
         }
         
         players.unshift(lastAction.player);
-        currentActivePlayer = lastAction.player;
+        currentActivePlayer = null; 
         currentHighestBid = 50;
         currentLeaderText = "None";
         
-        lastAuctionMessage = `Undo: ${lastAction.player.name} restored from unsold pool.`;
+        lastAuctionMessage = `Undo: ${lastAction.player.name} returned to the pool from unsold.`;
         lastAuctionMessageType = "info";
     }
 
     saveStateToCloud();
+    updateUI(); // Instantly refreshes UI across all views
 }
 
 // ==========================================
