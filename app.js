@@ -72,8 +72,6 @@ window.onload = async function() {
             lastAuctionMessageType = cloudState.lastAuctionMessageType || "";
             
             updateUI();
-        } else {
-            ();
         }
     });
 
@@ -109,7 +107,7 @@ async function loadInitialPlayerPool() {
     
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
-    currentActivePlayer = null; // <--- Ensure this is set to null
+    currentActivePlayer = null; // Explicitly set to null so it shows waiting state
     currentHighestBid = 0;
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system ready. Click 'Next Player' to begin.";
@@ -117,6 +115,7 @@ async function loadInitialPlayerPool() {
     
     saveStateToCloud();
 }
+
 // Complete Auction & Player Pool Reset Feature
 async function resetEntireAuction() {
     if (!confirm("⚠️ Are you sure you want to completely reset all teams, squads, and player pools? This will erase all history and cannot be undone!")) {
@@ -138,11 +137,11 @@ async function resetEntireAuction() {
     
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
-    currentActivePlayer = null;
+    currentActivePlayer = null; // Explicitly set to null on reset
     auctionHistory = [];
     currentHighestBid = 0;
     currentLeaderText = "None";
-    lastAuctionMessage = "Auction system fully reset!";
+    lastAuctionMessage = "Auction system fully reset! Click 'Next Player' to start.";
     lastAuctionMessageType = "info";
     
     saveStateToCloud();
@@ -283,7 +282,6 @@ function finalizeBid() {
     const teamIndex = parseInt(selectEl.value);
     const bidAmount = parseInt(amountEl.value);
 
-    // Fallback: If no bids were officially registered in history yet, use the current input box values
     let targetTeamIndex = teamIndex;
     let finalSaleAmount = bidAmount;
 
@@ -304,7 +302,6 @@ function finalizeBid() {
         return;
     }
 
-    // Deduct points and add to squad
     winningTeam.points -= finalSaleAmount;
     winningTeam.squad.push({
         ...currentActivePlayer,
@@ -314,7 +311,6 @@ function finalizeBid() {
     lastAuctionMessage = `SOLD! ${currentActivePlayer.name} to ${winningTeam.name} for ${finalSaleAmount} pts!`;
     lastAuctionMessageType = "success";
 
-    // Reset for next player
     currentActivePlayer = null;
     currentHighestBid = 0;
     currentLeaderText = "None";
@@ -355,7 +351,7 @@ function updateUI() {
     const announcementEl = document.getElementById('sold-announcement');
 
     if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `Category ${getCategoryLetter(currentActivePlayer.category)}` : "-";
-    if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : "Select 'Next Player' to begin";
+    if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
     if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
     if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
 
