@@ -18,10 +18,11 @@
                     <h1>Pramukh Cup - 2026 Calgary Team Auction</h1>
                     <p>Live Team Bidding & Squad Management Dashboard</p>
                 </div>
-                <!-- View Mode Switcher -->
-                <div class="view-switcher" style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; margin-right: 4px;">Admin View</button>
+                <!-- View Mode Switcher & Remote Link Generator -->
+                <div class="view-switcher" style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; gap: 6px; align-items: center;">
+                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Admin View</button>
                     <button onclick="switchView('captain')" id="btn-view-captain" class="btn-sm" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: transparent; color: #a7f3d0;">Captain / Projector View</button>
+                    <button onclick="openRemoteLinkModal()" class="btn-sm" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: #0284c7; color: white;">🔗 Remote Links</button>
                 </div>
             </div>
         </header>
@@ -37,11 +38,11 @@
                 <div class="player-display">
                     <div id="active-player-cat" class="category-badge">-</div>
                     <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
-                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;" id="current-bid-display">
+                    <div style="font-size: 1.05em; color: #ef4444; font-weight: 600; margin-top: 10px;" id="current-bid-display">
                         Current Highest Bid: <strong>50 pts</strong> (No bids yet)
                     </div>
                     <!-- Leading Bidder / Team Status Info Message -->
-                    <div id="leading-bidder-display" style="font-size: 0.95em; color: #60a5fa; font-weight: 500; margin-top: 6px;">
+                    <div id="leading-bidder-display" style="font-size: 0.95em; color: #ef4444; font-weight: 500; margin-top: 6px;">
                         Leading Team: None
                     </div>
                 </div>
@@ -119,16 +120,19 @@
 
             <!-- Center Column: Live Auction Status Main Focus -->
             <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
-                <h2>Live Auction Status</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h2>Live Auction Status</h2>
+                    <div id="remote-captain-badge" style="font-size: 0.9em; background: #0284c7; padding: 4px 10px; border-radius: 4px; color: white; display: none;">Remote View Mode</div>
+                </div>
                 <div class="player-display" style="max-width: 100%; margin: 15px 0;">
                     <div id="captain-active-cat" class="category-badge">-</div>
                     <!-- Main player name display (turns red when marked unsold) -->
-                    <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
+                    <div id="captain-active-name" style="color: #ef4444; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
                     <!-- Skill Level and Notes Displayed in Projector View -->
                     <div id="captain-player-meta" style="font-size: 1.15em; color: #f3f4f6; margin-bottom: 8px; font-weight: 500;"></div>
-                    <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
-                    <!-- Leading Bidder / Team Status Info Message for Captains/Projector (Hidden when unsold) -->
-                    <div id="captain-leading-display" style="font-size: 1.05em; color: #60a5fa; font-weight: 600; margin-top: 12px;">
+                    <div id="captain-active-bid" style="font-size: 1.1em; color: #ef4444; margin-top: 10px;">Current Bidding Level / Status: Active</div>
+                    <!-- Leading Bidder / Team Status Info Message for Captains/Projector -->
+                    <div id="captain-leading-display" style="font-size: 1.05em; color: #ef4444; font-weight: 600; margin-top: 12px;">
                         Leading Team: None
                     </div>
                 </div>
@@ -142,6 +146,20 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Remote Links Modal Dialog -->
+    <div id="remote-links-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #1e293b; padding: 25px; border-radius: 12px; width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #34d399;">Remote Captain Links</h3>
+                <button onclick="closeRemoteLinkModal()" style="background: none; border: none; color: white; font-size: 1.2em; cursor: pointer;">✕</button>
+            </div>
+            <p style="font-size: 0.95em; color: #94a3b8; margin-bottom: 15px;">Share these dedicated links with remote captains so they can track live bids and squad updates in real-time from anywhere:</p>
+            <div id="remote-links-container" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                <!-- Generated links populate here -->
+            </div>
+        </div>
     </div>
 
     <!-- Application Script -->
