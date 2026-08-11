@@ -1,35 +1,26 @@
 // ==========================================
-// LOCAL NETWORK SYNC VIA BROADCAST CHANNEL
+// FIREBASE REAL-TIME CLOUD SYNC CONFIGURATION
 // ==========================================
-const auctionChannel = new BroadcastChannel('pramukh_cup_local_network_auction');
-
-// Listen for updates sent from the Admin screen to update Captain screens instantly
-auctionChannel.onmessage = (event) => {
-    const state = event.data;
-    players = state.players;
-    unsoldPlayers = state.unsoldPlayers;
-    teams = state.teams;
-    currentActivePlayer = state.currentActivePlayer;
-    auctionHistory = state.auctionHistory;
-    currentHighestBid = state.currentHighestBid !== undefined ? state.currentHighestBid : 0;
-    currentLeaderText = state.currentLeaderText || "None";
-    lastAuctionMessage = state.lastAuctionMessage || "";
-    lastAuctionMessageType = state.lastAuctionMessageType || "";
-    
-    // Instantly update whichever view is open on this device
-    updateUI();
+const firebaseConfig = {
+    databaseURL: "https://pramukhcup-2026-auction-default-rtdb.firebaseio.com/"
 };
 
-// State Management
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const dbRef = firebase.database().ref('auction_state');
+
+// State Management variables
 let players = [];
 let unsoldPlayers = []; 
 let currentActivePlayer = null;
-let auctionHistory = []; // Stack to keep history for undo functionality
-let currentHighestBid = 0; // Track the current live bidding amount/level
-let currentLeaderText = "None"; // Tracks the leading team/captain name
+let auctionHistory = []; 
+let currentHighestBid = 0; 
+let currentLeaderText = "None"; 
 let lastAuctionMessage = "";
-let lastAuctionMessageType = ""; // "success", "danger", etc.
-let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; // Persist view mode across refreshes
+let lastAuctionMessageType = ""; 
+let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; 
 
 let initialTeams = [
     { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
@@ -57,78 +48,72 @@ function getCategoryLetter(cat) {
 }
 
 window.onload = async function() {
-    try {
-        const savedPlayers = localStorage.getItem('auction_players');
-        const savedUnsold = localStorage.getItem('auction_unsold_players');
-        const savedTeams = localStorage.getItem('auction_teams');
-        const savedActivePlayer = localStorage.getItem('auction_active_player');
-        const savedHistory = localStorage.getItem('auction_history');
-        const savedHighestBid = localStorage.getItem('auction_highest_bid');
-        const savedLeaderText = localStorage.getItem('auction_leader_text');
-        const savedMessage = localStorage.getItem('auction_last_message');
-        const savedMessageType = localStorage.getItem('auction_last_message_type');
+    // Check URL parameters for view and remote team binding
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    const teamParam = urlParams.get('team');
 
-        if (savedPlayers && savedTeams) {
-            players = JSON.parse(savedPlayers);
-            unsoldPlayers = savedUnsold ? JSON.parse(savedUnsold) : [];
-            teams = JSON.parse(savedTeams);
-            currentActivePlayer = savedActivePlayer ? JSON.parse(savedActivePlayer) : null;
-            auctionHistory = savedHistory ? JSON.parse(savedHistory) : [];
-            currentHighestBid = savedHighestBid !== undefined ? JSON.parse(savedHighestBid) : 0;
-            currentLeaderText = savedLeaderText || "None";
-            lastAuctionMessage = savedMessage || "";
-            lastAuctionMessageType = savedMessageType || "";
+    if (viewParam === 'captain') {
+        currentViewMode = 'captain';
+    }
+
+    // Listen to real-time changes from Firebase Cloud Database
+    dbRef.on('value', (snapshot) => {
+        const cloudState = snapshot.val();
+        if (cloudState) {
+            players = cloudState.players || [];
+            unsoldPlayers = cloudState.unsoldPlayers || [];
+            teams = cloudState.teams || JSON.parse(JSON.stringify(initialTeams));
+            currentActivePlayer = cloudState.currentActivePlayer || null;
+            auctionHistory = cloudState.auctionHistory || [];
+            currentHighestBid = cloudState.currentHighestBid !== undefined ? cloudState.currentHighestBid : 0;
+            currentLeaderText = cloudState.currentLeaderText || "None";
+            lastAuctionMessage = cloudState.lastAuctionMessage || "";
+            lastAuctionMessageType = cloudState.lastAuctionMessageType || "";
+            
+            updateUI();
         } else {
-            let response = await fetch('players.json');
-            players = await response.json();
-            unsoldPlayers = [];
-            teams = JSON.parse(JSON.stringify(initialTeams));
-            currentHighestBid = 0;
-            currentLeaderText = "None";
-            lastAuctionMessage = "";
-            lastAuctionMessageType = "";
-            saveStateToStorage();
+            // Initialize database if empty
+            loadInitialPlayerPool();
         }
-        
-        // Check for URL parameters (?view=captain&team=team-slug)
-        const urlParams = new URLSearchParams(window.location.search);
-        const viewParam = urlParams.get('view');
-        const teamParam = urlParams.get('team');
+    });
 
-        if (viewParam === 'captain') {
-            currentViewMode = 'captain';
-        }
-
-        if (teamParam) {
-            const badge = document.getElementById("remote-captain-badge");
-            if (badge) {
-                badge.style.display = "block";
+    if (teamParam) {
+        const badge = document.getElementById("remote-captain-badge");
+        if (badge) {
+            badge.style.display = "block";
+            // Wait a brief moment for data to sync, then highlight team
+            setTimeout(() => {
                 const matchedTeam = teams.find(t => getTeamSlug(t.name) === teamParam || t.name.toLowerCase().includes(teamParam.toLowerCase()));
                 if (matchedTeam) {
                     badge.innerText = `Captain View: ${matchedTeam.name} (${matchedTeam.captain})`;
                 }
-            }
+            }, 500);
         }
-        
-        switchView(currentViewMode, false);
-        updateUI();
+    }
+    
+    switchView(currentViewMode, false);
+};
+
+async function loadInitialPlayerPool() {
+    try {
+        let response = await fetch('players.json');
+        players = await response.json();
+        unsoldPlayers = [];
+        teams = JSON.parse(JSON.stringify(initialTeams));
+        currentHighestBid = 0;
+        currentLeaderText = "None";
+        lastAuctionMessage = "";
+        lastAuctionMessageType = "";
+        saveStateToCloud();
     } catch (error) {
         console.error("Could not load players.json", error);
     }
-};
+}
 
-function saveStateToStorage() {
-    localStorage.setItem('auction_players', JSON.stringify(players));
-    localStorage.setItem('auction_unsold_players', JSON.stringify(unsoldPlayers));
-    localStorage.setItem('auction_teams', JSON.stringify(teams));
-    localStorage.setItem('auction_active_player', JSON.stringify(currentActivePlayer));
-    localStorage.setItem('auction_history', JSON.stringify(auctionHistory));
-    localStorage.setItem('auction_highest_bid', JSON.stringify(currentHighestBid));
-    localStorage.setItem('auction_leader_text', currentLeaderText);
-    localStorage.setItem('auction_last_message', lastAuctionMessage);
-    localStorage.setItem('auction_last_message_type', lastAuctionMessageType);
-
-    auctionChannel.postMessage({
+// Save state to Firebase Cloud (instant broadcast to all remote captains)
+function saveStateToCloud() {
+    const payload = {
         players,
         unsoldPlayers,
         teams,
@@ -138,592 +123,363 @@ function saveStateToStorage() {
         currentLeaderText,
         lastAuctionMessage,
         lastAuctionMessageType
-    });
+    };
+    dbRef.set(payload).catch(err => console.error("Firebase sync error:", err));
 }
 
+// ==========================================
+// VIEW SWITCHING & UI LOGIC
+// ==========================================
 function switchView(mode, savePreference = true) {
     currentViewMode = mode;
     if (savePreference) {
         localStorage.setItem('auction_view_mode', mode);
     }
 
-    const adminContainer = document.getElementById("admin-view-container");
-    const captainContainer = document.getElementById("captain-view-container");
+    const adminContainer = document.getElementById('admin-view-container');
+    const captainContainer = document.getElementById('captain-view-container');
+    const btnAdmin = document.getElementById('btn-view-admin');
 
-    if (!adminContainer || !captainContainer) return;
-
-    if (mode === 'admin') {
-        adminContainer.style.display = "grid";
-        captainContainer.style.display = "none";
+    if (mode === 'captain') {
+        if (adminContainer) adminContainer.style.display = 'none';
+        if (captainContainer) captainContainer.style.display = 'grid';
+        if (btnAdmin) {
+            btnAdmin.innerText = "Switch to Admin Mode";
+            btnAdmin.style.background = "#334155";
+        }
     } else {
-        adminContainer.style.display = "none";
-        captainContainer.style.display = "grid";
+        if (adminContainer) adminContainer.style.display = 'grid';
+        if (captainContainer) captainContainer.style.display = 'none';
+        if (btnAdmin) {
+            btnAdmin.innerText = "Admin Mode";
+            btnAdmin.style.background = "#0284c7";
+        }
     }
     updateUI();
 }
 
-function importPlayerPoolCSV(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.split("\n");
-        let newPlayers = [];
-
-        for (let i = 1; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (!line) continue;
-            
-            let row = [];
-            let inQuotes = false;
-            let currentVal = "";
-            for (let char of line) {
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    row.push(currentVal.trim());
-                    currentVal = "";
-                } else {
-                    currentVal += char;
-                }
-            }
-            row.push(currentVal.trim());
-
-            if (row.length >= 2) {
-                newPlayers.push({
-                    name: row[0].replace(/^["']|["']$/g, ''),
-                    category: row[1].replace(/^["']|["']$/g, ''),
-                    skill: row[2] ? row[2].replace(/^["']|["']$/g, '') : '',
-                    notes: row[3] ? row[3].replace(/^["']|["']$/g, '') : ''
-                });
-            }
-        }
-
-        if (newPlayers.length > 0) {
-            players = newPlayers;
-            unsoldPlayers = [];
-            currentActivePlayer = null;
-            auctionHistory = [];
-            currentHighestBid = 0;
-            currentLeaderText = "None";
-            lastAuctionMessage = "📂 Player pool successfully imported from CSV!";
-            lastAuctionMessageType = "success";
-            saveStateToStorage();
-            updateUI();
-            alert(`Successfully loaded ${newPlayers.length} players from CSV!`);
-        } else {
-            alert("Could not parse valid player records from the CSV file.");
-        }
-    };
-    reader.readAsText(file);
-}
-
-function downloadAuctionBackup() {
-    const backupData = {
-        players: players,
-        unsoldPlayers: unsoldPlayers,
-        teams: teams,
-        currentActivePlayer: currentActivePlayer,
-        auctionHistory: auctionHistory,
-        currentHighestBid: currentHighestBid,
-        currentLeaderText: currentLeaderText,
-        lastAuctionMessage: lastAuctionMessage,
-        lastAuctionMessageType: lastAuctionMessageType,
-        timestamp: new Date().toISOString()
-    };
-
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `auction_backup_${Date.now()}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-}
-
-function importAuctionState(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const imported = JSON.parse(e.target.result);
-            players = imported.players || [];
-            unsoldPlayers = imported.unsoldPlayers || [];
-            teams = imported.teams || [];
-            currentActivePlayer = imported.currentActivePlayer || null;
-            auctionHistory = imported.auctionHistory || [];
-            currentHighestBid = imported.currentHighestBid !== undefined ? imported.currentHighestBid : 0;
-            currentLeaderText = imported.currentLeaderText || "None";
-            lastAuctionMessage = imported.lastAuctionMessage || "";
-            lastAuctionMessageType = imported.lastAuctionMessageType || "";
-            
-            saveStateToStorage();
-            updateUI();
-            alert("Auction state successfully restored!");
-        } catch (err) {
-            alert("Invalid backup file format.");
-        }
-    };
-    reader.readAsText(file);
-}
-
-function updateUI() {
-    renderActivePlayer();
-    renderTeams();
-    renderPlayerPool();
-    populateTeamDropdown();
-    renderCaptainView();
-    renderAnnouncements();
-}
-
-function renderAnnouncements() {
-    const adminAnnouncementEl = document.getElementById("sold-announcement");
-    const captainAnnouncementEl = document.getElementById("captain-sold-announcement");
-
-    [adminAnnouncementEl, captainAnnouncementEl].forEach(el => {
-        if (!el) return;
-        el.innerText = lastAuctionMessage;
-        if (lastAuctionMessageType === "danger") {
-            el.style.color = "#ef4444";
-        } else if (lastAuctionMessageType === "success") {
-            el.style.color = "#34d399";
-        } else {
-            el.style.color = "#34d399";
-        }
-    });
-}
-
-function renderActivePlayer() {
-    const nameEl = document.getElementById("active-player-name");
-    const catEl = document.getElementById("active-player-cat");
-    const bidDisplayEl = document.getElementById("current-bid-display");
-    const leadingEl = document.getElementById("leading-bidder-display");
-    
-    if (!nameEl || !catEl) return;
-
-    if (!currentActivePlayer) {
-        nameEl.innerText = "Select 'Next Player' to begin";
-        catEl.innerText = "-";
-        if (bidDisplayEl) bidDisplayEl.innerHTML = "Current Highest Bid: <strong>0 pts</strong> (No bids yet)";
-        if (leadingEl) leadingEl.innerText = "Leading Team: None";
+// ==========================================
+// CORE AUCTION CONTROLS (ADMIN ACTIONS)
+// ==========================================
+function nextPlayer() {
+    if (players.length === 0) {
+        alert("No players remaining in the pool!");
         return;
     }
 
-    nameEl.innerText = currentActivePlayer.name;
-    catEl.innerText = getCategoryLetter(currentActivePlayer.category);
-    if (bidDisplayEl) {
-        bidDisplayEl.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
-    }
-    if (leadingEl) {
-        leadingEl.innerText = `Leading Team: ${currentLeaderText}`;
-    }
-}
-
-function renderCaptainView() {
-    const capNameEl = document.getElementById("captain-active-name");
-    const capCatEl = document.getElementById("captain-active-cat");
-    const capBidEl = document.getElementById("captain-active-bid");
-    const capLeadingEl = document.getElementById("captain-leading-display");
-    const capMetaEl = document.getElementById("captain-player-meta");
-    const leftContainer = document.getElementById("captain-teams-left");
-    const rightContainer = document.getElementById("captain-teams-right");
-
-    if (!capNameEl || !capCatEl || !capBidEl) return;
-
-    if (!currentActivePlayer) {
-        capNameEl.innerText = "Waiting for next player...";
-        capNameEl.style.color = "#34d399";
-        capCatEl.innerText = "-";
-        if (capMetaEl) capMetaEl.innerText = "";
-        if (capBidEl) capBidEl.innerHTML = "Status: Standby | Current Bid: 0 pts";
-        if (capLeadingEl) capLeadingEl.innerHTML = "Leading Team: None";
-    } else {
-        capNameEl.innerText = currentActivePlayer.name;
-        capNameEl.style.color = "#34d399";
-        capCatEl.innerText = getCategoryLetter(currentActivePlayer.category);
-        
-        if (capMetaEl) {
-            let metaText = "";
-            if (currentActivePlayer.skill) metaText += `Skill: ${currentActivePlayer.skill}`;
-            if (currentActivePlayer.notes) metaText += (metaText ? " | " : "") + `Notes: ${currentActivePlayer.notes}`;
-            capMetaEl.innerText = metaText;
-            capMetaEl.style.color = "#34d399";
-        }
-
-        if (capBidEl) {
-            capBidEl.innerHTML = `Status: Active | Current Bid: ${currentHighestBid} pts`;
-        }
-        if (capLeadingEl) {
-            capLeadingEl.innerHTML = `Leading Team: ${currentLeaderText}`;
-        }
-    }
-
-    if (leftContainer) {
-        leftContainer.innerHTML = "";
-        teams.slice(0, 4).forEach(team => {
-            leftContainer.appendChild(createCaptainTeamCard(team));
-        });
-    }
-
-    if (rightContainer) {
-        rightContainer.innerHTML = "";
-        teams.slice(4, 8).forEach(team => {
-            rightContainer.appendChild(createCaptainTeamCard(team));
-        });
-    }
-}
-
-function createCaptainTeamCard(team) {
-    let div = document.createElement("div");
-    div.className = "team-card";
-    const progressPercent = (team.squad.length / 10) * 100;
-
-    let squadListHTML = "";
-    if (team.squad.length === 0) {
-        squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
-    } else {
-        squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
-        team.squad.forEach(player => {
-            squadListHTML += `<li style="margin: 2px 0;">${player.name}</li>`;
-        });
-        squadListHTML += `</ul></div>`;
-    }
-
-    div.innerHTML = `
-        <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
-        <div class="points-display">
-            <span>Points Left:</span>
-            <span>${team.points} / 5000</span>
-        </div>
-        <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted);">
-            Squad: <strong>${team.squad.length} / 10</strong> players
-        </div>
-        <div class="squad-progress">
-            <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
-        </div>
-        ${squadListHTML}
-    `;
-    return div;
-}
-
-function nextPlayer() {
-    if (players.length === 0) {
-        if (unsoldPlayers.length > 0) {
-            const startReauction = confirm("Main player pool is completely finished! Would you like to start re-auctioning the Unsold Players now?");
-            if (startReauction) {
-                players = [...unsoldPlayers];
-                unsoldPlayers = [];
-                alert("Unsold pool loaded back in! Starting Re-Auction round.");
-            } else {
-                return;
-            }
-        } else {
-            alert("All players have been successfully auctioned or processed!");
-            return;
-        }
-    }
-
-    const currentState = {
-        teams: JSON.parse(JSON.stringify(teams)),
-        currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
-        players: [...players],
-        unsoldPlayers: [...unsoldPlayers],
-        currentHighestBid: currentHighestBid,
-        currentLeaderText: currentLeaderText,
-        lastAuctionMessage: lastAuctionMessage,
-        lastAuctionMessageType: lastAuctionMessageType
-    };
-    auctionHistory.push(currentState);
-
-    currentActivePlayer = players.shift(); 
-    currentHighestBid = 0; 
+    currentActivePlayer = players.shift();
+    currentHighestBid = 50;
     currentLeaderText = "None";
-    lastAuctionMessage = "";
-    lastAuctionMessageType = "";
+    lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name}`;
+    lastAuctionMessageType = "info";
 
-    saveStateToStorage();
-    updateUI();
+    saveStateToCloud();
 }
 
 function markAsUnsold() {
     if (!currentActivePlayer) {
-        alert("No active player to mark as unsold!");
+        alert("No active player to mark unsold.");
         return;
     }
 
-    const currentState = {
-        teams: JSON.parse(JSON.stringify(teams)),
-        currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
-        players: [...players],
-        unsoldPlayers: [...unsoldPlayers],
-        currentHighestBid: currentHighestBid,
-        currentLeaderText: currentLeaderText,
-        lastAuctionMessage: lastAuctionMessage,
-        lastAuctionMessageType: lastAuctionMessageType
-    };
-    auctionHistory.push(currentState);
-
-    const playerName = currentActivePlayer.name;
     unsoldPlayers.push(currentActivePlayer);
-
-    lastAuctionMessage = `${playerName} marked as UNSOLD`;
-    lastAuctionMessageType = "danger";
+    lastAuctionMessage = `${currentActivePlayer.name} marked as Unsold.`;
+    lastAuctionMessageType = "warning";
 
     currentActivePlayer = null;
     currentHighestBid = 0;
     currentLeaderText = "None";
-    saveStateToStorage();
-    updateUI();
-}
 
-function populateTeamDropdown() {
-    const select = document.getElementById("bidder-select");
-    if (!select) return;
-    select.innerHTML = "";
-    teams.forEach((team, index) => {
-        let opt = document.createElement("option");
-        opt.value = index;
-        opt.innerText = `${team.name} (${team.captain}) - Left: ${team.points} pts, Bought: ${team.squad.length}/10`;
-        select.appendChild(opt);
-    });
+    saveStateToCloud();
 }
 
 function submitBid() {
     if (!currentActivePlayer) {
-        alert("Please select an active player first!");
+        alert("Select an active player first.");
         return;
     }
 
-    const teamIndex = document.getElementById("bidder-select").value;
-    const bidRaiseAmount = parseInt(document.getElementById("bid-amount").value);
-    const team = teams[teamIndex];
+    const selectEl = document.getElementById('bidder-select');
+    const amountEl = document.getElementById('bid-amount');
 
-    if (isNaN(bidRaiseAmount) || bidRaiseAmount <= 0) {
-        alert("Please enter a valid bid points amount to raise.");
+    const teamIndex = parseInt(selectEl.value);
+    const bidAmount = parseInt(amountEl.value);
+
+    if (isNaN(teamIndex) || teamIndex < 0 || teamIndex >= teams.length) {
+        alert("Please select a valid team.");
         return;
     }
 
-    const totalAuctionPicksNeeded = 10;
-    const picksRemainingToBuy = totalAuctionPicksNeeded - team.squad.length;
-    const mandatoryReserveForOthers = (picksRemainingToBuy - 1) * 50;
+    if (bidAmount <= currentHighestBid) {
+        alert(`Bid must be higher than the current highest bid of ${currentHighestBid} pts.`);
+        return;
+    }
+
+    if (teams[teamIndex].points < bidAmount) {
+        alert(`${teams[teamIndex].name} does not have enough points!`);
+        return;
+    }
+
+    currentHighestBid = bidAmount;
+    currentLeaderText = `${teams[teamIndex].name} (${teams[teamIndex].captain}) - ${bidAmount} pts`;
     
-    let newTotalBid;
-    if (currentHighestBid === 0) {
-        newTotalBid = Math.max(bidRaiseAmount, 50);
-    } else {
-        newTotalBid = currentHighestBid + bidRaiseAmount;
-    }
+    auctionHistory.push({
+        type: 'bid',
+        player: currentActivePlayer,
+        teamIndex: teamIndex,
+        amount: bidAmount
+    });
 
-    const maxAllowedBid = team.points - mandatoryReserveForOthers;
-
-    if (team.squad.length >= 10) {
-        alert(`${team.name} already has a full squad of 10 auction players!`);
-        return;
-    }
-
-    if (newTotalBid > maxAllowedBid) {
-        alert(`Bid Rejected! Total accumulated bid (${newTotalBid} pts) exceeds ${team.name}'s safe budget limit (${maxAllowedBid} pts).`);
-        return;
-    }
-
-    currentHighestBid = newTotalBid;
-    currentLeaderText = `${team.name} (${team.captain})`;
-
-    lastAuctionMessage = `📈 ${team.name} raised bid! Total: ${currentHighestBid} pts`;
-    lastAuctionMessageType = "success";
-
-    saveStateToStorage();
-    updateUI();
+    saveStateToCloud();
 }
 
 function finalizeBid() {
     if (!currentActivePlayer) {
-        alert("No active player to finalize sale for!");
+        alert("No active player to finalize.");
         return;
     }
 
-    if (currentLeaderText === "None" || currentHighestBid <= 0) {
-        const confirmBase = confirm("No bids have been raised. Would you like to mark this player as UNSOLD instead?");
-        if (confirmBase) {
-            markAsUnsold();
-        }
+    if (currentLeaderText === "None") {
+        alert("Cannot finalize sale with no active bids. Use 'Mark Unsold' if needed.");
         return;
     }
 
-    let winningTeam = teams.find(t => currentLeaderText.includes(t.name));
-    if (!winningTeam) {
-        alert("Could not automatically determine winning team from leader text. Please check or use standard bidding.");
+    // Find winning team from history or highest bid state
+    const lastBidAction = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === currentActivePlayer.name);
+    if (!lastBidAction) {
+        alert("No valid winning bid found.");
         return;
     }
 
-    const currentState = {
-        teams: JSON.parse(JSON.stringify(teams)),
-        currentActivePlayer: currentActivePlayer ? { ...currentActivePlayer } : null,
-        players: [...players],
-        unsoldPlayers: [...unsoldPlayers],
-        currentHighestBid: currentHighestBid,
-        currentLeaderText: currentLeaderText,
-        lastAuctionMessage: lastAuctionMessage,
-        lastAuctionMessageType: lastAuctionMessageType
-    };
-    auctionHistory.push(currentState);
-
-    const playerName = currentActivePlayer.name;
+    const winningTeam = teams[lastBidAction.teamIndex];
     winningTeam.points -= currentHighestBid;
-    winningTeam.squad.push({ name: playerName, category: currentActivePlayer.category, cost: currentHighestBid });
+    winningTeam.squad.push({
+        ...currentActivePlayer,
+        purchasePrice: currentHighestBid
+    });
 
-    lastAuctionMessage = `🎉 ${playerName} Sold to ${winningTeam.name} (${winningTeam.captain}) for ${currentHighestBid} pts!`;
+    lastAuctionMessage = `SOLD! ${currentActivePlayer.name} to ${winningTeam.name} for ${currentHighestBid} pts!`;
     lastAuctionMessageType = "success";
 
     currentActivePlayer = null;
     currentHighestBid = 0;
     currentLeaderText = "None";
-    saveStateToStorage();
-    updateUI();
+
+    saveStateToCloud();
 }
 
 function undoLastBid() {
     if (auctionHistory.length === 0) {
-        alert("No recent actions to undo!");
+        alert("No recent bids to undo.");
         return;
     }
 
-    const previousState = auctionHistory.pop();
-    teams = previousState.teams;
-    currentActivePlayer = previousState.currentActivePlayer;
-    players = previousState.players;
-    unsoldPlayers = previousState.unsoldPlayers || [];
-    currentHighestBid = previousState.currentHighestBid !== undefined ? previousState.currentHighestBid : 0;
-    currentLeaderText = previousState.currentLeaderText || "None";
-    lastAuctionMessage = "↩️ Last action undone.";
-    lastAuctionMessageType = "success";
-
-    saveStateToStorage();
-    updateUI();
+    const lastAction = auctionHistory.pop();
+    if (lastAction.type === 'bid') {
+        const previousBid = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === lastAction.player.name);
+        if (previousBid) {
+            currentHighestBid = previousBid.amount;
+            currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
+        } else {
+            currentHighestBid = 50;
+            currentLeaderText = "None";
+        }
+        lastAuctionMessage = "Last bid undone.";
+        lastAuctionMessageType = "info";
+        saveStateToCloud();
+    }
 }
 
-function renderTeams() {
-    const container = document.getElementById("teams-container");
+// ==========================================
+// UI RENDERING ENGINE
+// ==========================================
+function updateUI() {
+    // 1. Render Admin Active Player Section
+    const activeCatEl = document.getElementById('active-player-cat');
+    const activeNameEl = document.getElementById('active-player-name');
+    const currentBidDisplay = document.getElementById('current-bid-display');
+    const leadingBidderDisplay = document.getElementById('leading-bidder-display');
+    const announcementEl = document.getElementById('sold-announcement');
+
+    if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `Category ${getCategoryLetter(currentActivePlayer.category)}` : "-";
+    if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : "Select 'Next Player' to begin";
+    if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
+    if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
+
+    if (announcementEl) {
+        announcementEl.innerText = lastAuctionMessage;
+        announcementEl.className = `sold-announcement ${lastAuctionMessageType}`;
+    }
+
+    // 2. Render Captain / Projector View Section
+    const captainActiveCat = document.getElementById('captain-active-cat');
+    const captainActiveName = document.getElementById('captain-active-name');
+    const captainPlayerMeta = document.getElementById('captain-player-meta');
+    const captainActiveBid = document.getElementById('captain-active-bid');
+    const captainLeadingDisplay = document.getElementById('captain-leading-display');
+    const captainAnnouncement = document.getElementById('captain-sold-announcement');
+
+    if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `Category ${getCategoryLetter(currentActivePlayer.category)}` : "-";
+    if (captainActiveName) captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
+    if (captainPlayerMeta) {
+        captainPlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
+    }
+    if (captainActiveBid) captainActiveBid.innerText = `Current Highest Bid: ${currentHighestBid} pts`;
+    if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
+    if (captainAnnouncement) captainAnnouncement.innerText = lastAuctionMessage;
+
+    // 3. Render Dropdown Options for Bidding Panel
+    const bidderSelect = document.getElementById('bidder-select');
+    if (bidderSelect) {
+        const currentSelectedVal = bidderSelect.value;
+        bidderSelect.innerHTML = "";
+        teams.forEach((team, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = `${team.name} (${team.captain}) - ${team.points} pts left`;
+            bidderSelect.appendChild(opt);
+        });
+        if (currentSelectedVal) bidderSelect.value = currentSelectedVal;
+    }
+
+    // 4. Render Team Cards (Admin Overview & Standings)
+    renderTeamsContainer();
+    renderCaptainTeamsGrid();
+
+    // 5. Render Remaining Player Pool
+    renderPlayerPool();
+}
+
+function renderTeamsContainer() {
+    const container = document.getElementById('teams-container');
     if (!container) return;
     container.innerHTML = "";
 
-    teams.forEach(team => {
-        let div = document.createElement("div");
-        div.className = "team-card";
-        const progressPercent = (team.squad.length / 10) * 100;
+    teams.forEach((team, index) => {
+        const card = document.createElement('div');
+        card.className = 'team-card';
+        
+        let squadHtml = team.squad.map(p => `
+            <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <span>${p.name}</span>
+                <strong style="color: #34d399;">${p.purchasePrice} pts</strong>
+            </li>
+        `).join('');
 
-        let squadListHTML = "";
-        if (team.squad.length === 0) {
-            squadListHTML = `<p class="purchased-players" style="font-style: italic; color: var(--text-muted); margin: 0;">No players bought yet.</p>`;
-        } else {
-            squadListHTML = `<div class="purchased-players"><ul style="margin: 0; padding-left: 15px;">`;
-            team.squad.forEach(player => {
-                squadListHTML += `<li style="margin: 2px 0;">${player.name} - <strong>${player.cost}p</strong></li>`;
-            });
-            squadListHTML += `</ul></div>`;
-        }
-
-        div.innerHTML = `
-            <h3>${team.name} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85em;">(${team.captain})</span></h3>
-            <div class="points-display">
-                <span>Points Left:</span>
-                <span>${team.points} / 5000</span>
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="margin: 0; font-size: 1.05rem; color: #f8fafc;">${team.name}</h3>
+                <span style="background: #0284c7; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">#${index + 1}</span>
             </div>
-            <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted);">
-                Squad: <strong>${team.squad.length} / 10</strong> players
+            <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">Captain: <strong>${team.captain}</strong></div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin-bottom: 10px;">Purse Balance: ${team.points} pts</div>
+            <div style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px;">
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    ${squadHtml || '<li style="color: #64748b; font-size: 0.8rem; text-align: center;">No players bought yet</li>'}
+                </ul>
             </div>
-            <div class="squad-progress">
-                <div class="squad-progress-bar" style="width: ${progressPercent}%;"></div>
-            </div>
-            ${squadListHTML}
         `;
-        container.appendChild(div);
+        container.appendChild(card);
+    });
+}
+
+function renderCaptainTeamsGrid() {
+    const leftContainer = document.getElementById('captain-teams-left');
+    const rightContainer = document.getElementById('captain-teams-right');
+    if (!leftContainer || !rightContainer) return;
+
+    leftContainer.innerHTML = "";
+    rightContainer.innerHTML = "";
+
+    teams.forEach((team, index) => {
+        const targetContainer = index < 4 ? leftContainer : rightContainer;
+        const card = document.createElement('div');
+        card.className = 'captain-team-box';
+        card.style.background = "#111827";
+        card.style.border = "1px solid #1f2937";
+        card.style.borderRadius = "8px";
+        card.style.padding = "10px";
+        card.style.marginBottom = "8px";
+
+        let squadNames = team.squad.map(p => `<span style="display: inline-block; background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin: 2px; color: #e2e8f0;">${p.name} (${p.purchasePrice})</span>`).join('');
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-weight: 700; font-size: 0.9rem; color: #f8fafc;">${team.name}</span>
+                <span style="color: #38bdf8; font-weight: 700; font-size: 0.85rem;">${team.points} pts</span>
+            </div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">Cap: ${team.captain}</div>
+            <div style="display: flex; flex-wrap: wrap; max-height: 60px; overflow-y: auto;">
+                ${squadNames || '<span style="color: #64748b; font-size: 0.75rem;">No players yet</span>'}
+            </div>
+        `;
+        targetContainer.appendChild(card);
     });
 }
 
 function renderPlayerPool() {
-    const list = document.getElementById("player-pool-list");
-    if (!list) return;
-    list.innerHTML = "";
-    
+    const poolList = document.getElementById('player-pool-list');
+    if (!poolList) return;
+    poolList.innerHTML = "";
+
+    if (players.length === 0 && unsoldPlayers.length === 0) {
+        poolList.innerHTML = `<li style="text-align: center; color: #64748b; padding: 20px;">Player pool is empty.</li>`;
+        return;
+    }
+
     players.forEach(p => {
-        let catLetter = getCategoryLetter(p.category);
-        let li = document.createElement("div");
-        li.innerHTML = `${p.name} <strong style="color: #34d399;">${catLetter}</strong>`;
-        list.appendChild(li);
+        const li = document.createElement('li');
+        li.className = 'player-pool-item';
+        li.style.display = 'flex';
+        li.style.justify = 'space-between';
+        li.style.padding = '8px';
+        li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        li.innerHTML = `
+            <div>
+                <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
+                <div style="font-size: 0.75rem; color: #94a3b8;">Skill: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
+            </div>
+            <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; height: fit-content;">Cat ${getCategoryLetter(p.category)}</span>
+        `;
+        poolList.appendChild(li);
     });
 
     if (unsoldPlayers.length > 0) {
-        let headerLi = document.createElement("div");
-        headerLi.innerHTML = `<hr style="border-color: #374151; margin: 8px 0 6px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
-        list.appendChild(headerLi);
+        const headerLi = document.createElement('li');
+        headerLi.innerHTML = `<h3 style="color: #f87171; margin: 15px 0 5px 0; font-size: 0.95rem;">Unsold Section</h3>`;
+        poolList.appendChild(headerLi);
 
         unsoldPlayers.forEach(p => {
-            let catLetter = getCategoryLetter(p.category);
-            let li = document.createElement("div");
-            li.style.color = "#9ca3af";
-            li.innerHTML = `${p.name} <strong style="color: #f87171;">${catLetter}</strong>`;
-            list.appendChild(li);
+            const li = document.createElement('li');
+            li.style.padding = '6px';
+            li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            li.style.opacity = '0.7';
+            li.innerHTML = `
+                <strong style="color: #fca5a5; font-size: 0.85rem;">${p.name}</strong> 
+                <span style="font-size: 0.75rem; color: #94a3b8;">(Cat ${getCategoryLetter(p.category)})</span>
+            `;
+            poolList.appendChild(li);
         });
     }
 }
 
+// Backup & CSV Export Helpers
 function downloadSquadCSV() {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Team Name,Captain,Points Left,Player Name,Category,Cost (Points)\n";
-
+    let csvContent = "data:text/csv;charset=utf-8,Team Name,Captain,Remaining Points,Player Name,Category,Purchase Price\n";
     teams.forEach(team => {
         if (team.squad.length === 0) {
-            let row = `"${team.name}","${team.captain}",${team.points},"None","N/A",0`;
-            csvContent += row + "\n";
+            csvContent += `"${team.name}","${team.captain}",${team.points},,,\n`;
         } else {
-            team.squad.forEach(player => {
-                let catLetter = getCategoryLetter(player.category);
-                let row = `"${team.name}","${team.captain}",${team.points},"${player.name}","${catLetter}",${player.cost}`;
-                csvContent += row + "\n";
+            team.squad.forEach(p => {
+                csvContent += `"${team.name}","${team.captain}",${team.points},"${p.name}",${p.category},${p.purchasePrice}\n`;
             });
         }
     });
-
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Pramukh_Cup_2026_Squads.csv");
+    link.setAttribute("download", "auction_squads_summary.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-}
-
-// Updated function to populate remote links modal using team name slugs
-function openRemoteLinksModal() {
-    const modal = document.getElementById("remote-links-modal");
-    const listContainer = document.getElementById("remote-links-list");
-    if (!modal || !listContainer) return;
-
-    listContainer.innerHTML = "";
-    const baseUrl = window.location.origin + window.location.pathname;
-
-    teams.forEach((team) => {
-        const slug = getTeamSlug(team.name);
-        const link = `${baseUrl}?view=captain&team=${slug}`;
-
-        const item = document.createElement("div");
-        item.className = "captain-link-item";
-        item.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 14px; border-radius: 6px; margin-bottom: 8px;";
-        
-        item.innerHTML = `
-            <div style="overflow: hidden; margin-right: 10px;">
-                <strong style="color: #f8fafc; font-size: 0.95rem;">${team.name} (${team.captain})</strong><br>
-                <span style="color: #94a3b8; font-size: 0.8rem; word-break: break-all;">${link}</span>
-            </div>
-            <button class="btn primary" style="font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; background: #0284c7; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="navigator.clipboard.writeText('${link}').then(() => alert('Link copied for ${team.name}!'))">Copy Link</button>
-        `;
-        listContainer.appendChild(item);
-    });
-
-    modal.style.display = "flex";
 }
