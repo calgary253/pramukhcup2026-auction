@@ -191,8 +191,8 @@ function switchView(mode, savePreference = true) {
         if (adminContainer) adminContainer.style.display = 'none';
         if (captainContainer) {
             captainContainer.style.display = 'grid';
-            // Maintain original structure layout, but allow full vertical stretching to eliminate bottom whitespace
-            captainContainer.style.gridTemplateColumns = "1fr 1fr";
+            // Configure 3-column layout: Left column (Teams 1-4), Center column (Status), Right column (Teams 5-8)
+            captainContainer.style.gridTemplateColumns = "1.2fr 1fr 1.2fr";
             captainContainer.style.gap = "16px";
             captainContainer.style.alignItems = "stretch";
         }
@@ -524,7 +524,7 @@ function renderCaptainTeamsGrid() {
     const rightContainer = document.getElementById('captain-teams-right');
     if (!leftContainer || !rightContainer) return;
 
-    // Expand container layout to stretch and fill the remaining bottom vertical space
+    // Expand outer containers to fill vertical space for 3-column setup
     leftContainer.style.display = "flex";
     leftContainer.style.flexDirection = "column";
     leftContainer.style.flex = "1";
@@ -546,7 +546,7 @@ function renderCaptainTeamsGrid() {
         card.style.border = "2px solid #1f2937";
         card.style.borderRadius = "10px";
         card.style.padding = "16px";
-        card.style.flex = "1"; // Allows each team box to dynamically expand and fill bottom space equally
+        card.style.flex = "1"; // Dynamically expands team boxes to fill vertical space equally
         card.style.display = "flex";
         card.style.flexDirection = "column";
         card.style.justifyContent = "space-between";
@@ -557,13 +557,13 @@ function renderCaptainTeamsGrid() {
         card.innerHTML = `
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-weight: 800; font-size: 1.25rem; color: #f8fafc;">${team.name}</span>
-                    <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.15rem; padding: 3px 10px; border-radius: 6px;">${team.points} pts</span>
+                    <span style="font-weight: 800; font-size: 1.2rem; color: #f8fafc;">${team.name}</span>
+                    <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.1rem; padding: 3px 10px; border-radius: 6px;">${team.points} pts</span>
                 </div>
-                <div style="font-size: 0.95rem; color: #94a3b8; margin-bottom: 12px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
+                <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
             </div>
-            <div style="display: flex; flex-wrap: wrap; max-height: 140px; overflow-y: auto; background: rgba(0, 0, 0, 0.25); padding: 10px; border-radius: 6px;">
-                ${squadNames || '<span style="color: #64748b; font-size: 0.9rem;">No players bought yet</span>'}
+            <div style="display: flex; flex-wrap: wrap; max-height: 130px; overflow-y: auto; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
+                ${squadNames || '<span style="color: #64748b; font-size: 0.85rem;">No players bought yet</span>'}
             </div>
         `;
         targetContainer.appendChild(card);
