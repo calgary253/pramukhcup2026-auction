@@ -285,19 +285,20 @@ function finalizeBid() {
         return;
     }
 
-    const selectEl = document.getElementById('bidder-select');
     const amountEl = document.getElementById('bid-amount');
-
-    const teamIndex = parseInt(selectEl.value);
-    let targetTeamIndex = teamIndex;
+    let targetTeamIndex = -1;
     let finalSaleAmount = currentHighestBid;
 
+    // Find the very last bid action made for the current active player
     const lastBidAction = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === currentActivePlayer.name);
     
     if (lastBidAction) {
         targetTeamIndex = lastBidAction.teamIndex;
         finalSaleAmount = lastBidAction.amount;
     } else {
+        // Fallback if no bids were recorded in history yet
+        const selectEl = document.getElementById('bidder-select');
+        targetTeamIndex = parseInt(selectEl.value);
         const fallbackAdd = parseInt(amountEl.value);
         if (!isNaN(fallbackAdd) && fallbackAdd > 0) {
             currentHighestBid += fallbackAdd;
@@ -306,7 +307,7 @@ function finalizeBid() {
     }
 
     if (isNaN(targetTeamIndex) || targetTeamIndex < 0 || targetTeamIndex >= teams.length) {
-        alert("Please select a team before finalizing.");
+        alert("Please ensure a valid team has placed a bid before finalizing.");
         return;
     }
 
