@@ -372,7 +372,7 @@ function updateUI() {
     const leadingBidderDisplay = document.getElementById('leading-bidder-display');
     const announcementEl = document.getElementById('sold-announcement');
 
-    if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `Category ${getCategoryLetter(currentActivePlayer.category)}` : "-";
+    if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
     if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
     if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
     if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
@@ -389,7 +389,7 @@ function updateUI() {
     const captainLeadingDisplay = document.getElementById('captain-leading-display');
     const captainAnnouncement = document.getElementById('captain-sold-announcement');
 
-    if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `Category ${getCategoryLetter(currentActivePlayer.category)}` : "-";
+    if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
     if (captainActiveName) captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : "Waiting for next player...";
     if (captainPlayerMeta) {
         captainPlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
@@ -505,7 +505,7 @@ function renderPlayerPool() {
                 <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
                 <div style="font-size: 0.75rem; color: #94a3b8;">Skill: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
             </div>
-            <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; height: fit-content;">Cat ${getCategoryLetter(p.category)}</span>
+            <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; height: fit-content;">${getCategoryLetter(p.category)}</span>
         `;
         poolList.appendChild(li);
     });
@@ -522,7 +522,7 @@ function renderPlayerPool() {
             li.style.opacity = '0.7';
             li.innerHTML = `
                 <strong style="color: #fca5a5; font-size: 0.85rem;">${p.name}</strong> 
-                <span style="font-size: 0.75rem; color: #94a3b8;">(Cat ${getCategoryLetter(p.category)})</span>
+                <span style="font-size: 0.75rem; color: #94a3b8;">(${getCategoryLetter(p.category)})</span>
             `;
             poolList.appendChild(li);
         });
@@ -613,38 +613,67 @@ function importAuctionState(event) {
     reader.readAsText(file);
 }
 
-function importPlayerPoolCSV(event) {
+function importPlayerPoolFile(event) {
     const file = event.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
+    const fileName = file.name.toLowerCase();
+
     reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.split('\n');
-        let newPlayers = [];
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            const cols = line.split(',');
-            if (cols.length >= 2) {
-                newPlayers.push({
-                    name: cols[0].replace(/^"|"$/g, '').trim(),
-                    category: cols[1].replace(/^"|"$/g, '').trim(),
-                    skillLevel: cols[2] ? cols[2].replace(/^"|"$/g, '').trim() : '',
-                    notes: cols[3] ? cols[3].replace(/^"|"$/g, '').trim() : ''
-                });
+        try {
+            let data;
+            let workbook;
+
+            if (fileName.endsWith('.csv')) {
+                data = e.target.result;
+                workbook = XLSX.read(data, { type: 'string' });
+            } else {
+                data = new Uint8Array(e.target.result);
+                workbook = XLSX.read(data, { type: 'array' });
             }
-        }
-        if (newPlayers.length > 0) {
-            players = newPlayers;
-            unsoldPlayers = [];
-            currentActivePlayer = null;
-            currentHighestBid = 50;
-            currentLeaderText = "None";
-            saveStateToCloud();
-            alert(`Successfully loaded ${newPlayers.length} players into pool!`);
-        } else {
-            alert("No valid players found in CSV.");
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            processImportedRows(rows);
+        } catch (err) {
+            console.error("File parse error:", err);
+            alert("Could not parse file. Ensure it is a valid CSV or Excel file.");
         }
     };
-    reader.readAsText(file);
+
+    if (fileName.endsWith('.csv')) {
+        reader.readAsText(file);
+    } else {
+        reader.readAsArrayBuffer(file);
+    }
+}
+
+function processImportedRows(rows) {
+    let newPlayers = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+        const cols = rows[i];
+        if (!cols || cols.length === 0 || !cols[0]) continue;
+        
+        newPlayers.push({
+            name: String(cols[0] || '').trim(),
+            category: String(cols[1] || '1').trim(),
+            skillLevel: String(cols[2] || '').trim(),
+            notes: String(cols[3] || '').trim()
+        });
+    }
+
+    if (newPlayers.length > 0) {
+        players = newPlayers;
+        unsoldPlayers = [];
+        currentActivePlayer = null;
+        currentHighestBid = 50;
+        currentLeaderText = "None";
+        saveStateToCloud();
+        alert(`Successfully replaced player pool with ${newPlayers.length} players!`);
+    } else {
+        alert("No valid players found in the file.");
+    }
 }
