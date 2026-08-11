@@ -157,38 +157,6 @@ function switchView(mode, savePreference = true) {
     updateUI();
 }
 
-function openCaptainLinksModal() {
-    const modal = document.getElementById("remote-links-modal");
-    const container = document.getElementById("remote-links-container");
-    if (!modal || !container) return;
-
-    const baseUrl = window.location.origin + window.location.pathname;
-    container.innerHTML = "";
-
-    teams.forEach((team, index) => {
-        const teamNum = index + 1;
-        const link = `${baseUrl}?view=captain&team=${teamNum}`;
-
-        let item = document.createElement("div");
-        item.style.cssText = "background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
-        item.innerHTML = `
-            <div style="overflow: hidden;">
-                <strong style="color: #34d399; display: block; margin-bottom: 2px;">${team.name} (${team.captain})</strong>
-                <span style="font-size: 0.8em; color: #94a3b8; word-break: break-all;">${link}</span>
-            </div>
-            <button onclick="navigator.clipboard.writeText('${link}'); alert('Personal view link copied for ${team.name}!');" class="btn-sm" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap;">Copy Link</button>
-        `;
-        container.appendChild(item);
-    });
-
-    modal.style.display = "flex";
-}
-
-function closeCaptainLinksModal() {
-    const modal = document.getElementById("remote-links-modal");
-    if (modal) modal.style.display = "none";
-}
-
 function importPlayerPoolCSV(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -539,7 +507,6 @@ function submitBid() {
     const picksRemainingToBuy = totalAuctionPicksNeeded - team.squad.length;
     const mandatoryReserveForOthers = (picksRemainingToBuy - 1) * 50;
     
-    // If no bids yet, first bid must be at least 50
     let newTotalBid;
     if (currentHighestBid === 0) {
         newTotalBid = Math.max(bidRaiseAmount, 50);
