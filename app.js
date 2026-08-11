@@ -552,7 +552,7 @@ function renderCaptainTeamsGrid() {
         card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
-        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 5px 9px; border-radius: 6px; font-size: 0.9rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name} <strong style="color: #34d399;">(${p.purchasePrice})</strong></span>`).join('');
+        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 5px 9px; border-radius: 6px; font-size: 0.9rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name}</span>`).join('');
 
         card.innerHTML = `
             <div>
