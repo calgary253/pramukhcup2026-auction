@@ -48,7 +48,6 @@ function getCategoryLetter(cat) {
 }
 
 window.onload = async function() {
-    // Check URL parameters for view and remote team binding
     const urlParams = new URLSearchParams(window.location.search);
     const viewParam = urlParams.get('view');
     const teamParam = urlParams.get('team');
@@ -60,7 +59,7 @@ window.onload = async function() {
     // Listen to real-time changes from Firebase Cloud Database
     dbRef.on('value', (snapshot) => {
         const cloudState = snapshot.val();
-        if (cloudState) {
+        if (cloudState && (cloudState.players || cloudState.teams)) {
             players = cloudState.players || [];
             unsoldPlayers = cloudState.unsoldPlayers || [];
             teams = cloudState.teams || JSON.parse(JSON.stringify(initialTeams));
@@ -73,7 +72,7 @@ window.onload = async function() {
             
             updateUI();
         } else {
-            // Initialize database if empty
+            // Seed default data so it never disappears on load
             loadInitialPlayerPool();
         }
     });
@@ -97,17 +96,24 @@ window.onload = async function() {
 async function loadInitialPlayerPool() {
     try {
         let response = await fetch('players.json');
+        if (!response.ok) throw new Error("Network response was not ok");
         players = await response.json();
-        unsoldPlayers = [];
-        teams = JSON.parse(JSON.stringify(initialTeams));
-        currentHighestBid = 0;
-        currentLeaderText = "None";
-        lastAuctionMessage = "";
-        lastAuctionMessageType = "";
-        saveStateToCloud();
     } catch (error) {
-        console.error("Could not load players.json", error);
+        console.warn("Could not load players.json (likely due to local CORS restrictions). Using built-in sample pool:", error);
+        players = [
+            { name: "Sample Player 1", category: "1", skillLevel: "Advanced", notes: "All-rounder" },
+            { name: "Sample Player 2", category: "2", skillLevel: "Intermediate", notes: "Batsman" },
+            { name: "Sample Player 3", category: "3", skillLevel: "Beginner", notes: "Bowler" }
+        ];
     }
+    
+    unsoldPlayers = [];
+    teams = JSON.parse(JSON.stringify(initialTeams));
+    currentHighestBid = 0;
+    currentLeaderText = "None";
+    lastAuctionMessage = "Player pool initialized successfully";
+    lastAuctionMessageType = "info";
+    saveStateToCloud();
 }
 
 // Save state to Firebase Cloud (instant broadcast to all remote captains)
@@ -351,7 +357,7 @@ function renderTeamsContainer() {
         const card = document.createElement('div');
         card.className = 'team-card';
         
-        let squadHtml = team.squad.map(p => `
+        let squadHtml = (team.squad || []).map(p => `
             <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span>${p.name}</span>
                 <strong style="color: #34d399;">${p.purchasePrice} pts</strong>
@@ -393,7 +399,7 @@ function renderCaptainTeamsGrid() {
         card.style.padding = "10px";
         card.style.marginBottom = "8px";
 
-        let squadNames = team.squad.map(p => `<span style="display: inline-block; background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin: 2px; color: #e2e8f0;">${p.name} (${p.purchasePrice})</span>`).join('');
+        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin: 2px; color: #e2e8f0;">${p.name} (${p.purchasePrice})</span>`).join('');
 
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
