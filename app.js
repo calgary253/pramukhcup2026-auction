@@ -368,6 +368,21 @@ function updateUI() {
 
     if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
     if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
+    
+    // Create or update active player meta display for Admin view
+    let activePlayerMeta = document.getElementById('admin-player-meta');
+    if (!activePlayerMeta && activeNameEl) {
+        activePlayerMeta = document.createElement('div');
+        activePlayerMeta.id = 'admin-player-meta';
+        activePlayerMeta.style.fontSize = "0.95rem";
+        activePlayerMeta.style.color = "#94a3b8";
+        activePlayerMeta.style.marginTop = "6px";
+        activeNameEl.parentNode.insertBefore(activePlayerMeta, activeNameEl.nextSibling);
+    }
+    if (activePlayerMeta) {
+        activePlayerMeta.innerText = currentActivePlayer ? `Skill: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
+    }
+
     if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
     if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
 
@@ -409,7 +424,6 @@ function updateUI() {
     renderCaptainTeamsGrid();
     renderPlayerPool();
 }
-
 function renderTeamsContainer() {
     const container = document.getElementById('teams-container');
     if (!container) return;
