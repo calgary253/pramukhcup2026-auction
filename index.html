@@ -217,33 +217,6 @@
     <!-- Application Script -->
     <script src="app.js"></script>
     <script>
-        function openRemoteLinksModal() {
-            const modal = document.getElementById("remote-links-modal");
-            const listContainer = document.getElementById("remote-links-list");
-            if (!modal || !listContainer) return;
-
-            listContainer.innerHTML = "";
-            const baseUrl = window.location.origin + window.location.pathname;
-
-            teams.forEach((team, index) => {
-                const teamNum = index + 1;
-                const link = `${baseUrl}?view=captain&team=${teamNum}`;
-
-                const item = document.createElement("div");
-                item.className = "captain-link-item";
-                item.innerHTML = `
-                    <div>
-                        <strong style="color: #f8fafc;">${team.name} (${team.captain})</strong><br>
-                        <span>${link}</span>
-                    </div>
-                    <button class="btn primary" style="font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; background: #0284c7; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="navigator.clipboard.writeText('${link}').then(() => alert('Link copied for ${team.name}!'))">Copy Link</button>
-                `;
-                listContainer.appendChild(item);
-            });
-
-            modal.style.display = "flex";
-        }
-
         function closeRemoteLinksModal() {
             const modal = document.getElementById("remote-links-modal");
             if (modal) modal.style.display = "none";
