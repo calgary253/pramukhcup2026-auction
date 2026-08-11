@@ -58,7 +58,7 @@ window.onload = async function() {
     }
 
     // Listen to real-time changes from Firebase Cloud Database
-    dbRef.on('value', (snapshot) => {
+    dbRef.on('value', async (snapshot) => {
         const cloudState = snapshot.val();
         if (cloudState && cloudState.teams && cloudState.teams.length > 0) {
             players = cloudState.players || [];
@@ -72,6 +72,9 @@ window.onload = async function() {
             lastAuctionMessageType = cloudState.lastAuctionMessageType || "";
             
             updateUI();
+        } else {
+            // If cloud state is completely empty on first load, populate default player pool
+            await loadInitialPlayerPool();
         }
     });
 
@@ -107,7 +110,7 @@ async function loadInitialPlayerPool() {
     
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
-    currentActivePlayer = null; // Explicitly set to null so it shows waiting state
+    currentActivePlayer = null; 
     currentHighestBid = 0;
     currentLeaderText = "None";
     lastAuctionMessage = "Auction system ready. Click 'Next Player' to begin.";
@@ -137,7 +140,7 @@ async function resetEntireAuction() {
     
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
-    currentActivePlayer = null; // Explicitly set to null on reset
+    currentActivePlayer = null; 
     auctionHistory = [];
     currentHighestBid = 0;
     currentLeaderText = "None";
