@@ -640,47 +640,42 @@ function importPlayerPoolFile(event) {
     const reader = new FileReader();
     const fileName = file.name.toLowerCase();
 
-    // SheetJS handles both Excel (.xlsx/.xls) and CSV files cleanly
-    reader.onload = function(e) {
-        try {
-            let data;
-            let workbook;
-
-            if (fileName.endsWith('.csv')) {
-                // Read CSV text data into SheetJS
-                data = e.target.result;
-                workbook = XLSX.read(data, { type: 'string' });
-            } else {
-                // Read binary array data for Excel files
-                data = new Uint8Array(e.target.result);
-                workbook = XLSX.read(data, { type: 'array' });
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        // Handle Excel files using SheetJS
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Read the first worksheet
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Convert worksheet to JSON rows (array of arrays)
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                processImportedRows(rows);
+            } catch (err) {
+                console.error("Excel parse error:", err);
+                alert("Invalid Excel file format.");
             }
-            
-            // Read the first worksheet
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            
-            // Convert worksheet to JSON rows (array of arrays)
-            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            processImportedRows(rows);
-        } catch (err) {
-            console.error("File parse error:", err);
-            alert("Could not parse file. Ensure it is a valid CSV or Excel file.");
-        }
-    };
-
-    if (fileName.endsWith('.csv')) {
-        reader.readAsText(file);
-    } else {
+        };
         reader.readAsArrayBuffer(file);
+    } else {
+        // Handle CSV files
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const lines = text.split('\n');
+            let rows = lines.map(line => line.split(',').map(col => col.replace(/^"|"$/g, '').trim()));
+            processImportedRows(rows);
+        };
+        reader.readAsText(file);
     }
 }
 
-// Helper function to map rows into clean player objects
+// Helper function to map rows into player objects consistently
 function processImportedRows(rows) {
     let newPlayers = [];
-    
-    // Skip header row (index 0) and loop through data rows
+    // Assuming row 0 is headers, start looping from index 1
     for (let i = 1; i < rows.length; i++) {
         const cols = rows[i];
         if (!cols || cols.length === 0 || !cols[0]) continue;
