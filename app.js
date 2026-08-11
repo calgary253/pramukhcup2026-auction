@@ -244,38 +244,36 @@ function submitBid() {
     const amountEl = document.getElementById('bid-amount');
 
     const teamIndex = parseInt(selectEl.value);
-    const bidAmount = parseInt(amountEl.value);
+    const addedAmount = parseInt(amountEl.value);
 
     if (isNaN(teamIndex) || teamIndex < 0 || teamIndex >= teams.length) {
         alert("Please select a valid team.");
         return;
     }
 
-    if (isNaN(bidAmount) || bidAmount <= 0) {
-        alert("Please enter a valid bid amount.");
+    if (isNaN(addedAmount) || addedAmount <= 0) {
+        alert("Please enter a valid points increment amount.");
         return;
     }
 
-    // Accumulative Bidding Rule: Every new bid submitted must be HIGHER than the previous highest bid.
-    // The current highest bid replaces the old one and becomes the new baseline.
-    if (bidAmount <= currentHighestBid) {
-        alert(`New bid must be strictly greater than the current highest bid (${currentHighestBid} pts).`);
+    // Accumulative Addition Rule: Adds the entered points on top of the existing Current Highest Bid
+    currentHighestBid += addedAmount;
+    
+    if (teams[teamIndex].points < currentHighestBid) {
+        // Rollback addition if team lacks funds
+        currentHighestBid -= addedAmount;
+        alert(`${teams[teamIndex].name} does not have enough points for this total bid (${currentHighestBid} pts)!`);
         return;
     }
 
-    if (teams[teamIndex].points < bidAmount) {
-        alert(`${teams[teamIndex].name} does not have enough points!`);
-        return;
-    }
-
-    currentHighestBid = bidAmount;
-    currentLeaderText = `${teams[teamIndex].name} (${teams[teamIndex].captain}) - ${bidAmount} pts`;
+    currentLeaderText = `${teams[teamIndex].name} (${teams[teamIndex].captain}) - ${currentHighestBid} pts`;
     
     auctionHistory.push({
         type: 'bid',
         player: currentActivePlayer,
         teamIndex: teamIndex,
-        amount: bidAmount
+        amount: currentHighestBid,
+        increment: addedAmount
     });
 
     saveStateToCloud();
@@ -291,8 +289,6 @@ function finalizeBid() {
     const amountEl = document.getElementById('bid-amount');
 
     const teamIndex = parseInt(selectEl.value);
-    const bidAmount = parseInt(amountEl.value);
-
     let targetTeamIndex = teamIndex;
     let finalSaleAmount = currentHighestBid;
 
@@ -301,9 +297,12 @@ function finalizeBid() {
     if (lastBidAction) {
         targetTeamIndex = lastBidAction.teamIndex;
         finalSaleAmount = lastBidAction.amount;
-    } else if (!isNaN(bidAmount) && bidAmount > 0) {
-        targetTeamIndex = teamIndex;
-        finalSaleAmount = bidAmount;
+    } else {
+        const fallbackAdd = parseInt(amountEl.value);
+        if (!isNaN(fallbackAdd) && fallbackAdd > 0) {
+            currentHighestBid += fallbackAdd;
+            finalSaleAmount = currentHighestBid;
+        }
     }
 
     if (isNaN(targetTeamIndex) || targetTeamIndex < 0 || targetTeamIndex >= teams.length) {
