@@ -64,6 +64,21 @@
         body.captain-view-mode .remote-links-container {
             display: none !important;
         }
+
+        /* Mobile & Tablet Responsive Fix for Captain View */
+        @media (max-width: 1024px) {
+            #captain-view-container {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 14px !important;
+            }
+            
+            #captain-teams-left, #captain-teams-right {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -110,7 +125,7 @@
                     <div id="active-player-cat" class="category-badge">-</div>
                     <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
                     <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;" id="current-bid-display">
-                        Current Highest Bid: <strong>50 pts</strong> (No bids yet)
+                        Current Highest Bid: <strong>0 pts</strong> (No bids yet)
                     </div>
                     <!-- Leading Bidder / Team Status Info Message -->
                     <div id="leading-bidder-display" style="font-size: 0.95em; color: #60a5fa; font-weight: 500; margin-top: 6px;">
