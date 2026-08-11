@@ -52,8 +52,9 @@ window.onload = async function() {
     const viewParam = urlParams.get('view');
     const teamParam = urlParams.get('team');
 
-    if (viewParam === 'captain') {
+    if (viewParam === 'captain' || teamParam) {
         currentViewMode = 'captain';
+        document.body.classList.add('captain-view-mode');
     }
 
     // Listen to real-time changes from Firebase Cloud Database
@@ -72,7 +73,6 @@ window.onload = async function() {
             
             updateUI();
         } else {
-            // Only seed if cloud data is completely uninitialized
             loadInitialPlayerPool();
         }
     });
@@ -115,6 +115,38 @@ async function loadInitialPlayerPool() {
     lastAuctionMessageType = "info";
     
     saveStateToCloud();
+}
+
+// Complete Auction & Player Pool Reset Feature
+async function resetEntireAuction() {
+    if (!confirm("⚠️ Are you sure you want to completely reset all teams, squads, and player pools? This will erase all history and cannot be undone!")) {
+        return;
+    }
+
+    try {
+        let response = await fetch('players.json');
+        if (!response.ok) throw new Error("Network response failed");
+        players = await response.json();
+    } catch (error) {
+        console.warn("Could not load players.json, using fallback pool:", error);
+        players = [
+            { name: "Sample Player 1", category: "1", skillLevel: "Advanced", notes: "All-rounder" },
+            { name: "Sample Player 2", category: "2", skillLevel: "Intermediate", notes: "Batsman" },
+            { name: "Sample Player 3", category: "3", skillLevel: "Beginner", notes: "Bowler" }
+        ];
+    }
+    
+    unsoldPlayers = [];
+    teams = JSON.parse(JSON.stringify(initialTeams));
+    currentActivePlayer = null;
+    auctionHistory = [];
+    currentHighestBid = 0;
+    currentLeaderText = "None";
+    lastAuctionMessage = "Auction system fully reset!";
+    lastAuctionMessageType = "info";
+    
+    saveStateToCloud();
+    alert("Auction has been successfully reset!");
 }
 
 // Save state to Firebase Cloud (instant broadcast to all remote captains)
