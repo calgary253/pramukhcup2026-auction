@@ -277,27 +277,44 @@ function finalizeBid() {
         return;
     }
 
-    if (currentLeaderText === "None") {
-        alert("Cannot finalize sale with no active bids. Use 'Mark Unsold' if needed.");
-        return;
-    }
+    const selectEl = document.getElementById('bidder-select');
+    const amountEl = document.getElementById('bid-amount');
+
+    const teamIndex = parseInt(selectEl.value);
+    const bidAmount = parseInt(amountEl.value);
+
+    // Fallback: If no bids were officially registered in history yet, use the current input box values
+    let targetTeamIndex = teamIndex;
+    let finalSaleAmount = bidAmount;
 
     const lastBidAction = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === currentActivePlayer.name);
-    if (!lastBidAction) {
-        alert("No valid winning bid found.");
+    
+    if (lastBidAction) {
+        targetTeamIndex = lastBidAction.teamIndex;
+        finalSaleAmount = lastBidAction.amount;
+    } else if (isNaN(targetTeamIndex) || isNaN(finalSaleAmount) || finalSaleAmount <= 0) {
+        alert("Please select a team and enter a valid winning bid amount before finalizing.");
         return;
     }
 
-    const winningTeam = teams[lastBidAction.teamIndex];
-    winningTeam.points -= currentHighestBid;
+    const winningTeam = teams[targetTeamIndex];
+
+    if (winningTeam.points < finalSaleAmount) {
+        alert(`${winningTeam.name} does not have enough points (${winningTeam.points} pts left) to cover this bid!`);
+        return;
+    }
+
+    // Deduct points and add to squad
+    winningTeam.points -= finalSaleAmount;
     winningTeam.squad.push({
         ...currentActivePlayer,
-        purchasePrice: currentHighestBid
+        purchasePrice: finalSaleAmount
     });
 
-    lastAuctionMessage = `SOLD! ${currentActivePlayer.name} to ${winningTeam.name} for ${currentHighestBid} pts!`;
+    lastAuctionMessage = `SOLD! ${currentActivePlayer.name} to ${winningTeam.name} for ${finalSaleAmount} pts!`;
     lastAuctionMessageType = "success";
 
+    // Reset for next player
     currentActivePlayer = null;
     currentHighestBid = 0;
     currentLeaderText = "None";
