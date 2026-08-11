@@ -49,13 +49,34 @@ function getCategoryLetter(cat) {
     return cleanCat.replace(/CAT\s*/gi, ''); 
 }
 
-// Helper to sort players by category alphabetically (A -> B -> C -> Others)
-function sortPlayersByCategory(playerList) {
-    return [...playerList].sort((a, b) => {
-        const catA = getCategoryLetter(a.category);
-        const catB = getCategoryLetter(b.category);
-        return catA.localeCompare(catB);
+// Helper utility to shuffle arrays randomly
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Group players by category, shuffle randomly inside each category, then merge back (A -> B -> C)
+function randomizePlayerPool(playerList) {
+    const categories = {};
+    
+    playerList.forEach(p => {
+        const cat = getCategoryLetter(p.category);
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(p);
     });
+
+    let randomizedList = [];
+    const sortedCats = Object.keys(categories).sort();
+
+    sortedCats.forEach(cat => {
+        const shuffledCategoryPlayers = shuffleArray(categories[cat]);
+        randomizedList = randomizedList.concat(shuffledCategoryPlayers);
+    });
+
+    return randomizedList;
 }
 
 window.onload = async function() {
@@ -84,7 +105,6 @@ window.onload = async function() {
             
             updateUI();
         } else {
-            // If cloud state is completely empty on first load, initialize with empty player pool
             await loadInitialPlayerPool();
         }
     });
@@ -106,7 +126,7 @@ window.onload = async function() {
 };
 
 async function loadInitialPlayerPool() {
-    players = []; // Starts completely empty until CSV import
+    players = []; 
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
@@ -124,7 +144,7 @@ async function resetEntireAuction() {
         return;
     }
 
-    players = []; // Fully clears player pool on reset
+    players = []; 
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
     currentActivePlayer = null; 
@@ -194,21 +214,12 @@ function nextPlayer() {
         return;
     }
 
-    // Sort the current player pool by category (A -> B -> C)
-    const sortedPool = sortPlayersByCategory(players);
+    // Pull the next player from the front of the pre-randomized category pool
+    currentActivePlayer = players.shift();
 
-    // Pull the very first player from the category-sorted list
-    currentActivePlayer = sortedPool.shift();
-
-    // Remove the pulled player from the global players array
-    const pulledIndex = players.findIndex(p => p.name === currentActivePlayer.name && p.category === currentActivePlayer.category);
-    if (pulledIndex !== -1) {
-        players.splice(pulledIndex, 1);
-    }
-
-    currentHighestBid = 50; // Base bid starts at 50 points for each new player
+    currentHighestBid = 50; 
     currentLeaderText = "None";
-    lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name}`;
+    lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name} (Cat: ${getCategoryLetter(currentActivePlayer.category)})`;
     lastAuctionMessageType = "info";
 
     saveStateToCloud();
@@ -221,6 +232,12 @@ function markAsUnsold() {
     }
 
     unsoldPlayers.push(currentActivePlayer);
+    
+    auctionHistory.push({
+        type: 'unsold',
+        player: currentActivePlayer
+    });
+
     lastAuctionMessage = `${currentActivePlayer.name} marked as Unsold.`;
     lastAuctionMessageType = "warning";
 
@@ -253,11 +270,9 @@ function submitBid() {
         return;
     }
 
-    // Accumulative Addition Rule: Adds the entered points on top of the existing Current Highest Bid
     currentHighestBid += addedAmount;
     
     if (teams[teamIndex].points < currentHighestBid) {
-        // Rollback addition if team lacks funds
         currentHighestBid -= addedAmount;
         alert(`${teams[teamIndex].name} does not have enough points for this total bid (${currentHighestBid} pts)!`);
         return;
@@ -324,6 +339,13 @@ function finalizeBid() {
         purchasePrice: finalSaleAmount
     });
 
+    auctionHistory.push({
+        type: 'sold',
+        player: currentActivePlayer,
+        teamIndex: targetTeamIndex,
+        amount: finalSaleAmount
+    });
+
     lastAuctionMessage = `SOLD! ${currentActivePlayer.name} to ${winningTeam.name} for ${finalSaleAmount} pts!`;
     lastAuctionMessageType = "success";
 
@@ -336,11 +358,12 @@ function finalizeBid() {
 
 function undoLastBid() {
     if (auctionHistory.length === 0) {
-        alert("No recent bids to undo.");
+        alert("No recent actions to undo.");
         return;
     }
 
     const lastAction = auctionHistory.pop();
+
     if (lastAction.type === 'bid') {
         const previousBid = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === lastAction.player.name);
         if (previousBid) {
@@ -352,8 +375,41 @@ function undoLastBid() {
         }
         lastAuctionMessage = "Last bid undone.";
         lastAuctionMessageType = "info";
-        saveStateToCloud();
+    } 
+    else if (lastAction.type === 'sold') {
+        const team = teams[lastAction.teamIndex];
+        if (team && team.squad) {
+            const squadIndex = team.squad.findIndex(p => p.name === lastAction.player.name);
+            if (squadIndex !== -1) {
+                team.squad.splice(squadIndex, 1);
+                team.points += lastAction.amount; 
+            }
+        }
+        
+        players.unshift(lastAction.player);
+        currentActivePlayer = lastAction.player;
+        currentHighestBid = lastAction.amount;
+        currentLeaderText = `${team.name} (${team.captain}) - ${lastAction.amount} pts`;
+        
+        lastAuctionMessage = `Undo: ${lastAction.player.name} restored to active bidding.`;
+        lastAuctionMessageType = "warning";
     }
+    else if (lastAction.type === 'unsold') {
+        const unsoldIndex = unsoldPlayers.findIndex(p => p.name === lastAction.player.name);
+        if (unsoldIndex !== -1) {
+            unsoldPlayers.splice(unsoldIndex, 1);
+        }
+        
+        players.unshift(lastAction.player);
+        currentActivePlayer = lastAction.player;
+        currentHighestBid = 50;
+        currentLeaderText = "None";
+        
+        lastAuctionMessage = `Undo: ${lastAction.player.name} restored from unsold pool.`;
+        lastAuctionMessageType = "info";
+    }
+
+    saveStateToCloud();
 }
 
 // ==========================================
@@ -369,7 +425,6 @@ function updateUI() {
     if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
     if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
     
-    // Create or update active player meta display for Admin view
     let activePlayerMeta = document.getElementById('admin-player-meta');
     if (!activePlayerMeta && activeNameEl) {
         activePlayerMeta = document.createElement('div');
@@ -424,6 +479,7 @@ function updateUI() {
     renderCaptainTeamsGrid();
     renderPlayerPool();
 }
+
 function renderTeamsContainer() {
     const container = document.getElementById('teams-container');
     if (!container) return;
@@ -501,10 +557,7 @@ function renderPlayerPool() {
         return;
     }
 
-    // Sort players alphabetically by category (A, B, C...) before rendering
-    const sortedPlayers = sortPlayersByCategory(players);
-
-    sortedPlayers.forEach(p => {
+    players.forEach(p => {
         const li = document.createElement('li');
         li.className = 'player-pool-item';
         li.style.display = 'flex';
@@ -526,9 +579,7 @@ function renderPlayerPool() {
         headerLi.innerHTML = `<h3 style="color: #f87171; margin: 15px 0 5px 0; font-size: 0.95rem;">Unsold Section</h3>`;
         poolList.appendChild(headerLi);
 
-        const sortedUnsold = sortPlayersByCategory(unsoldPlayers);
-
-        sortedUnsold.forEach(p => {
+        unsoldPlayers.forEach(p => {
             const li = document.createElement('li');
             li.style.padding = '6px';
             li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
@@ -667,13 +718,13 @@ function importPlayerPoolFile(event) {
 }
 
 function processImportedRows(rows) {
-    let newPlayers = [];
+    let rawPlayers = [];
     
     for (let i = 1; i < rows.length; i++) {
         const cols = rows[i];
         if (!cols || cols.length === 0 || !cols[0]) continue;
         
-        newPlayers.push({
+        rawPlayers.push({
             name: String(cols[0] || '').trim(),
             category: String(cols[1] || '1').trim(),
             skillLevel: String(cols[2] || '').trim(),
@@ -681,14 +732,15 @@ function processImportedRows(rows) {
         });
     }
 
-    if (newPlayers.length > 0) {
-        players = newPlayers;
+    if (rawPlayers.length > 0) {
+        players = randomizePlayerPool(rawPlayers);
         unsoldPlayers = [];
         currentActivePlayer = null;
         currentHighestBid = 50;
         currentLeaderText = "None";
+        auctionHistory = [];
         saveStateToCloud();
-        alert(`Successfully replaced player pool with ${newPlayers.length} players!`);
+        alert(`Successfully imported and randomized ${players.length} players across categories!`);
     } else {
         alert("No valid players found in the file.");
     }
