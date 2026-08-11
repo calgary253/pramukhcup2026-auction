@@ -697,3 +697,33 @@ function downloadSquadCSV() {
     link.click();
     document.body.removeChild(link);
 }
+
+// Updated function to populate remote links modal using team name slugs
+function openRemoteLinksModal() {
+    const modal = document.getElementById("remote-links-modal");
+    const listContainer = document.getElementById("remote-links-list");
+    if (!modal || !listContainer) return;
+
+    listContainer.innerHTML = "";
+    const baseUrl = window.location.origin + window.location.pathname;
+
+    teams.forEach((team) => {
+        const slug = getTeamSlug(team.name);
+        const link = `${baseUrl}?view=captain&team=${slug}`;
+
+        const item = document.createElement("div");
+        item.className = "captain-link-item";
+        item.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 14px; border-radius: 6px; margin-bottom: 8px;";
+        
+        item.innerHTML = `
+            <div style="overflow: hidden; margin-right: 10px;">
+                <strong style="color: #f8fafc; font-size: 0.95rem;">${team.name} (${team.captain})</strong><br>
+                <span style="color: #94a3b8; font-size: 0.8rem; word-break: break-all;">${link}</span>
+            </div>
+            <button class="btn primary" style="font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; background: #0284c7; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="navigator.clipboard.writeText('${link}').then(() => alert('Link copied for ${team.name}!'))">Copy Link</button>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    modal.style.display = "flex";
+}
