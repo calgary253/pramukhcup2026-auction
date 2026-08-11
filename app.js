@@ -191,9 +191,10 @@ function switchView(mode, savePreference = true) {
         if (adminContainer) adminContainer.style.display = 'none';
         if (captainContainer) {
             captainContainer.style.display = 'grid';
-            // Increase columns/width emphasis for projector visibility
+            // Maintain original structure layout, but allow full vertical stretching to eliminate bottom whitespace
             captainContainer.style.gridTemplateColumns = "1fr 1fr";
-            captainContainer.style.gap = "20px";
+            captainContainer.style.gap = "16px";
+            captainContainer.style.alignItems = "stretch";
         }
         if (btnAdmin) {
             btnAdmin.innerText = "Switch to Admin Mode";
@@ -523,14 +524,16 @@ function renderCaptainTeamsGrid() {
     const rightContainer = document.getElementById('captain-teams-right');
     if (!leftContainer || !rightContainer) return;
 
-    // Make the left and right containers span large proportions with high visibility typography for projectors
+    // Expand container layout to stretch and fill the remaining bottom vertical space
     leftContainer.style.display = "flex";
     leftContainer.style.flexDirection = "column";
-    leftContainer.style.gap = "12px";
+    leftContainer.style.flex = "1";
+    leftContainer.style.gap = "14px";
 
     rightContainer.style.display = "flex";
     rightContainer.style.flexDirection = "column";
-    rightContainer.style.gap = "12px";
+    rightContainer.style.flex = "1";
+    rightContainer.style.gap = "14px";
 
     leftContainer.innerHTML = "";
     rightContainer.innerHTML = "";
@@ -543,18 +546,24 @@ function renderCaptainTeamsGrid() {
         card.style.border = "2px solid #1f2937";
         card.style.borderRadius = "10px";
         card.style.padding = "16px";
+        card.style.flex = "1"; // Allows each team box to dynamically expand and fill bottom space equally
+        card.style.display = "flex";
+        card.style.flexDirection = "column";
+        card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
-        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name} <strong style="color: #34d399;">(${p.purchasePrice})</strong></span>`).join('');
+        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 5px 9px; border-radius: 6px; font-size: 0.9rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name} <strong style="color: #34d399;">(${p.purchasePrice})</strong></span>`).join('');
 
         card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span style="font-weight: 800; font-size: 1.15rem; color: #f8fafc;">${team.name}</span>
-                <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.05rem; padding: 2px 8px; border-radius: 6px;">${team.points} pts</span>
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-weight: 800; font-size: 1.25rem; color: #f8fafc;">${team.name}</span>
+                    <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.15rem; padding: 3px 10px; border-radius: 6px;">${team.points} pts</span>
+                </div>
+                <div style="font-size: 0.95rem; color: #94a3b8; margin-bottom: 12px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
             </div>
-            <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
-            <div style="display: flex; flex-wrap: wrap; max-height: 120px; overflow-y: auto; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
-                ${squadNames || '<span style="color: #64748b; font-size: 0.85rem;">No players bought yet</span>'}
+            <div style="display: flex; flex-wrap: wrap; max-height: 140px; overflow-y: auto; background: rgba(0, 0, 0, 0.25); padding: 10px; border-radius: 6px;">
+                ${squadNames || '<span style="color: #64748b; font-size: 0.9rem;">No players bought yet</span>'}
             </div>
         `;
         targetContainer.appendChild(card);
