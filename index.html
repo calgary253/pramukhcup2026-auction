@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pramukh Cup 2026 - Live Cricket Auction</title>
+    <title>Pramukh Cup - 2026 Calgary Team Auction</title>
     <style>
         :root {
             --bg-main: #0f172a;
@@ -35,27 +35,48 @@
 
         header {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            text-align: center;
             margin-bottom: 20px;
             background: var(--bg-card);
-            padding: 15px 25px;
+            padding: 20px 25px;
             border-radius: 12px;
             border: 1px solid var(--border);
+            position: relative;
         }
 
         header h1 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: var(--text-main);
+            margin-bottom: 5px;
         }
 
         header h1 span {
             color: var(--success);
         }
 
+        .header-subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
         .view-controls {
+            position: absolute;
+            top: 20px;
+            right: 25px;
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .btn {
@@ -265,7 +286,26 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .captain-link-item {
+            background: var(--bg-main);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captain-link-item span {
+            font-size: 0.9rem;
+            word-break: break-all;
         }
 
         /* Responsive */
@@ -273,16 +313,24 @@
             #admin-view-container {
                 grid-template-columns: 1fr;
             }
+            .view-controls {
+                position: static;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Pramukh Cup 2026 <span>Auction Panel</span></h1>
         <div class="view-controls">
             <div id="remote-captain-badge">Captain View</div>
             <button onclick="switchView('admin')" class="btn" id="admin-mode-btn">Admin Mode</button>
+        </div>
+        <h1>Pramukh Cup - 2026 Calgary Team Auction</h1>
+        <div class="header-subtitle">Live Team Bidding & Squad Management Dashboard</div>
+        <div class="header-controls">
+            <button onclick="openRemoteLinksModal()" class="btn" style="font-size: 0.85rem;">🔗 Captains' Remote Links</button>
         </div>
     </header>
 
@@ -375,7 +423,56 @@
         </div>
     </div>
 
+    <!-- CAPTAINS' REMOTE LINKS MODAL -->
+    <div id="remote-links-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; border: none;">Captains' Dedicated Remote Links</h2>
+                <button onclick="closeRemoteLinksModal()" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.8rem;">✕ Close</button>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
+                Share these specific links with each captain so they can view the live auction and track team budgets directly from their personal devices:
+            </p>
+            <div id="remote-links-list">
+                <!-- Populated via JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <!-- Script File Integration -->
     <script src="auction.js"></script>
+    <script>
+        function openRemoteLinksModal() {
+            const modal = document.getElementById("remote-links-modal");
+            const listContainer = document.getElementById("remote-links-list");
+            if (!modal || !listContainer) return;
+
+            listContainer.innerHTML = "";
+            const baseUrl = window.location.origin + window.location.pathname;
+
+            teams.forEach((team, index) => {
+                const teamNum = index + 1;
+                const link = `${baseUrl}?view=captain&team=${teamNum}`;
+
+                const item = document.createElement("div");
+                item.className = "captain-link-item";
+                item.innerHTML = `
+                    <div>
+                        <strong>${team.name} (${team.captain})</strong><br>
+                        <span>${link}</span>
+                    </div>
+                    <button class="btn" style="font-size: 0.8rem; padding: 6px 10px; white-space: nowrap;" onclick="navigator.clipboard.writeText('${link}').then(() => alert('Link copied for ${team.name}!'))">Copy Link</button>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            modal.style.display = "flex";
+        }
+
+        function closeRemoteLinksModal() {
+            const modal = document.getElementById("remote-links-modal");
+            if (modal) modal.style.display = "none";
+        }
+    </script>
 </body>
 </html>
