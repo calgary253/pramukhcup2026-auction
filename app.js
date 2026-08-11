@@ -100,7 +100,7 @@ window.onload = async function() {
                 badge.style.display = "block";
                 const matchedTeam = teams.find((t, index) => (index + 1).toString() === teamParam || t.name.toLowerCase().includes(teamParam.toLowerCase()));
                 if (matchedTeam) {
-                    badge.innerText = `Remote View: ${matchedTeam.name} (${matchedTeam.captain})`;
+                    badge.innerText = `Captain View: ${matchedTeam.name} (${matchedTeam.captain})`;
                 }
             }
         }
@@ -144,34 +144,20 @@ function switchView(mode, savePreference = true) {
 
     const adminContainer = document.getElementById("admin-view-container");
     const captainContainer = document.getElementById("captain-view-container");
-    const btnAdmin = document.getElementById("btn-view-admin");
-    const btnCaptain = document.getElementById("btn-view-captain");
 
     if (!adminContainer || !captainContainer) return;
 
     if (mode === 'admin') {
         adminContainer.style.display = "grid";
         captainContainer.style.display = "none";
-        if (btnAdmin && btnCaptain) {
-            btnAdmin.style.background = "#0284c7";
-            btnAdmin.style.color = "white";
-            btnCaptain.style.background = "transparent";
-            btnCaptain.style.color = "#a7f3d0";
-        }
     } else {
         adminContainer.style.display = "none";
         captainContainer.style.display = "grid";
-        if (btnAdmin && btnCaptain) {
-            btnCaptain.style.background = "#0284c7";
-            btnCaptain.style.color = "white";
-            btnAdmin.style.background = "transparent";
-            btnAdmin.style.color = "#a7f3d0";
-        }
     }
     updateUI();
 }
 
-function openRemoteLinkModal() {
+function openCaptainLinksModal() {
     const modal = document.getElementById("remote-links-modal");
     const container = document.getElementById("remote-links-container");
     if (!modal || !container) return;
@@ -190,7 +176,7 @@ function openRemoteLinkModal() {
                 <strong style="color: #34d399; display: block; margin-bottom: 2px;">${team.name} (${team.captain})</strong>
                 <span style="font-size: 0.8em; color: #94a3b8; word-break: break-all;">${link}</span>
             </div>
-            <button onclick="navigator.clipboard.writeText('${link}'); alert('Link copied for ${team.name}!');" class="btn-sm" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap;">Copy Link</button>
+            <button onclick="navigator.clipboard.writeText('${link}'); alert('Personal view link copied for ${team.name}!');" class="btn-sm" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap;">Copy Link</button>
         `;
         container.appendChild(item);
     });
@@ -198,7 +184,7 @@ function openRemoteLinkModal() {
     modal.style.display = "flex";
 }
 
-function closeRemoteLinkModal() {
+function closeCaptainLinksModal() {
     const modal = document.getElementById("remote-links-modal");
     if (modal) modal.style.display = "none";
 }
@@ -217,7 +203,6 @@ function importPlayerPoolCSV(event) {
             let line = lines[i].trim();
             if (!line) continue;
             
-            // Basic CSV parsing handling potential quotes
             let row = [];
             let inQuotes = false;
             let currentVal = "";
@@ -491,7 +476,7 @@ function nextPlayer() {
     auctionHistory.push(currentState);
 
     currentActivePlayer = players.shift(); 
-    currentHighestBid = 50; // Reset starting bid amount for new player
+    currentHighestBid = 50; 
     currentLeaderText = "None";
     lastAuctionMessage = "";
     lastAuctionMessageType = "";
