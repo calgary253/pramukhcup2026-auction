@@ -659,7 +659,7 @@ function renderPlayerPool() {
         headerLi.innerHTML = `<hr style="border-color: #374151; margin: 8px 0 6px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
         list.appendChild(headerLi);
 
-        unsoldPlayers.forEach(p => {
+        unsoldPlayers.log = unsoldPlayers.forEach(p => {
             let catLetter = getCategoryLetter(p.category);
             let li = document.createElement("li");
             li.style.color = "#9ca3af";
