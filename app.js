@@ -194,7 +194,18 @@ function nextPlayer() {
         return;
     }
 
-    currentActivePlayer = players.shift();
+    // Sort the current player pool by category (A -> B -> C)
+    const sortedPool = sortPlayersByCategory(players);
+
+    // Pull the very first player from the category-sorted list
+    currentActivePlayer = sortedPool.shift();
+
+    // Remove the pulled player from the global players array
+    const pulledIndex = players.findIndex(p => p.name === currentActivePlayer.name && p.category === currentActivePlayer.category);
+    if (pulledIndex !== -1) {
+        players.splice(pulledIndex, 1);
+    }
+
     currentHighestBid = 50; // Base bid starts at 50 points for each new player
     currentLeaderText = "None";
     lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name}`;
