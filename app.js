@@ -285,20 +285,19 @@ function finalizeBid() {
         return;
     }
 
+    const selectEl = document.getElementById('bidder-select');
     const amountEl = document.getElementById('bid-amount');
-    let targetTeamIndex = -1;
+
+    const teamIndex = parseInt(selectEl.value);
+    let targetTeamIndex = teamIndex;
     let finalSaleAmount = currentHighestBid;
 
-    // Find the very last bid action made for the current active player
     const lastBidAction = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === currentActivePlayer.name);
     
     if (lastBidAction) {
         targetTeamIndex = lastBidAction.teamIndex;
         finalSaleAmount = lastBidAction.amount;
     } else {
-        // Fallback if no bids were recorded in history yet
-        const selectEl = document.getElementById('bidder-select');
-        targetTeamIndex = parseInt(selectEl.value);
         const fallbackAdd = parseInt(amountEl.value);
         if (!isNaN(fallbackAdd) && fallbackAdd > 0) {
             currentHighestBid += fallbackAdd;
@@ -307,7 +306,7 @@ function finalizeBid() {
     }
 
     if (isNaN(targetTeamIndex) || targetTeamIndex < 0 || targetTeamIndex >= teams.length) {
-        alert("Please ensure a valid team has placed a bid before finalizing.");
+        alert("Please select a team before finalizing.");
         return;
     }
 
@@ -346,38 +345,17 @@ function undoLastBid() {
     }
 
     const lastAction = auctionHistory.pop();
-
     if (lastAction.type === 'bid') {
-        // Find the team that won or was winning this player
-        const targetTeam = teams[lastAction.teamIndex];
-
-        // Check if this player was actually added to the team's squad (in case it was a finalization)
-        if (targetTeam && targetTeam.squad) {
-            const playerIndex = targetTeam.squad.findIndex(p => p.name === lastAction.player.name);
-            if (playerIndex !== -1) {
-                // Refund points and remove player from squad
-                targetTeam.points += lastAction.amount;
-                targetTeam.squad.splice(playerIndex, 1);
-            }
-        }
-
-        // Find the previous highest bid for the active player to reset the state
         const previousBid = auctionHistory.slice().reverse().find(h => h.type === 'bid' && h.player.name === lastAction.player.name);
-        
         if (previousBid) {
             currentHighestBid = previousBid.amount;
             currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
-            currentActivePlayer = lastAction.player; // Ensure active player is restored if it was closed out
         } else {
             currentHighestBid = 50;
             currentLeaderText = "None";
-            currentActivePlayer = lastAction.player;
         }
-
-        lastAuctionMessage = `Undid last action for ${lastAction.player.name}.`;
+        lastAuctionMessage = "Last bid undone.";
         lastAuctionMessageType = "info";
-        
-        // Broadcast the corrected state immediately to Firebase so captains update instantly
         saveStateToCloud();
     }
 }
@@ -633,72 +611,38 @@ function importAuctionState(event) {
     reader.readAsText(file);
 }
 
-function importPlayerPoolFile(event) {
+function importPlayerPoolCSV(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
-    const fileName = file.name.toLowerCase();
-
-    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-        // Handle Excel files using SheetJS
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Read the first worksheet
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                
-                // Convert worksheet to JSON rows (array of arrays)
-                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                processImportedRows(rows);
-            } catch (err) {
-                console.error("Excel parse error:", err);
-                alert("Invalid Excel file format.");
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        let newPlayers = [];
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const cols = line.split(',');
+            if (cols.length >= 2) {
+                newPlayers.push({
+                    name: cols[0].replace(/^"|"$/g, '').trim(),
+                    category: cols[1].replace(/^"|"$/g, '').trim(),
+                    skillLevel: cols[2] ? cols[2].replace(/^"|"$/g, '').trim() : '',
+                    notes: cols[3] ? cols[3].replace(/^"|"$/g, '').trim() : ''
+                });
             }
-        };
-        reader.readAsArrayBuffer(file);
-    } else {
-        // Handle CSV files
-        reader.onload = function(e) {
-            const text = e.target.result;
-            const lines = text.split('\n');
-            let rows = lines.map(line => line.split(',').map(col => col.replace(/^"|"$/g, '').trim()));
-            processImportedRows(rows);
-        };
-        reader.readAsText(file);
-    }
-}
-
-// Helper function to map rows into player objects consistently
-function processImportedRows(rows) {
-    let newPlayers = [];
-    // Assuming row 0 is headers, start looping from index 1
-    for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i];
-        if (!cols || cols.length === 0 || !cols[0]) continue;
-        
-        newPlayers.push({
-            name: String(cols[0] || '').trim(),
-            category: String(cols[1] || '1').trim(),
-            skillLevel: String(cols[2] || '').trim(),
-            notes: String(cols[3] || '').trim()
-        });
-    }
-
-    if (newPlayers.length > 0) {
-        players = newPlayers;
-        unsoldPlayers = [];
-        currentActivePlayer = null;
-        currentHighestBid = 50;
-        currentLeaderText = "None";
-        saveStateToCloud();
-        alert(`Successfully loaded ${newPlayers.length} players into the pool!`);
-    } else {
-        alert("No valid players found in the file.");
-    }
-}
+        }
+        if (newPlayers.length > 0) {
+            players = newPlayers;
+            unsoldPlayers = [];
+            currentActivePlayer = null;
+            currentHighestBid = 50;
+            currentLeaderText = "None";
+            saveStateToCloud();
+            alert(`Successfully loaded ${newPlayers.length} players into pool!`);
+        } else {
+            alert("No valid players found in CSV.");
+        }
+    };
     reader.readAsText(file);
 }
