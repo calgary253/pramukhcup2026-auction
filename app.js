@@ -607,9 +607,10 @@ function renderPlayerPool() {
             const li = document.createElement('li');
             li.style.padding = '6px';
             li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-            li.style.opacity = '0.7';
+            li.style.opacity = '0.8'; // Increased slightly for clarity
             li.innerHTML = `
                 <div>
+                    <!-- Explicitly styled red color for unsold player name across all views -->
                     <strong style="color: #fca5a5; font-size: 0.85rem;">${p.name}</strong> 
                     <span style="font-size: 0.75rem; color: #94a3b8;">(${getCategoryLetter(p.category)})</span>
                     <div style="font-size: 0.7rem; color: #94a3b8;">Skill Level: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
