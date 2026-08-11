@@ -189,7 +189,6 @@ function switchView(mode, savePreference = true) {
             btnAdmin.style.background = "#334155";
         }
     } else {
-        if (adminContainer) adminContainer.gridTemplateColumns = ''; // reset style if needed
         if (adminContainer) adminContainer.style.display = 'grid';
         if (captainContainer) captainContainer.style.display = 'none';
         if (btnAdmin) {
@@ -210,7 +209,7 @@ function nextPlayer() {
     }
 
     currentActivePlayer = players.shift();
-    currentHighestBid = 50; // Starts at 50 points base bid
+    currentHighestBid = 50; // Base bid starts at 50 points
     currentLeaderText = "None";
     lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name}`;
     lastAuctionMessageType = "info";
@@ -246,14 +245,14 @@ function submitBid() {
 
     const teamIndex = parseInt(selectEl.value);
     
-    // Determine the required next bid:
-    // If starting at 50 (no prior bids yet, or first bid), next required bid is 50.
-    // Once a captain bids 50, subsequent bids double up (100, then 200, 400, etc.)
-    let requiredBid = currentHighestBid === 50 && currentLeaderText === "None" ? 50 : currentHighestBid * 2;
+    // Dynamic Doubling Logic:
+    // - If no one has bid yet (currentLeaderText === "None"), the first captain can bid any amount >= base 50 (e.g., 400).
+    // - Once a captain has placed a bid, subsequent bids must be double the current highest bid (e.g., if 400, next must be at least 800).
+    let requiredBid = currentLeaderText === "None" ? 50 : currentHighestBid * 2;
     
     let bidAmount = parseInt(amountEl.value);
     if (isNaN(bidAmount) || bidAmount <= 0) {
-        bidAmount = requiredBid; // Default input automatically to the doubled step
+        bidAmount = requiredBid; // Default input automatically to the required amount (50 initially, or double the previous bid)
     }
 
     if (isNaN(teamIndex) || teamIndex < 0 || teamIndex >= teams.length) {
@@ -262,7 +261,11 @@ function submitBid() {
     }
 
     if (bidAmount < requiredBid) {
-        alert(`Bid must be at least ${requiredBid} pts (doubled from current highest bid of ${currentHighestBid} pts).`);
+        if (currentLeaderText === "None") {
+            alert(`Initial bid must be at least the base 50 pts.`);
+        } else {
+            alert(`Subsequent bid must be at least ${requiredBid} pts (double the current highest bid of ${currentHighestBid} pts).`);
+        }
         return;
     }
 
