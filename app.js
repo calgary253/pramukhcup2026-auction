@@ -42,10 +42,12 @@ function getTeamSlug(name) {
 }
 
 function getCategoryLetter(cat) {
-    if (cat === 1 || cat === "1") return "A";
-    if (cat === 2 || cat === "2") return "B";
-    if (cat === 3 || cat === "3") return "C";
-    return cat || "-";
+    if (!cat) return "-";
+    const cleanCat = String(cat).trim().toUpperCase();
+    if (cleanCat.includes('1') || cleanCat === 'A') return "A";
+    if (cleanCat.includes('2') || cleanCat === 'B') return "B";
+    if (cleanCat.includes('3') || cleanCat === 'C') return "C";
+    return cleanCat.replace(/CAT\s*/gi, ''); 
 }
 
 window.onload = async function() {
