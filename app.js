@@ -44,6 +44,11 @@ let initialTeams = [
 
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
+// Helper to convert team name into a URL-friendly slug
+function getTeamSlug(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function getCategoryLetter(cat) {
     if (cat === 1 || cat === "1") return "A";
     if (cat === 2 || cat === "2") return "B";
@@ -85,7 +90,7 @@ window.onload = async function() {
             saveStateToStorage();
         }
         
-        // Check for URL parameters (?view=captain&team=X)
+        // Check for URL parameters (?view=captain&team=team-slug)
         const urlParams = new URLSearchParams(window.location.search);
         const viewParam = urlParams.get('view');
         const teamParam = urlParams.get('team');
@@ -98,7 +103,7 @@ window.onload = async function() {
             const badge = document.getElementById("remote-captain-badge");
             if (badge) {
                 badge.style.display = "block";
-                const matchedTeam = teams.find((t, index) => (index + 1).toString() === teamParam || t.name.toLowerCase().includes(teamParam.toLowerCase()));
+                const matchedTeam = teams.find(t => getTeamSlug(t.name) === teamParam || t.name.toLowerCase().includes(teamParam.toLowerCase()));
                 if (matchedTeam) {
                     badge.innerText = `Captain View: ${matchedTeam.name} (${matchedTeam.captain})`;
                 }
@@ -647,19 +652,19 @@ function renderPlayerPool() {
     
     players.forEach(p => {
         let catLetter = getCategoryLetter(p.category);
-        let li = document.createElement("li");
+        let li = document.createElement("div");
         li.innerHTML = `${p.name} <strong style="color: #34d399;">${catLetter}</strong>`;
         list.appendChild(li);
     });
 
     if (unsoldPlayers.length > 0) {
-        let headerLi = document.createElement("li");
+        let headerLi = document.createElement("div");
         headerLi.innerHTML = `<hr style="border-color: #374151; margin: 8px 0 6px 0;"><strong style="color: #f87171; font-size: 0.9em;">⚠️ Unsold Players (${unsoldPlayers.length}):</strong>`;
         list.appendChild(headerLi);
 
         unsoldPlayers.forEach(p => {
             let catLetter = getCategoryLetter(p.category);
-            let li = document.createElement("li");
+            let li = document.createElement("div");
             li.style.color = "#9ca3af";
             li.innerHTML = `${p.name} <strong style="color: #f87171;">${catLetter}</strong>`;
             list.appendChild(li);
