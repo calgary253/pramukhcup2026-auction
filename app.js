@@ -73,7 +73,7 @@ window.onload = async function() {
             
             updateUI();
         } else {
-            loadInitialPlayerPool();
+            ();
         }
     });
 
@@ -109,14 +109,14 @@ async function loadInitialPlayerPool() {
     
     unsoldPlayers = [];
     teams = JSON.parse(JSON.stringify(initialTeams));
+    currentActivePlayer = null; // <--- Ensure this is set to null
     currentHighestBid = 0;
     currentLeaderText = "None";
-    lastAuctionMessage = "Auction system ready";
+    lastAuctionMessage = "Auction system ready. Click 'Next Player' to begin.";
     lastAuctionMessageType = "info";
     
     saveStateToCloud();
 }
-
 // Complete Auction & Player Pool Reset Feature
 async function resetEntireAuction() {
     if (!confirm("⚠️ Are you sure you want to completely reset all teams, squads, and player pools? This will erase all history and cannot be undone!")) {
