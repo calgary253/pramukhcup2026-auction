@@ -380,7 +380,7 @@ function updateUI() {
         activeNameEl.parentNode.insertBefore(activePlayerMeta, activeNameEl.nextSibling);
     }
     if (activePlayerMeta) {
-        activePlayerMeta.innerText = currentActivePlayer ? `Skill: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
+        activePlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
     }
 
     if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
@@ -514,7 +514,7 @@ function renderPlayerPool() {
         li.innerHTML = `
             <div>
                 <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
-                <div style="font-size: 0.75rem; color: #94a3b8;">Skill: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
+                <div style="font-size: 0.75rem; color: #94a3b8;">Skill Level: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
             </div>
             <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; height: fit-content;">${getCategoryLetter(p.category)}</span>
         `;
