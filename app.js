@@ -41,7 +41,7 @@ let initialTeams = [
     { name: "Varni Warriors", captain: "Meet Patel", points: 5000, squad: [] },
     { name: "Rajipo Royals", captain: "Saral Patel", points: 5000, squad: [] },
     { name: "Akshar United", captain: "Chintal Patel", points: 5000, squad: [] },
-    { name: "Shreehari Superkings", captain: "Nikunj Patel", points: 5000, squad: [] },
+    { name: "Shreehari Superkings", captain: "Virag Patel", points: 5000, squad: [] },
     { name: "Sarang Sirens", captain: "Vivek Patel", points: 5000, squad: [] },
     { name: "Keshav Challengers", captain: "Smit Patel", points: 5000, squad: [] }
 ];
