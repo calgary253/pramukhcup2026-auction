@@ -513,42 +513,51 @@ function updateUI() {
 }
 
 function renderTeamsContainer() {
-    const container = document.getElementById('teams-container');
-    if (!container) return;
-    
-    // Adjust layout for compact admin team cards
-    container.style.display = "grid";
-    container.style.gridTemplateColumns = "repeat(auto-fill, minmax(200px, 1fr))";
-    container.style.gap = "8px";
-    container.innerHTML = "";
+    const col1 = document.getElementById('teams-col-1');
+    const col2 = document.getElementById('teams-col-2');
+    if (!col1 || !col2) return;
+
+    col1.innerHTML = "";
+    col2.innerHTML = "";
 
     teams.forEach((team, index) => {
+        const targetCol = index < 4 ? col1 : col2;
         const card = document.createElement('div');
-        card.className = 'team-card';
-        card.style.padding = "8px 10px"; // Reduced compact padding
-        card.style.fontSize = "0.85rem";
         
+        card.className = 'team-card';
+        card.style.background = "#111827";
+        card.style.border = "1px solid #1f2937";
+        card.style.borderRadius = "8px";
+        card.style.padding = "10px 12px";
+        card.style.flex = "1"; // Allows each team card to scale and fill vertical space equally
+        card.style.display = "flex";
+        card.style.flexDirection = "column";
+        card.style.justifyContent = "space-between";
+        card.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+
         let squadHtml = (team.squad || []).map(p => `
-            <li style="display: flex; justify-content: space-between; font-size: 0.75rem; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <li style="display: flex; justify-content: space-between; font-size: 0.75rem; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span>${p.name}</span>
                 <strong style="color: #34d399;">${p.purchasePrice}p</strong>
             </li>
         `).join('');
 
         card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <h3 style="margin: 0; font-size: 0.9rem; color: #f8fafc;">${team.name}</h3>
-                <span style="background: #0284c7; padding: 1px 6px; border-radius: 3px; font-size: 0.7rem;">#${index + 1}</span>
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <h3 style="margin: 0; font-size: 0.95rem; color: #f8fafc;">${team.name}</h3>
+                    <span style="background: #0284c7; padding: 1px 6px; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">#${index + 1}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">Cap: <strong>${team.captain}</strong></div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Purse: ${team.points} pts</div>
             </div>
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">Cap: <strong>${team.captain}</strong></div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Purse: ${team.points} pts</div>
-            <div style="max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 4px;">
+            <div style="max-height: 110px; overflow-y: auto; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 4px;">
                 <ul style="list-style: none; padding: 0; margin: 0;">
-                    ${squadHtml || '<li style="color: #64748b; font-size: 0.7rem; text-align: center;">No players yet</li>'}
+                    ${squadHtml || '<li style="color: #64748b; font-size: 0.7rem; text-align: center; padding: 4px 0;">No players yet</li>'}
                 </ul>
             </div>
         `;
-        container.appendChild(card);
+        targetCol.appendChild(card);
     });
 }
 
