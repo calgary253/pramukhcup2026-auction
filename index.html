@@ -183,13 +183,21 @@
                 </div>
             </section>
 
-            <!-- Column 2: Team Squads & Standings -->
-            <section class="card teams-overview-card">
-                <h2>Team Squads & Standings</h2>
-                <div id="teams-container" class="teams-grid">
-                    <!-- Dynamic team cards will render here -->
-                </div>
-            </section>
+<section class="card teams-overview-card">
+    <h2>Team Squads & Standings</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: calc(100% - 40px);">
+        <!-- Column 1: Teams 1 to 4 -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (1 - 4)</div>
+            <div id="teams-col-1" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
+        </div>
+        <!-- Column 2: Teams 5 to 8 -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (5 - 8)</div>
+            <div id="teams-col-2" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
+        </div>
+    </div>
+</section>
 
             <!-- Column 3: Remaining Player Pool & Unsold Section -->
             <section class="card player-pool-card">
