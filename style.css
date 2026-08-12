@@ -124,6 +124,8 @@ header p {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .bidding-panel {
@@ -171,19 +173,22 @@ header p {
     gap: 10px;
 }
 
-/* Redesigned, refined, and appropriately resized aesthetic buttons */
-.btn {
-    padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    width: 100%;
-    box-sizing: border-box;
+/* Enforce uniform, sleek, compact button dimensions globally */
+.btn,
+button,
+input[type="button"],
+input[type="submit"],
+.controls button,
+.player-display button {
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-sizing: border-box !important;
+    line-height: normal !important;
 }
 
 .btn:active {
@@ -194,16 +199,17 @@ header p {
     width: 100%;
 }
 
-.btn.primary { 
+.btn.primary, 
+.player-display button:not(.danger):not(.success) { 
     background-color: #0284c7; 
     color: white; 
-    border-color: #0284c7;
-    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+    border: 1px solid #0284c7;
+    box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
 }
-.btn.primary:hover { 
+.btn.primary:hover, 
+.player-display button:not(.danger):not(.success):hover { 
     background-color: #0369a1;
     border-color: #0369a1;
-    filter: none;
 }
 
 .btn.primary-outline {
@@ -219,24 +225,25 @@ header p {
 .btn.success { 
     background-color: var(--accent-emerald); 
     color: white; 
-    border-color: var(--accent-emerald);
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    border: 1px solid var(--accent-emerald);
+    box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
 }
 .btn.success:hover { 
     background-color: var(--accent-emerald-hover); 
     border-color: var(--accent-emerald-hover);
 }
 
-.btn.danger {
+.btn.danger,
+.player-display button:nth-child(2) {
     background-color: var(--danger-red);
     color: white;
-    border-color: var(--danger-red);
-    box-shadow: 0 2px 4px rgba(244, 63, 94, 0.2);
+    border: 1px solid var(--danger-red);
+    box-shadow: 0 1px 2px rgba(244, 63, 94, 0.2);
 }
-.btn.danger:hover {
+.btn.danger:hover,
+.player-display button:nth-child(2):hover {
     background-color: #e11d48;
     border-color: #e11d48;
-    filter: none;
 }
 
 .card h2 {
@@ -411,6 +418,6 @@ label.btn.primary-outline {
     text-align: center !important;
     margin: 0 !important;
     line-height: normal !important;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
