@@ -219,7 +219,6 @@ function nextPlayer() {
         return;
     }
 
-    // Clear previous sale/unsold message when moving to the next player
     lastAuctionMessage = "";
     lastAuctionMessageType = "";
 
@@ -433,7 +432,13 @@ function updateUI() {
         if (activeCatEl) activeCatEl.innerText = "-";
         if (activeNameEl) {
             activeNameEl.innerText = lastAuctionMessage;
-            activeNameEl.className = `player-name-text ${lastAuctionMessageType === 'success' ? 'sold-highlight' : (lastAuctionMessageType === 'warning' ? 'unsold-highlight' : '')}`;
+            if (lastAuctionMessageType === 'success') {
+                activeNameEl.className = "player-name-text sold-highlight";
+            } else if (lastAuctionMessageType === 'warning') {
+                activeNameEl.className = "player-name-text unsold-highlight";
+            } else {
+                activeNameEl.className = "player-name-text";
+            }
         }
         if (currentBidDisplay) currentBidDisplay.innerHTML = "";
         if (leadingBidderDisplay) leadingBidderDisplay.innerText = "";
@@ -472,6 +477,13 @@ function updateUI() {
         if (captainActiveName) {
             captainActiveName.innerText = lastAuctionMessage;
             captainActiveName.style.fontSize = "1.8em";
+            if (lastAuctionMessageType === 'success') {
+                captainActiveName.style.color = "#34d399";
+            } else if (lastAuctionMessageType === 'warning') {
+                captainActiveName.style.color = "#f87171";
+            } else {
+                captainActiveName.style.color = "#f8fafc";
+            }
         }
         if (captainPlayerMeta) captainPlayerMeta.innerText = "";
         if (captainActiveBid) captainActiveBid.innerText = "";
@@ -480,6 +492,7 @@ function updateUI() {
         if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
         if (captainActiveName) {
             captainActiveName.style.fontSize = "2.4em";
+            captainActiveName.style.color = "#34d399";
             captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
         }
         if (captainPlayerMeta) {
