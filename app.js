@@ -259,10 +259,10 @@ function submitBid() {
         return;
     }
 
-    const selectEl = document.getElementById('bidder-select');
+    const hiddenInput = document.getElementById('selected-team-index');
     const amountEl = document.getElementById('bid-amount');
 
-    const teamIndex = parseInt(selectEl.value);
+    const teamIndex = parseInt(hiddenInput ? hiddenInput.value : 0);
     const addedAmount = parseInt(amountEl.value);
 
     if (isNaN(teamIndex) || teamIndex < 0 || teamIndex >= teams.length) {
@@ -302,10 +302,10 @@ function finalizeBid() {
         return;
     }
 
-    const selectEl = document.getElementById('bidder-select');
+    const hiddenInput = document.getElementById('selected-team-index');
     const amountEl = document.getElementById('bid-amount');
 
-    const teamIndex = parseInt(selectEl.value);
+    const teamIndex = parseInt(hiddenInput ? hiddenInput.value : 0);
     let targetTeamIndex = teamIndex;
     let finalSaleAmount = currentHighestBid;
 
@@ -468,17 +468,43 @@ function updateUI() {
     if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     if (captainAnnouncement) captainAnnouncement.innerText = lastAuctionMessage;
 
-    const bidderSelect = document.getElementById('bidder-select');
-    if (bidderSelect) {
-        const currentSelectedVal = bidderSelect.value;
-        bidderSelect.innerHTML = "";
+    // Render quick-click team buttons instead of dropdown select
+    const bidderButtonsContainer = document.getElementById('bidder-buttons-container');
+    const hiddenTeamInput = document.getElementById('selected-team-index');
+
+    if (bidderButtonsContainer && hiddenTeamInput) {
+        let selectedIndex = hiddenTeamInput.value !== "" ? parseInt(hiddenTeamInput.value) : 0;
+        if (isNaN(selectedIndex) || selectedIndex >= teams.length) selectedIndex = 0;
+        hiddenTeamInput.value = selectedIndex;
+
+        bidderButtonsContainer.innerHTML = "";
         teams.forEach((team, index) => {
-            const opt = document.createElement('option');
-            opt.value = index;
-            opt.innerText = `${team.name} (${team.captain}) - ${team.points} pts left`;
-            bidderSelect.appendChild(opt);
+            const btn = document.createElement('button');
+            const isSelected = index === selectedIndex;
+            
+            btn.type = "button";
+            btn.innerText = `${team.name.split(' ')[0]} (${team.points}p)`;
+            btn.title = `${team.name} - Captain: ${team.captain} (${team.points} pts left)`;
+            
+            btn.style.padding = "6px 4px";
+            btn.style.fontSize = "0.75rem";
+            btn.style.fontWeight = "600";
+            btn.style.borderRadius = "4px";
+            btn.style.border = isSelected ? "2px solid #38bdf8" : "1px solid #334155";
+            btn.style.background = isSelected ? "#0284c7" : "#1e293b";
+            btn.style.color = "#f8fafc";
+            btn.style.cursor = "pointer";
+            btn.style.overflow = "hidden";
+            btn.style.textOverflow = "ellipsis";
+            btn.style.whiteSpace = "nowrap";
+
+            btn.onclick = () => {
+                hiddenTeamInput.value = index;
+                updateUI();
+            };
+
+            bidderButtonsContainer.appendChild(btn);
         });
-        if (currentSelectedVal) bidderSelect.value = currentSelectedVal;
     }
 
     renderTeamsContainer();
@@ -489,29 +515,36 @@ function updateUI() {
 function renderTeamsContainer() {
     const container = document.getElementById('teams-container');
     if (!container) return;
+    
+    // Adjust layout for compact admin team cards
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "repeat(auto-fill, minmax(200px, 1fr))";
+    container.style.gap = "8px";
     container.innerHTML = "";
 
     teams.forEach((team, index) => {
         const card = document.createElement('div');
         card.className = 'team-card';
+        card.style.padding = "8px 10px"; // Reduced compact padding
+        card.style.fontSize = "0.85rem";
         
         let squadHtml = (team.squad || []).map(p => `
-            <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <li style="display: flex; justify-content: space-between; font-size: 0.75rem; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span>${p.name}</span>
-                <strong style="color: #34d399;">${p.purchasePrice} pts</strong>
+                <strong style="color: #34d399;">${p.purchasePrice}p</strong>
             </li>
         `).join('');
 
         card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin: 0; font-size: 1.05rem; color: #f8fafc;">${team.name}</h3>
-                <span style="background: #0284c7; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">#${index + 1}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h3 style="margin: 0; font-size: 0.9rem; color: #f8fafc;">${team.name}</h3>
+                <span style="background: #0284c7; padding: 1px 6px; border-radius: 3px; font-size: 0.7rem;">#${index + 1}</span>
             </div>
-            <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">Captain: <strong>${team.captain}</strong></div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin-bottom: 10px;">Purse Balance: ${team.points} pts</div>
-            <div style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px;">
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">Cap: <strong>${team.captain}</strong></div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Purse: ${team.points} pts</div>
+            <div style="max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 4px;">
                 <ul style="list-style: none; padding: 0; margin: 0;">
-                    ${squadHtml || '<li style="color: #64748b; font-size: 0.8rem; text-align: center;">No players bought yet</li>'}
+                    ${squadHtml || '<li style="color: #64748b; font-size: 0.7rem; text-align: center;">No players yet</li>'}
                 </ul>
             </div>
         `;
@@ -524,7 +557,6 @@ function renderCaptainTeamsGrid() {
     const rightContainer = document.getElementById('captain-teams-right');
     if (!leftContainer || !rightContainer) return;
 
-    // Expand outer containers to fill vertical space for 3-column setup
     leftContainer.style.display = "flex";
     leftContainer.style.flexDirection = "column";
     leftContainer.style.flex = "1";
@@ -546,13 +578,12 @@ function renderCaptainTeamsGrid() {
         card.style.border = "2px solid #1f2937";
         card.style.borderRadius = "10px";
         card.style.padding = "16px";
-        card.style.flex = "1"; // Dynamically expands team boxes to fill vertical space equally
+        card.style.flex = "1"; 
         card.style.display = "flex";
         card.style.flexDirection = "column";
         card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
-        // Updated: Removed purchasePrice from the captain's view team squad chips
         let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 5px 9px; border-radius: 6px; font-size: 0.9rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name}</span>`).join('');
 
         card.innerHTML = `
@@ -607,10 +638,9 @@ function renderPlayerPool() {
             const li = document.createElement('li');
             li.style.padding = '6px';
             li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-            li.style.opacity = '0.8'; // Increased slightly for clarity
+            li.style.opacity = '0.8';
             li.innerHTML = `
                 <div>
-                    <!-- Explicitly styled red color for unsold player name across all views -->
                     <strong style="color: #fca5a5; font-size: 0.85rem;">${p.name}</strong> 
                     <span style="font-size: 0.75rem; color: #94a3b8;">(${getCategoryLetter(p.category)})</span>
                     <div style="font-size: 0.7rem; color: #94a3b8;">Skill Level: ${p.skillLevel || '-'} | Notes: ${p.notes || '-'}</div>
