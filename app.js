@@ -11,6 +11,9 @@ if (!firebase.apps.length) {
 }
 const dbRef = firebase.database().ref('auction_state');
 
+// Admin Security Password Configuration
+const ADMIN_PASSWORD = "admin123"; // Change this to your preferred secure password
+
 // State Management variables (Player pool starts completely empty)
 let players = [];
 let unsoldPlayers = []; 
@@ -20,7 +23,7 @@ let currentHighestBid = 0;
 let currentLeaderText = "None"; 
 let lastAuctionMessage = "";
 let lastAuctionMessageType = ""; 
-let currentViewMode = localStorage.getItem('auction_view_mode') || 'admin'; 
+let currentViewMode = 'admin'; // Default fallback
 
 let initialTeams = [
     { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
@@ -84,9 +87,28 @@ window.onload = async function() {
     const viewParam = urlParams.get('view');
     const teamParam = urlParams.get('team');
 
+    // Determine view mode based on URL parameters
     if (viewParam === 'captain' || teamParam) {
         currentViewMode = 'captain';
         document.body.classList.add('captain-view-mode');
+    } else {
+        // Accessing Admin view (default link or explicit ?view=admin) requires password authentication
+        let authenticated = false;
+        while (!authenticated) {
+            const enteredPassword = prompt("🔐 Enter Admin Password to access the Admin Auction Panel:");
+            if (enteredPassword === null) {
+                // If they cancel, fallback to captain view so they aren't stuck on a blank screen
+                currentViewMode = 'captain';
+                document.body.classList.add('captain-view-mode');
+                break;
+            }
+            if (enteredPassword === ADMIN_PASSWORD) {
+                authenticated = true;
+                currentViewMode = 'admin';
+            } else {
+                alert("❌ Incorrect password! Access denied.");
+            }
+        }
     }
 
     // Listen to real-time changes from Firebase Cloud Database
@@ -175,13 +197,10 @@ function saveStateToCloud() {
 }
 
 // ==========================================
-// VIEW SWITCHING & UI LOGIC
+// VIEW SWITCHING LOGIC
 // ==========================================
 function switchView(mode, savePreference = true) {
     currentViewMode = mode;
-    if (savePreference) {
-        localStorage.setItem('auction_view_mode', mode);
-    }
 
     const adminContainer = document.getElementById('admin-view-container');
     const captainContainer = document.getElementById('captain-view-container');
@@ -195,17 +214,10 @@ function switchView(mode, savePreference = true) {
             captainContainer.style.gap = "16px";
             captainContainer.style.alignItems = "stretch";
         }
-        if (btnAdmin) {
-            btnAdmin.innerText = "Switch to Admin Mode";
-            btnAdmin.style.background = "#334155";
-        }
+        if (btnAdmin) btnAdmin.style.display = 'none'; // Hide admin toggle button completely in captain links
     } else {
         if (adminContainer) adminContainer.style.display = 'grid';
         if (captainContainer) captainContainer.style.display = 'none';
-        if (btnAdmin) {
-            btnAdmin.innerText = "Admin Mode";
-            btnAdmin.style.background = "#0284c7";
-        }
     }
     updateUI();
 }
