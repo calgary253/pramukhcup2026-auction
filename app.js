@@ -528,7 +528,7 @@ function renderTeamsContainer() {
         card.style.background = "#111827";
         card.style.border = "1px solid #1f2937";
         card.style.borderRadius = "8px";
-        card.style.padding = "10px 12px";
+        card.style.padding = "8px 10px";
         card.style.flex = "1"; // Allows each team card to scale and fill vertical space equally
         card.style.display = "flex";
         card.style.flexDirection = "column";
@@ -536,24 +536,24 @@ function renderTeamsContainer() {
         card.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
 
         let squadHtml = (team.squad || []).map(p => `
-            <li style="display: flex; justify-content: space-between; font-size: 0.75rem; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span>${p.name}</span>
-                <strong style="color: #34d399;">${p.purchasePrice}p</strong>
+            <li style="display: flex; justify-content: space-between; font-size: 0.7rem; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 6px;">${p.name}</span>
+                <strong style="color: #34d399; white-space: nowrap;">${p.purchasePrice}p</strong>
             </li>
         `).join('');
 
         card.innerHTML = `
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <h3 style="margin: 0; font-size: 0.95rem; color: #f8fafc;">${team.name}</h3>
-                    <span style="background: #0284c7; padding: 1px 6px; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">#${index + 1}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                    <h3 style="margin: 0; font-size: 0.85rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${team.name}</h3>
+                    <span style="background: #0284c7; padding: 1px 5px; border-radius: 3px; font-size: 0.65rem; font-weight: 600;">#${index + 1}</span>
                 </div>
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">Cap: <strong>${team.captain}</strong></div>
-                <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Purse: ${team.points} pts</div>
+                <div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 2px;">Cap: <strong>${team.captain}</strong></div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Purse: ${team.points} pts</div>
             </div>
-            <div style="max-height: 110px; overflow-y: auto; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 4px;">
+            <div style="max-height: 90px; overflow-y: auto; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 4px;">
                 <ul style="list-style: none; padding: 0; margin: 0;">
-                    ${squadHtml || '<li style="color: #64748b; font-size: 0.7rem; text-align: center; padding: 4px 0;">No players yet</li>'}
+                    ${squadHtml || '<li style="color: #64748b; font-size: 0.65rem; text-align: center; padding: 2px 0;">No players yet</li>'}
                 </ul>
             </div>
         `;
