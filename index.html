@@ -65,9 +65,17 @@
             display: none !important;
         }
 
-        /* Unsold Player Styling in Red */
+        /* Sold & Unsold Highlight Styling in Main Display */
+        .sold-highlight {
+            color: #34d399 !important;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+        }
+
         .unsold-highlight {
             color: #f87171 !important;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
         }
 
         /* Mobile & Tablet Responsive Fix for Captain View */
@@ -136,8 +144,6 @@
                         Leading Team: None
                     </div>
                 </div>
-
-                <div id="sold-announcement" class="sold-announcement"></div>
 
                 <div class="controls" style="display: flex; gap: 8px;">
                     <button onclick="nextPlayer()" class="btn primary" style="flex: 1;">Next Player ➔</button>
@@ -212,7 +218,6 @@
 
             <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
                 <h2>Live Auction Status</h2>
-                <div id="captain-sold-announcement" style="font-weight: bold; font-size: 1.15rem; min-height: 30px; margin-bottom: 10px;"></div>
 
                 <div class="player-display" style="max-width: 100%; margin: 10px 0;">
                     <div id="captain-active-cat" class="category-badge">-</div>
