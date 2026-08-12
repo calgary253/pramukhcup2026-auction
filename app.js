@@ -132,8 +132,8 @@ async function loadInitialPlayerPool() {
     currentActivePlayer = null; 
     currentHighestBid = 0; 
     currentLeaderText = "None";
-    lastAuctionMessage = "Auction system ready. Please import a player CSV/Excel file to start.";
-    lastAuctionMessageType = "info";
+    lastAuctionMessage = "";
+    lastAuctionMessageType = "";
     
     saveStateToCloud();
 }
@@ -151,8 +151,8 @@ async function resetEntireAuction() {
     auctionHistory = [];
     currentHighestBid = 0;
     currentLeaderText = "None";
-    lastAuctionMessage = "Auction system reset! Please import your player CSV/Excel file.";
-    lastAuctionMessageType = "info";
+    lastAuctionMessage = "";
+    lastAuctionMessageType = "";
     
     saveStateToCloud();
     alert("Auction has been successfully reset with an empty player pool!");
@@ -191,7 +191,6 @@ function switchView(mode, savePreference = true) {
         if (adminContainer) adminContainer.style.display = 'none';
         if (captainContainer) {
             captainContainer.style.display = 'grid';
-            // Configure 3-column layout: Left column (Teams 1-4), Center column (Status), Right column (Teams 5-8)
             captainContainer.style.gridTemplateColumns = "1.2fr 1fr 1.2fr";
             captainContainer.style.gap = "16px";
             captainContainer.style.alignItems = "stretch";
@@ -220,12 +219,14 @@ function nextPlayer() {
         return;
     }
 
+    // Clear previous sale/unsold message when moving to the next player
+    lastAuctionMessage = "";
+    lastAuctionMessageType = "";
+
     currentActivePlayer = players.shift();
 
     currentHighestBid = 0; 
     currentLeaderText = "None";
-    lastAuctionMessage = `Now Bidding: ${currentActivePlayer.name} (Cat: ${getCategoryLetter(currentActivePlayer.category)})`;
-    lastAuctionMessageType = "info";
 
     saveStateToCloud();
 }
@@ -426,10 +427,25 @@ function updateUI() {
     const activeNameEl = document.getElementById('active-player-name');
     const currentBidDisplay = document.getElementById('current-bid-display');
     const leadingBidderDisplay = document.getElementById('leading-bidder-display');
-    const announcementEl = document.getElementById('sold-announcement');
 
-    if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
-    if (activeNameEl) activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
+    // Admin View Display Logic
+    if (lastAuctionMessage) {
+        if (activeCatEl) activeCatEl.innerText = "-";
+        if (activeNameEl) {
+            activeNameEl.innerText = lastAuctionMessage;
+            activeNameEl.className = `player-name-text ${lastAuctionMessageType === 'success' ? 'sold-highlight' : (lastAuctionMessageType === 'warning' ? 'unsold-highlight' : '')}`;
+        }
+        if (currentBidDisplay) currentBidDisplay.innerHTML = "";
+        if (leadingBidderDisplay) leadingBidderDisplay.innerText = "";
+    } else {
+        if (activeCatEl) activeCatEl.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
+        if (activeNameEl) {
+            activeNameEl.className = "player-name-text";
+            activeNameEl.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
+        }
+        if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
+        if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
+    }
     
     let activePlayerMeta = document.getElementById('admin-player-meta');
     if (!activePlayerMeta && activeNameEl) {
@@ -441,32 +457,37 @@ function updateUI() {
         activeNameEl.parentNode.insertBefore(activePlayerMeta, activeNameEl.nextSibling);
     }
     if (activePlayerMeta) {
-        activePlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
+        activePlayerMeta.innerText = (!lastAuctionMessage && currentActivePlayer) ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
     }
 
-    if (currentBidDisplay) currentBidDisplay.innerHTML = `Current Highest Bid: <strong>${currentHighestBid} pts</strong>`;
-    if (leadingBidderDisplay) leadingBidderDisplay.innerText = `Leading Team: ${currentLeaderText}`;
-
-    if (announcementEl) {
-        announcementEl.innerText = lastAuctionMessage;
-        announcementEl.className = `sold-announcement ${lastAuctionMessageType}`;
-    }
-
+    // Captain / Projector View Display Logic
     const captainActiveCat = document.getElementById('captain-active-cat');
     const captainActiveName = document.getElementById('captain-active-name');
     const captainPlayerMeta = document.getElementById('captain-player-meta');
     const captainActiveBid = document.getElementById('captain-active-bid');
     const captainLeadingDisplay = document.getElementById('captain-leading-display');
-    const captainAnnouncement = document.getElementById('captain-sold-announcement');
 
-    if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
-    if (captainActiveName) captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
-    if (captainPlayerMeta) {
-        captainPlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
+    if (lastAuctionMessage) {
+        if (captainActiveCat) captainActiveCat.innerText = "-";
+        if (captainActiveName) {
+            captainActiveName.innerText = lastAuctionMessage;
+            captainActiveName.style.fontSize = "1.8em";
+        }
+        if (captainPlayerMeta) captainPlayerMeta.innerText = "";
+        if (captainActiveBid) captainActiveBid.innerText = "";
+        if (captainLeadingDisplay) captainLeadingDisplay.innerText = "";
+    } else {
+        if (captainActiveCat) captainActiveCat.innerText = currentActivePlayer ? `${getCategoryLetter(currentActivePlayer.category)}` : "-";
+        if (captainActiveName) {
+            captainActiveName.style.fontSize = "2.4em";
+            captainActiveName.innerText = currentActivePlayer ? currentActivePlayer.name : (players.length === 0 ? "Import players via CSV to begin..." : "Waiting for next player...");
+        }
+        if (captainPlayerMeta) {
+            captainPlayerMeta.innerText = currentActivePlayer ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
+        }
+        if (captainActiveBid) captainActiveBid.innerText = `Current Highest Bid: ${currentHighestBid} pts`;
+        if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     }
-    if (captainActiveBid) captainActiveBid.innerText = `Current Highest Bid: ${currentHighestBid} pts`;
-    if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
-    if (captainAnnouncement) captainAnnouncement.innerText = lastAuctionMessage;
 
     // Render quick-click team buttons instead of dropdown select
     const bidderButtonsContainer = document.getElementById('bidder-buttons-container');
@@ -529,7 +550,7 @@ function renderTeamsContainer() {
         card.style.border = "1px solid #1f2937";
         card.style.borderRadius = "8px";
         card.style.padding = "8px 10px";
-        card.style.flex = "1"; // Allows each team card to scale and fill vertical space equally
+        card.style.flex = "1";
         card.style.display = "flex";
         card.style.flexDirection = "column";
         card.style.justifyContent = "space-between";
@@ -711,7 +732,7 @@ function downloadSquadCSV() {
 }
 
 function downloadAuctionBackup() {
-    const state = { players, unsoldPlayers, teams, currentActivePlayer, auctionHistory, currentHighestBid, currentLeaderText };
+    const state = { players, unsoldPlayers, teams, currentActivePlayer, auctionHistory, currentHighestBid, currentLeaderText, lastAuctionMessage, lastAuctionMessageType };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
     const dlAnchor = document.createElement('a');
     dlAnchor.setAttribute("href", dataStr);
@@ -735,6 +756,8 @@ function importAuctionState(event) {
             auctionHistory = imported.auctionHistory || [];
             currentHighestBid = imported.currentHighestBid || 0;
             currentLeaderText = imported.currentLeaderText || "None";
+            lastAuctionMessage = imported.lastAuctionMessage || "";
+            lastAuctionMessageType = imported.lastAuctionMessageType || "";
             saveStateToCloud();
             alert("Auction state successfully restored from backup!");
         } catch (err) {
@@ -802,6 +825,8 @@ function processImportedRows(rows) {
         currentActivePlayer = null;
         currentHighestBid = 0;
         currentLeaderText = "None";
+        lastAuctionMessage = "";
+        lastAuctionMessageType = "";
         auctionHistory = [];
         saveStateToCloud();
         alert(`Successfully imported and randomized ${players.length} players across categories!`);
