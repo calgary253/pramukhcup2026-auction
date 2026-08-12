@@ -11,8 +11,18 @@ if (!firebase.apps.length) {
 }
 const dbRef = firebase.database().ref('auction_state');
 
-// Admin Security Password Configuration
-const ADMIN_PASSWORD = "admin123"; // Change this to your preferred secure password
+// Admin Security Password Configuration (Hashed via SHA-256)
+// To change your password, generate a SHA-256 hash of your new password and paste it here.
+// (The hash below corresponds to the password "admin123" - feel free to replace it with your own)
+const ADMIN_PASSWORD_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+
+// Helper function to securely hash user input in the browser using SHA-256
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // State Management variables (Player pool starts completely empty)
 let players = [];
@@ -31,7 +41,7 @@ let initialTeams = [
     { name: "Varni Warriors", captain: "Meet Patel", points: 5000, squad: [] },
     { name: "Rajipo Royals", captain: "Saral Patel", points: 5000, squad: [] },
     { name: "Akshar United", captain: "Chintal Patel", points: 5000, squad: [] },
-    { name: "Shreehari Superkings", captain: "Virag Patel", points: 5000, squad: [] },
+    { name: "Shreehari Superkings", captain: "Nikunj Patel", points: 5000, squad: [] },
     { name: "Sarang Sirens", captain: "Vivek Patel", points: 5000, squad: [] },
     { name: "Keshav Challengers", captain: "Smit Patel", points: 5000, squad: [] }
 ];
@@ -92,7 +102,7 @@ window.onload = async function() {
         currentViewMode = 'captain';
         document.body.classList.add('captain-view-mode');
     } else {
-        // Accessing Admin view (default link or explicit ?view=admin) requires password authentication
+        // Accessing Admin view requires secure password authentication
         let authenticated = false;
         while (!authenticated) {
             const enteredPassword = prompt("🔐 Enter Admin Password to access the Admin Auction Panel:");
@@ -102,7 +112,10 @@ window.onload = async function() {
                 document.body.classList.add('captain-view-mode');
                 break;
             }
-            if (enteredPassword === ADMIN_PASSWORD) {
+            
+            // Hash the entered password and compare it securely with the stored hash
+            const enteredHash = await sha256(enteredPassword);
+            if (enteredHash === ADMIN_PASSWORD_HASH) {
                 authenticated = true;
                 currentViewMode = 'admin';
             } else {
@@ -214,7 +227,7 @@ function switchView(mode, savePreference = true) {
             captainContainer.style.gap = "16px";
             captainContainer.style.alignItems = "stretch";
         }
-        if (btnAdmin) btnAdmin.style.display = 'none'; // Hide admin toggle button completely in captain links
+        if (btnAdmin) btnAdmin.style.display = 'none';
     } else {
         if (adminContainer) adminContainer.style.display = 'grid';
         if (captainContainer) captainContainer.style.display = 'none';
