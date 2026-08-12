@@ -90,29 +90,29 @@
 
     <!-- Header aligned to match layout width and center -->
     <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center; margin: 0 auto;">
-        <header class="dashboard-header" style="width: 100%; box-sizing: border-box;">
+        <header class="dashboard-header" style="width: 100%; box-sizing: border-box; padding: 10px 20px;">
             <div class="header-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; position: relative;">
                 
                 <!-- View Mode Switcher / Admin Mode Button Top Right -->
-                <div class="view-switcher" style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 8px;">
-                    <div id="remote-captain-badge" style="display: none; color: #38bdf8; font-size: 0.85rem; font-weight: 600; padding: 4px 8px; background: rgba(56, 189, 248, 0.1); border-radius: 4px;"></div>
-                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; background: #0284c7; color: #fff;">Admin Mode</button>
+                <div class="view-switcher" style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 6px;">
+                    <div id="remote-captain-badge" style="display: none; color: #38bdf8; font-size: 0.75rem; font-weight: 600; padding: 2px 6px; background: rgba(56, 189, 248, 0.1); border-radius: 4px;"></div>
+                    <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 4px 10px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; background: #0284c7; color: #fff; font-size: 0.8rem;">Admin Mode</button>
                 </div>
 
                 <!-- Centered Title and Subtitle with Logo on the Left -->
-                <div style="margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                    <!-- Logo Image (Make sure your logo file is named logo.png or change src accordingly) -->
-                    <img src="logo.png" alt="Pramukh Cup Logo" style="height: 75px; width: auto; object-fit: contain;">
+                <div style="margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <!-- Logo Image -->
+                    <img src="logo.png" alt="Pramukh Cup Logo" style="height: 45px; width: auto; object-fit: contain;">
                     
                     <div style="text-align: left;">
-                        <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 6px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
-                        <p style="font-size: 1.1rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
+                        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
+                        <p style="font-size: 0.85rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
                     </div>
                 </div>
 
-                <!-- Captains' Remote Links Option Button (Wrapped with class to hide in captain view) -->
-                <div class="remote-links-container" style="margin-top: 15px;">
-                    <button onclick="openRemoteLinksModal()" class="btn primary-outline" style="font-size: 0.9rem; padding: 8px 16px; cursor: pointer; background: transparent; border: 1px solid #0284c7; color: #38bdf8; border-radius: 6px; font-weight: 600;">🔗 Captains' Remote Links</button>
+                <!-- Captains' Remote Links Option Button -->
+                <div class="remote-links-container" style="margin-top: 8px;">
+                    <button onclick="openRemoteLinksModal()" class="btn primary-outline" style="font-size: 0.8rem; padding: 4px 12px; cursor: pointer; background: transparent; border: 1px solid #0284c7; color: #38bdf8; border-radius: 4px; font-weight: 600;">🔗 Captains' Remote Links</button>
                 </div>
 
             </div>
@@ -132,13 +132,11 @@
                     <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;" id="current-bid-display">
                         Current Highest Bid: <strong>0 pts</strong> (No bids yet)
                     </div>
-                    <!-- Leading Bidder / Team Status Info Message -->
                     <div id="leading-bidder-display" style="font-size: 0.95em; color: #60a5fa; font-weight: 500; margin-top: 6px;">
                         Leading Team: None
                     </div>
                 </div>
 
-                <!-- On-Screen Sale & Status Announcement Messages -->
                 <div id="sold-announcement" class="sold-announcement"></div>
 
                 <div class="controls" style="display: flex; gap: 8px;">
@@ -150,7 +148,6 @@
                     <h3>Place Bid</h3>
                     <div class="form-group">
                         <label>Select Team / Captain:</label>
-                        <!-- Replaced dropdown with quick-click button grid -->
                         <div id="bidder-buttons-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 6px; margin-bottom: 10px;"></div>
                         <input type="hidden" id="selected-team-index" value="0">
                     </div>
@@ -169,7 +166,6 @@
                         <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
                     </div>
 
-                    <!-- Emergency Backup, Reset & Player Pool Upload Controls -->
                     <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
                         <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
                             📂 Upload Player Pool File <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolFile(event)" accept=".csv, .xlsx, .xls" style="display: none;">
@@ -183,70 +179,55 @@
                 </div>
             </section>
 
-<section class="card teams-overview-card">
-    <h2>Team Squads & Standings</h2>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: calc(100% - 40px);">
-        <!-- Column 1: Teams 1 to 4 -->
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (1 - 4)</div>
-            <div id="teams-col-1" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
-        </div>
-        <!-- Column 2: Teams 5 to 8 -->
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (5 - 8)</div>
-            <div id="teams-col-2" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
-        </div>
-    </div>
-</section>
+            <!-- Column 2: Team Squads & Standings Split View -->
+            <section class="card teams-overview-card">
+                <h2>Team Squads & Standings</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: calc(100% - 40px);">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (1 - 4)</div>
+                        <div id="teams-col-1" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (5 - 8)</div>
+                        <div id="teams-col-2" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Column 3: Remaining Player Pool & Unsold Section -->
             <section class="card player-pool-card">
                 <h2>Remaining Player Pool</h2>
                 <div class="player-pool-wrapper">
-                    <ul id="player-pool-list" class="player-pool-list">
-                        <!-- Remaining players & unsold section render here with skill levels & notes -->
-                    </ul>
+                    <ul id="player-pool-list" class="player-pool-list"></ul>
                 </div>
             </section>
         </main>
 
         <!-- CAPTAIN & PROJECTOR VIEW CONTAINER -->
         <main id="captain-view-container" class="auction-grid-captain-3col" style="display: none; width: 100%;">
-            <!-- Left Column: Teams 1 to 4 -->
             <section class="card captain-teams-column">
                 <h2>Teams (1 - 4)</h2>
-                <div id="captain-teams-left" class="captain-side-grid-horizontal">
-                    <!-- Teams 1-4 render here side-by-side in 2x2 grid -->
-                </div>
+                <div id="captain-teams-left" class="captain-side-grid-horizontal"></div>
             </section>
 
-            <!-- Center Column: Live Auction Status Main Focus -->
             <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
                 <h2>Live Auction Status</h2>
-                
-                <!-- Captain Announcement Sync -->
                 <div id="captain-sold-announcement" style="font-weight: bold; font-size: 1.15rem; min-height: 30px; margin-bottom: 10px;"></div>
 
                 <div class="player-display" style="max-width: 100%; margin: 10px 0;">
                     <div id="captain-active-cat" class="category-badge">-</div>
-                    <!-- Main player name display -->
                     <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
-                    <!-- Skill Level and Notes Displayed in Projector View -->
                     <div id="captain-player-meta" style="font-size: 1.15em; color: #f3f4f6; margin-bottom: 8px; font-weight: 500;"></div>
                     <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
-                    <!-- Leading Bidder / Team Status Info Message -->
                     <div id="captain-leading-display" style="font-size: 1.05em; color: #60a5fa; font-weight: 600; margin-top: 12px;">
                         Leading Team: None
                     </div>
                 </div>
             </section>
 
-            <!-- Right Column: Teams 5 to 8 -->
             <section class="card captain-teams-column">
                 <h2>Teams (5 - 8)</h2>
-                <div id="captain-teams-right" class="captain-side-grid-horizontal">
-                    <!-- Teams 5-8 render here side-by-side in 2x2 grid -->
-                </div>
+                <div id="captain-teams-right" class="captain-side-grid-horizontal"></div>
             </section>
         </main>
     </div>
@@ -261,9 +242,7 @@
             <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
                 Share each captain's unique personal link so they can view the live auction and track team budgets directly from their devices:
             </p>
-            <div id="remote-links-list">
-                <!-- Populated via JavaScript -->
-            </div>
+            <div id="remote-links-list"></div>
         </div>
     </div>
 
