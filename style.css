@@ -173,22 +173,23 @@ header p {
     gap: 10px;
 }
 
-/* Enforce uniform, sleek, compact button dimensions globally */
+/* Hard-enforced uniform, compact dimensions for ALL buttons including Next Player & Mark Unsold */
 .btn,
 button,
 input[type="button"],
 input[type="submit"],
 .controls button,
 .player-display button {
-    padding: 10px 16px !important;
-    font-size: 14px !important;
+    padding: 9px 14px !important;
+    font-size: 13.5px !important;
     font-weight: 500 !important;
     letter-spacing: 0.01em !important;
     border-radius: 8px !important;
     cursor: pointer !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-sizing: border-box !important;
-    line-height: normal !important;
+    line-height: 1.4 !important;
+    min-height: 38px !important;
 }
 
 .btn:active {
@@ -199,15 +200,13 @@ input[type="submit"],
     width: 100%;
 }
 
-.btn.primary, 
-.player-display button:not(.danger):not(.success) { 
+.btn.primary { 
     background-color: #0284c7; 
     color: white; 
     border: 1px solid #0284c7;
     box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
 }
-.btn.primary:hover, 
-.player-display button:not(.danger):not(.success):hover { 
+.btn.primary:hover { 
     background-color: #0369a1;
     border-color: #0369a1;
 }
@@ -233,15 +232,13 @@ input[type="submit"],
     border-color: var(--accent-emerald-hover);
 }
 
-.btn.danger,
-.player-display button:nth-child(2) {
+.btn.danger {
     background-color: var(--danger-red);
     color: white;
     border: 1px solid var(--danger-red);
     box-shadow: 0 1px 2px rgba(244, 63, 94, 0.2);
 }
-.btn.danger:hover,
-.player-display button:nth-child(2):hover {
+.btn.danger:hover {
     background-color: #e11d48;
     border-color: #e11d48;
 }
@@ -409,15 +406,16 @@ label.btn.primary-outline {
     justify-content: center !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: 10px 16px !important;
+    padding: 9px 14px !important;
     font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     font-weight: 500 !important;
     border-radius: 8px !important;
     cursor: pointer !important;
     text-align: center !important;
     margin: 0 !important;
-    line-height: normal !important;
+    line-height: 1.4 !important;
+    min-height: 38px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
