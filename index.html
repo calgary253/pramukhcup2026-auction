@@ -108,17 +108,20 @@
                 </div>
 
                 <!-- Left-aligned Logo and Centered Text Layout Group -->
-                <div style="margin-top: 2px; display: flex; align-items: center; width: 100%; position: relative;">
+                <div style="margin-top: 2px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
                     <!-- Logo Image (Left Corner, Rectangular Size) -->
-                    <div style="position: absolute; left: 0; display: flex; align-items: center;">
-                        <img src="logo.png" alt="Pramukh Cup Logo" style="width: 130px; height: 75px; object-fit: contain; border-radius: 4px;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="logo.png" alt="Pramukh Cup Logo" class="header-logo">
                     </div>
                     
                     <!-- Title and Subtitle Centered in Header -->
-                    <div style="text-align: center; width: 100%;">
+                    <div style="text-align: center; flex: 1; padding: 0 20px;">
                         <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
                         <p style="font-size: 1.05rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
                     </div>
+
+                    <!-- Empty spacer to balance the flex layout perfectly on the right -->
+                    <div style="width: 200px;"></div>
                 </div>
 
                 <!-- Captains' Remote Links Option Button -->
