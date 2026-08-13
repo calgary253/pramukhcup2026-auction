@@ -208,7 +208,6 @@ function switchView(mode, savePreference = true) {
 function nextPlayer() {
     if (players.length === 0) {
         if (unsoldPlayers.length > 0) {
-            // Recycle unsold players back into the active pool when main pool is empty
             players = [...unsoldPlayers];
             unsoldPlayers = [];
         } else {
@@ -276,7 +275,6 @@ function submitBid() {
     const team = teams[teamIndex];
     const squadSize = team.squad ? team.squad.length : 0;
     
-    // --- MAXIMUM ALLOWABLE BID & RESERVED BASE POINTS LOGIC ---
     const totalSquadSizeNeeded = 10;
     const playersRemaining = totalSquadSizeNeeded - squadSize;
     const reservedBasePoints = (playersRemaining - 1) * 50;
@@ -288,7 +286,6 @@ function submitBid() {
         alert(`${team.name} cannot bid ${proposedBid} pts! Maximum allowable bid is ${maximumAllowableBid} pts to reserve base points (${reservedBasePoints} pts) for the remaining ${playersRemaining - 1} players.`);
         return;
     }
-    // ------------------------------------------------------------------
 
     currentHighestBid = proposedBid;
     
@@ -390,10 +387,10 @@ function undoLastBid() {
             currentHighestBid = previousBid.amount;
             currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
         } else {
-            currentHighestBid = 50; // Reset back to starting base bid
+            currentHighestBid = 50; 
             currentLeaderText = "None";
         }
-        lastAuctionMessage = ""; // Ensure any status message is cleared so the active player stays visible
+        lastAuctionMessage = ""; 
         lastAuctionMessageType = "";
     } 
     else if (lastAction.type === 'sold') {
@@ -444,7 +441,6 @@ function updateUI() {
     const currentBidDisplay = document.getElementById('current-bid-display');
     const leadingBidderDisplay = document.getElementById('leading-bidder-display');
 
-    // Admin View Display Logic
     if (lastAuctionMessage) {
         if (activeCatEl) activeCatEl.innerText = "-";
         if (activeNameEl) {
@@ -482,7 +478,6 @@ function updateUI() {
         activePlayerMeta.innerText = (!lastAuctionMessage && currentActivePlayer) ? `Skill Level: ${currentActivePlayer.skillLevel || 'N/A'} | Notes: ${currentActivePlayer.notes || 'None'}` : "";
     }
 
-    // Captain / Projector View Display Logic
     const captainActiveCat = document.getElementById('captain-active-cat');
     const captainActiveName = document.getElementById('captain-active-name');
     const captainPlayerMeta = document.getElementById('captain-player-meta');
@@ -519,7 +514,7 @@ function updateUI() {
         if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     }
 
-    // Render quick-click team buttons instead of dropdown select
+    // Render quick-click team buttons using shortCode - Captain Name formatting
     const bidderButtonsContainer = document.getElementById('bidder-buttons-container');
     const hiddenTeamInput = document.getElementById('selected-team-index');
 
@@ -535,7 +530,7 @@ function updateUI() {
             const squadCount = team.squad ? team.squad.length : 0;
             
             btn.type = "button";
-            btn.innerText = `${team.name.split(' ')[0]} (${squadCount}/10, ${team.points}p)`;
+            btn.innerText = `${team.shortName} - ${team.captain} (${squadCount}/10, ${team.points}p)`;
             btn.title = `${team.name} - Captain: ${team.captain} (${squadCount}/10 players, ${team.points} pts left)`;
             
             btn.style.padding = "6px 4px";
