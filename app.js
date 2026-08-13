@@ -650,10 +650,10 @@ function renderCaptainTeamsGrid() {
         card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
+        // Squad list without individual purchase prices
         let squadHtml = (team.squad || []).map(p => `
             <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; color: #e2e8f0;">${p.name}</span>
-                <strong style="color: #34d399; white-space: nowrap;">${p.purchasePrice}p</strong>
             </li>
         `).join('');
 
