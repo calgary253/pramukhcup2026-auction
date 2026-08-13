@@ -278,7 +278,7 @@ function submitBid() {
     const squadSize = team.squad ? team.squad.length : 0;
     const playersNeeded = 10 - squadSize;
 
-    // --- NEW BUDGET / BID INCREMENT RESTRICTION RULE ---
+    // --- UPDATED BUDGET / BID INCREMENT RESTRICTION RULE ---
     // If a team has 4 players purchased within 4500 points remaining (needing 6 more players),
     // they cannot raise their bid amount by more than 200 points, reserving 300 points 
     // for base price purchases on the remaining 6 players.
