@@ -14,7 +14,7 @@ const dbRef = firebase.database().ref('auction_state');
 // Admin Security Password Configuration (Hashed via SHA-256)
 // To change your password, generate a SHA-256 hash of your new password and paste it here.
 // (The hash below corresponds to the password "admin123" - feel free to replace it with your own)
-const ADMIN_PASSWORD_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+const ADMIN_PASSWORD_HASH = "f4b00bdf65b61d1793783f76c18adcec01386c23837d3e89175c82e0c157ed72";
 
 // Helper function to securely hash user input in the browser using SHA-256
 async function sha256(message) {
