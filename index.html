@@ -6,6 +6,11 @@
     <title>Pramukh Cup - 2026 Calgary Team Auction</title>
     <link rel="stylesheet" href="style.css">
     
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -19,40 +24,50 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
         }
 
         .modal-content {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid #334155;
+            background: linear-gradient(145deg, #131b2e 0%, #0f172a 100%);
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid rgba(51, 65, 85, 0.6);
             width: 90%;
             max-width: 650px;
             max-height: 80vh;
             overflow-y: auto;
             color: #f8fafc;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .captain-link-item {
-            background: #0f172a;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(51, 65, 85, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .captain-link-item:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            background: rgba(30, 41, 59, 0.5);
         }
 
         .captain-link-item span {
             font-size: 0.85rem;
             word-break: break-all;
             color: #94a3b8;
+            font-family: monospace;
         }
 
         /* Hides elements when viewing via captain remote link */
@@ -77,12 +92,14 @@
             color: #34d399 !important;
             font-size: 1.5rem !important;
             font-weight: 800 !important;
+            text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
         }
 
         .unsold-highlight {
             color: #f87171 !important;
             font-size: 1.5rem !important;
             font-weight: 800 !important;
+            text-shadow: 0 0 20px rgba(248, 113, 113, 0.3);
         }
 
         /* Modern Top-Right Captains Remote Links Button Style */
@@ -93,21 +110,26 @@
             background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(2, 132, 199, 0.25) 100%);
             border: 1px solid rgba(56, 189, 248, 0.4);
             color: #38bdf8;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 9999px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.15);
         }
 
         .btn-modern-remote:hover {
             background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(2, 132, 199, 0.4) 100%);
             border-color: #38bdf8;
             color: #f0f9ff;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         /* Mobile Responsive Fix for Captain View */
@@ -115,20 +137,20 @@
             #captain-view-container {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 14px !important;
+                gap: 16px !important;
             }
             #captain-teams-left, #captain-teams-right {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 10px !important;
+                gap: 12px !important;
             }
         }
     </style>
 </head>
 <body>
 
-    <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center; margin: 0 auto;">
-        <header class="dashboard-header" style="width: 100%; box-sizing: border-box; padding: 20px 30px;">
+    <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center; margin: 0 auto; padding: 0 16px; box-sizing: border-box;">
+        <header class="dashboard-header" style="width: 100%; box-sizing: border-box; padding: 24px 12px;">
             <div class="header-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; position: relative;">
                 
                 <!-- Modern Top-Right Captains' Remote Links Button -->
@@ -140,20 +162,20 @@
                 </div>
 
                 <!-- Logo and Title Block -->
-                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; margin-top: 2px;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; margin-top: 4px;">
                     <div style="display: flex; align-items: center;">
                         <img src="logo.png" alt="Pramukh Cup Logo" class="header-logo">
                     </div>
                     <div style="text-align: left;">
-                        <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
-                        <p style="font-size: 1.05rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
+                        <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc; letter-spacing: -0.025em;">Pramukh Cup - 2026 Calgary Team Auction</h1>
+                        <p style="font-size: 1.05rem; color: #34d399; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
                     </div>
                 </div>
 
             </div>
         </header>
 
-        <!-- ADMIN VIEW CONTAINER (Matching Captain View 3-Column Layout: 540px 1fr 540px) -->
+        <!-- ADMIN VIEW CONTAINER -->
         <main id="admin-view-container" class="auction-grid-3col" style="width: 100%;">
             <!-- Column 1: Active Player & Bidding Controls -->
             <section class="card current-player-section">
@@ -164,36 +186,36 @@
                 <div class="player-display">
                     <div id="active-player-cat" class="category-badge">-</div>
                     <div id="active-player-name" class="player-name-text">Select 'Next Player' to begin</div>
-                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 10px;" id="current-bid-display">
+                    <div style="font-size: 1.05em; color: #34d399; font-weight: 600; margin-top: 12px;" id="current-bid-display">
                         Current Highest Bid: <strong>0 pts</strong> (No bids yet)
                     </div>
-                    <div id="leading-bidder-display" style="font-size: 0.95em; color: #60a5fa; font-weight: 500; margin-top: 6px;">
+                    <div id="leading-bidder-display" style="font-size: 0.95em; color: #38bdf8; font-weight: 500; margin-top: 6px;">
                         Leading Team: None
                     </div>
                 </div>
 
-                <div class="controls" style="display: flex; gap: 8px;">
+                <div class="controls" style="display: flex; gap: 10px;">
                     <button onclick="nextPlayer()" class="btn primary" style="flex: 1;">Next Player ➔</button>
-                    <button onclick="markAsUnsold()" class="btn danger" style="flex: 1; background-color: #dc2626;">Mark Unsold</button>
+                    <button onclick="markAsUnsold()" class="btn danger" style="flex: 1; background-color: #ef4444;">Mark Unsold</button>
                 </div>
 
                 <div class="bidding-panel">
                     <h3>Place Bid</h3>
                     <div class="form-group">
                         <label>Select Team / Captain:</label>
-                        <div id="bidder-buttons-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 6px; margin-bottom: 10px;"></div>
+                        <div id="bidder-buttons-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 6px; margin-bottom: 12px;"></div>
                         <input type="hidden" id="selected-team-index" value="0">
                     </div>
                     <div class="form-group">
                         <label for="bid-amount">Bid Amount (Points):</label>
                         <input type="number" id="bid-amount" class="form-control" min="50" step="50" value="50">
                     </div>
-                    <div class="bid-buttons" style="display: flex; gap: 8px; flex-direction: column;">
+                    <div class="bid-buttons" style="display: flex; gap: 10px; flex-direction: column;">
                         <div style="display: flex; gap: 8px;">
-                            <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0284c7;">Raise / Add Bid</button>
+                            <button onclick="submitBid()" class="btn primary" style="flex: 1; background-color: #0ea5e9;">Raise / Add Bid</button>
                             <button onclick="finalizeBid()" class="btn success" style="flex: 1; background-color: #10b981;">Finalize Sale</button>
                         </div>
-                        <button onclick="undoLastBid()" class="btn danger" style="width: 100%;">Undo Last Bid</button>
+                        <button onclick="undoLastBid()" class="btn danger" style="width: 100%; opacity: 0.85;">Undo Last Bid</button>
                     </div>
                 </div>
             </section>
@@ -203,17 +225,17 @@
                 <h2>Team Squads & Standings</h2>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: calc(100% - 40px);">
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (1 - 4)</div>
-                        <div id="teams-col-1" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; padding-left: 2px;">Teams (1 - 4)</div>
+                        <div id="teams-col-1" style="display: flex; flex-direction: column; gap: 10px; flex: 1;"></div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (5 - 8)</div>
-                        <div id="teams-col-2" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; padding-left: 2px;">Teams (5 - 8)</div>
+                        <div id="teams-col-2" style="display: flex; flex-direction: column; gap: 10px; flex: 1;"></div>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div style="margin-top: 15px; border-top: 1px solid #334155; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="margin-top: 16px; border-top: 1px solid rgba(51, 65, 85, 0.6); padding-top: 14px; display: flex; flex-direction: column; gap: 8px;">
                     <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
                     <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block; margin: 0;">
                         📂 Upload Player Pool File <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolFile(event)" accept=".csv, .xlsx, .xls" style="display: none;">
@@ -222,7 +244,7 @@
                     <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block; margin: 0;">
                         📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
                     </label>
-                    <button onclick="resetEntireAuction()" class="btn danger btn-full" style="background-color: #dc2626; color: white;">⚠️ Reset Entire Auction & Players</button>
+                    <button onclick="resetEntireAuction()" class="btn danger btn-full" style="background-color: #ef4444; color: white;">⚠️ Reset Entire Auction & Players</button>
                 </div>
             </section>
 
@@ -242,15 +264,15 @@
                 <div id="captain-teams-left" class="captain-side-grid"></div>
             </section>
 
-            <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
+            <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(145deg, #131b2e 0%, #0f172a 100%);">
                 <h2>Live Auction Status</h2>
 
-                <div class="player-display" style="max-width: 100%; margin: 10px 0;">
+                <div class="player-display" style="max-width: 100%; margin: 12px 0;">
                     <div id="captain-active-cat" class="category-badge">-</div>
-                    <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0;">Waiting for next player...</div>
-                    <div id="captain-player-meta" style="font-size: 1.15em; color: #f3f4f6; margin-bottom: 8px; font-weight: 500;"></div>
-                    <div id="captain-active-bid" style="font-size: 1.1em; color: var(--text-muted); margin-top: 10px;">Current Bidding Level / Status: Active</div>
-                    <div id="captain-leading-display" style="font-size: 1.05em; color: #60a5fa; font-weight: 600; margin-top: 12px;">
+                    <div id="captain-active-name" style="color: #34d399; font-size: 2.4em; font-weight: 700; margin: 15px 0; letter-spacing: -0.02em;">Waiting for next player...</div>
+                    <div id="captain-player-meta" style="font-size: 1.15em; color: #e2e8f0; margin-bottom: 10px; font-weight: 500;"></div>
+                    <div id="captain-active-bid" style="font-size: 1.1em; color: #94a3b8; margin-top: 10px;">Current Bidding Level / Status: Active</div>
+                    <div id="captain-leading-display" style="font-size: 1.05em; color: #38bdf8; font-weight: 600; margin-top: 12px;">
                         Leading Team: None
                     </div>
                 </div>
@@ -266,11 +288,11 @@
     <!-- CAPTAINS' REMOTE LINKS MODAL -->
     <div id="remote-links-modal" class="modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="margin: 0; border: none; font-size: 1.2rem;">Captains' Personal Remote Links</h2>
-                <button onclick="closeRemoteLinksModal()" class="btn danger" style="padding: 4px 10px; font-size: 0.8rem; background-color: #dc2626; border: none; color: white; border-radius: 4px; cursor: pointer;">✕ Close</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0; border: none; font-size: 1.25rem;">Captains' Personal Remote Links</h2>
+                <button onclick="closeRemoteLinksModal()" class="btn danger" style="padding: 6px 12px; font-size: 0.8rem; background-color: #ef4444; border: none; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">✕ Close</button>
             </div>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 18px; line-height: 1.5;">
                 Share each captain's unique personal link so they can view the live auction and track team budgets directly from their devices:
             </p>
             <div id="remote-links-list"></div>
