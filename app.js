@@ -514,7 +514,7 @@ function updateUI() {
         if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     }
 
-    // Render quick-click team buttons using exact requested formatting: PP - Pavan (squad/points)
+    // Render quick-click team buttons ONLY for the admin bidding panel using exact requested format: PP - Pavan
     const bidderButtonsContainer = document.getElementById('bidder-buttons-container');
     const hiddenTeamInput = document.getElementById('selected-team-index');
 
@@ -530,7 +530,7 @@ function updateUI() {
             const squadCount = team.squad ? team.squad.length : 0;
             
             btn.type = "button";
-            btn.innerText = `${team.shortName} - ${team.captain} (${squadCount}/10, ${team.points}p)`;
+            btn.innerText = `${team.shortName} - ${team.captain}`;
             btn.title = `${team.name} - Captain: ${team.captain} (${squadCount}/10 players, ${team.points} pts left)`;
             
             btn.style.padding = "6px 4px";
