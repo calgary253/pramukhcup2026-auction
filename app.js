@@ -274,15 +274,32 @@ function submitBid() {
         return;
     }
 
+    const team = teams[teamIndex];
+    const squadSize = team.squad ? team.squad.length : 0;
+    const playersNeeded = 10 - squadSize;
+
+    // --- NEW BUDGET / BID INCREMENT RESTRICTION RULE ---
+    // If a team has 4 players purchased within 4500 points remaining (needing 6 more players),
+    // they cannot raise their bid amount by more than 200 points, reserving 300 points 
+    // for base price purchases on the remaining 6 players.
+    if (squadSize === 4 && team.points === 4500 && playersNeeded === 6) {
+        const maxAllowedIncrement = 200;
+        if (addedAmount > maxAllowedIncrement) {
+            alert(`${team.name} has 4 players and 4500 points remaining. To reserve enough points for the remaining 6 players, your bid increment cannot exceed ${maxAllowedIncrement} points!`);
+            return;
+        }
+    }
+    // ---------------------------------------------------
+
     currentHighestBid += addedAmount;
     
-    if (teams[teamIndex].points < currentHighestBid) {
+    if (team.points < currentHighestBid) {
         currentHighestBid -= addedAmount;
-        alert(`${teams[teamIndex].name} does not have enough points for this total bid (${currentHighestBid} pts)!`);
+        alert(`${team.name} does not have enough points for this total bid (${currentHighestBid} pts)!`);
         return;
     }
 
-    currentLeaderText = `${teams[teamIndex].name} (${teams[teamIndex].captain}) - ${currentHighestBid} pts`;
+    currentLeaderText = `${team.name} (${team.captain}) - ${currentHighestBid} pts`;
     
     auctionHistory.push({
         type: 'bid',
