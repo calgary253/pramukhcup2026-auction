@@ -98,7 +98,7 @@
 
     <!-- Header aligned to match layout width and center -->
     <div style="width: 100%; max-width: 1600px; display: flex; flex-direction: column; align-items: center; margin: 0 auto;">
-        <header class="dashboard-header" style="width: 100%; box-sizing: border-box; padding: 10px 20px;">
+        <header class="dashboard-header" style="width: 100%; box-sizing: border-box; padding: 20px 30px;">
             <div class="header-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; position: relative;">
                 
                 <!-- View Mode Switcher / Admin Mode Button Top Right -->
@@ -107,19 +107,22 @@
                     <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 4px 10px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; background: #0284c7; color: #fff; font-size: 0.8rem;">Admin Mode</button>
                 </div>
 
-                <!-- Centered Title and Subtitle with Logo on the Left -->
-                <div style="margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                    <!-- Logo Image -->
-                    <img src="logo.png" alt="Pramukh Cup Logo" style="height: 45px; width: auto; object-fit: contain;">
+                <!-- Left-aligned Logo and Centered Text Layout Group -->
+                <div style="margin-top: 2px; display: flex; align-items: center; width: 100%; position: relative;">
+                    <!-- Logo Image (Left Corner, Rectangular Size) -->
+                    <div style="position: absolute; left: 0; display: flex; align-items: center;">
+                        <img src="logo.png" alt="Pramukh Cup Logo" style="width: 130px; height: 75px; object-fit: contain; border-radius: 4px;">
+                    </div>
                     
-                    <div style="text-align: left;">
-                        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
-                        <p style="font-size: 0.85rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
+                    <!-- Title and Subtitle Centered in Header -->
+                    <div style="text-align: center; width: 100%;">
+                        <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
+                        <p style="font-size: 1.05rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
                     </div>
                 </div>
 
                 <!-- Captains' Remote Links Option Button -->
-                <div class="remote-links-container" style="margin-top: 8px;">
+                <div class="remote-links-container" style="margin-top: 12px;">
                     <button onclick="openRemoteLinksModal()" class="btn primary-outline" style="font-size: 0.8rem; padding: 4px 12px; cursor: pointer; background: transparent; border: 1px solid #0284c7; color: #38bdf8; border-radius: 4px; font-weight: 600;">🔗 Captains' Remote Links</button>
                 </div>
 
