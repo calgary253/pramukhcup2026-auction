@@ -276,22 +276,22 @@ function submitBid() {
 
     const team = teams[teamIndex];
     const squadSize = team.squad ? team.squad.length : 0;
-    const playersNeeded = 10 - squadSize;
+    
+    // --- UPDATED MAXIMUM ALLOWABLE BID & RESERVED BASE POINTS LOGIC ---
+    const totalSquadSizeNeeded = 10;
+    const playersRemaining = totalSquadSizeNeeded - squadSize;
+    const reservedBasePoints = (playersRemaining - 1) * 50;
+    const maximumAllowableBid = team.points - reservedBasePoints;
 
-    // --- UPDATED BUDGET / BID INCREMENT RESTRICTION RULE ---
-    // If a team has 4 players purchased within 4500 points remaining (needing 6 more players),
-    // they cannot raise their bid amount by more than 200 points, reserving 300 points 
-    // for base price purchases on the remaining 6 players.
-    if (squadSize === 4 && team.points === 4500 && playersNeeded === 6) {
-        const maxAllowedIncrement = 200;
-        if (addedAmount > maxAllowedIncrement) {
-            alert(`${team.name} has 4 players and 4500 points remaining. To reserve enough points for the remaining 6 players, your bid increment cannot exceed ${maxAllowedIncrement} points!`);
-            return;
-        }
+    const proposedBid = currentHighestBid + addedAmount;
+
+    if (proposedBid > maximumAllowableBid) {
+        alert(`${team.name} cannot bid ${proposedBid} pts! Maximum allowable bid is ${maximumAllowableBid} pts to reserve base points (${reservedBasePoints} pts) for the remaining ${playersRemaining - 1} players.`);
+        return;
     }
-    // ---------------------------------------------------
+    // ------------------------------------------------------------------
 
-    currentHighestBid += addedAmount;
+    currentHighestBid = proposedBid;
     
     if (team.points < currentHighestBid) {
         currentHighestBid -= addedAmount;
