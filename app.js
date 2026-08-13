@@ -529,36 +529,35 @@ function updateUI() {
         hiddenTeamInput.value = selectedIndex;
 
         bidderButtonsContainer.innerHTML = "";
-    teams.forEach((team, index) => {
-        const btn = document.createElement('button');
-        const isSelected = index === selectedIndex;
-        const squadCount = team.squad ? team.squad.length : 0;
-        
-        btn.type = "button";
-        // Displays: Short Name - Captain Name (Squad Count, Remaining Points)
-        btn.innerText = `${team.shortName} - ${team.captain} (${squadCount}/10, ${team.points}p)`;
-        btn.title = `${team.name} - Captain: ${team.captain} (${squadCount}/10 players, ${team.points} pts left)`;
-        
-        btn.style.padding = "6px 8px";
-        btn.style.fontSize = "0.75rem";
-        btn.style.fontWeight = "600";
-        btn.style.borderRadius = "4px";
-        btn.style.border = isSelected ? "2px solid #38bdf8" : "1px solid #334155";
-        btn.style.background = isSelected ? "#0284c7" : "#1e293b";
-        btn.style.color = "#f8fafc";
-        btn.style.cursor = "pointer";
-        btn.style.textAlign = "left";
-        btn.style.overflow = "hidden";
-        btn.style.textOverflow = "ellipsis";
-        btn.style.whiteSpace = "nowrap";
+        teams.forEach((team, index) => {
+            const btn = document.createElement('button');
+            const isSelected = index === selectedIndex;
+            const squadCount = team.squad ? team.squad.length : 0;
+            
+            btn.type = "button";
+            btn.innerText = `${team.name.split(' ')[0]} (${squadCount}/10, ${team.points}p)`;
+            btn.title = `${team.name} - Captain: ${team.captain} (${squadCount}/10 players, ${team.points} pts left)`;
+            
+            btn.style.padding = "6px 4px";
+            btn.style.fontSize = "0.75rem";
+            btn.style.fontWeight = "600";
+            btn.style.borderRadius = "4px";
+            btn.style.border = isSelected ? "2px solid #38bdf8" : "1px solid #334155";
+            btn.style.background = isSelected ? "#0284c7" : "#1e293b";
+            btn.style.color = "#f8fafc";
+            btn.style.cursor = "pointer";
+            btn.style.overflow = "hidden";
+            btn.style.textOverflow = "ellipsis";
+            btn.style.whiteSpace = "nowrap";
 
-        btn.onclick = () => {
-            hiddenTeamInput.value = index;
-            updateUI();
-        };
+            btn.onclick = () => {
+                hiddenTeamInput.value = index;
+                updateUI();
+            };
 
-        bidderButtonsContainer.appendChild(btn);
-    });
+            bidderButtonsContainer.appendChild(btn);
+        });
+    }
 
     renderTeamsContainer();
     renderCaptainTeamsGrid();
