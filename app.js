@@ -650,7 +650,12 @@ function renderCaptainTeamsGrid() {
         card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
-        let squadNames = (team.squad || []).map(p => `<span style="display: inline-block; background: #1e293b; padding: 5px 9px; border-radius: 6px; font-size: 0.9rem; margin: 3px; color: #e2e8f0; font-weight: 500;">${p.name}</span>`).join('');
+        let squadHtml = (team.squad || []).map(p => `
+            <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; color: #e2e8f0;">${p.name}</span>
+                <strong style="color: #34d399; white-space: nowrap;">${p.purchasePrice}p</strong>
+            </li>
+        `).join('');
 
         card.innerHTML = `
             <div>
@@ -660,8 +665,10 @@ function renderCaptainTeamsGrid() {
                 </div>
                 <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
             </div>
-            <div style="display: flex; flex-wrap: wrap; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
-                ${squadNames || '<span style="color: #64748b; font-size: 0.85rem;">No players bought yet</span>'}
+            <div style="background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    ${squadHtml || '<li style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 4px 0;">No players bought yet</li>'}
+                </ul>
             </div>
         `;
         targetContainer.appendChild(card);
