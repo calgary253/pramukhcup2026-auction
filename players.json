@@ -1,6 +1,6 @@
 [
   { "id": 1, "name": "Biren", "category": "A", "basePrice": 50 },
-  { "id": 2, "name": "Virag", "category": "A", "basePrice": 50 },
+  { "id": 2, "name": "Jaimin", "category": "A", "basePrice": 50 },
   { "id": 3, "name": "Vrushank", "category": "A", "basePrice": 50 },
   { "id": 4, "name": "Jigar Amin", "category": "A", "basePrice": 50 },
   { "id": 5, "name": "Player A1", "category": "A", "basePrice": 50 },
