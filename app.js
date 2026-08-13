@@ -514,7 +514,7 @@ function updateUI() {
         if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     }
 
-    // Render quick-click team buttons ONLY for the admin bidding panel using exact requested format: PP - Pavan
+    // Render quick-click team buttons ONLY for the admin bidding panel using clean format without parentheses text
     const bidderButtonsContainer = document.getElementById('bidder-buttons-container');
     const hiddenTeamInput = document.getElementById('selected-team-index');
 
