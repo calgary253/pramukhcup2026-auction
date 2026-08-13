@@ -60,10 +60,10 @@ header p {
     border-radius: 4px;
 }
 
-/* 3-Column Admin Horizontal Layout */
+/* 3-Column Admin Horizontal Layout matching Captain view sizing (540px side columns) */
 .auction-grid-3col {
     display: grid;
-    grid-template-columns: 340px 1fr 300px;
+    grid-template-columns: 540px 1fr 540px;
     gap: 25px;
     width: 100%;
     max-width: 1600px;
@@ -74,7 +74,7 @@ header p {
 /* Captain / Projector View 3-Column Layout */
 .auction-grid-captain-3col {
     display: grid;
-    grid-template-columns: 340px 1fr 340px;
+    grid-template-columns: 540px 1fr 540px;
     gap: 25px;
     width: 100%;
     max-width: 1600px;
