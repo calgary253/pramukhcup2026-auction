@@ -208,8 +208,14 @@ function switchView(mode, savePreference = true) {
 // ==========================================
 function nextPlayer() {
     if (players.length === 0) {
-        alert("No players remaining in the pool! Please upload a CSV/Excel file containing players.");
-        return;
+        if (unsoldPlayers.length > 0) {
+            // Recycle unsold players back into the active pool when main pool is empty
+            players = [...unsoldPlayers];
+            unsoldPlayers = [];
+        } else {
+            alert("No players remaining in the pool! Please upload a CSV/Excel file containing players.");
+            return;
+        }
     }
 
     lastAuctionMessage = "";
@@ -578,7 +584,7 @@ function renderTeamsContainer() {
                 <div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 2px;">Cap: <strong>${team.captain}</strong></div>
                 <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Purse: ${team.points} pts</div>
             </div>
-            <div style="max-height: 90px; overflow-y: auto; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 4px;">
+            <div style="background: rgba(0,0,0,0.25); padding: 4px; border-radius: 4px;">
                 <ul style="list-style: none; padding: 0; margin: 0;">
                     ${squadHtml || '<li style="color: #64748b; font-size: 0.65rem; text-align: center; padding: 2px 0;">No players yet</li>'}
                 </ul>
@@ -630,7 +636,7 @@ function renderCaptainTeamsGrid() {
                 </div>
                 <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
             </div>
-            <div style="display: flex; flex-wrap: wrap; max-height: 130px; overflow-y: auto; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
+            <div style="display: flex; flex-wrap: wrap; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
                 ${squadNames || '<span style="color: #64748b; font-size: 0.85rem;">No players bought yet</span>'}
             </div>
         `;
