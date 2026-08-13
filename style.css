@@ -339,16 +339,16 @@ input[type="submit"],
 .purchased-players {
     font-size: 0.85em;
     color: var(--text-muted);
-    max-height: 120px;
-    overflow-y: auto;
     background: #0f172a;
     padding: 8px;
     border-radius: 6px;
+    /* Removed max-height and overflow-y to let all players display without scrolling */
 }
 
 .purchased-players ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .purchased-players li {
@@ -359,7 +359,6 @@ input[type="submit"],
 .purchased-players li:last-child {
     border-bottom: none;
 }
-
 /* Player Pool List Column */
 .player-pool-wrapper {
     max-height: 620px;
