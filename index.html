@@ -168,20 +168,6 @@
                         </div>
                         <button onclick="undoLastBid()" class="btn danger" style="width: 100%;">Undo Last Bid</button>
                     </div>
-                    <div style="margin-top: 15px;">
-                        <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
-                    </div>
-
-                    <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
-                        <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
-                            📂 Upload Player Pool File <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolFile(event)" accept=".csv, .xlsx, .xls" style="display: none;">
-                        </label>
-                        <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full" style="margin-bottom: 8px;">💾 Save Emergency Backup</button>
-                        <label class="btn primary-outline btn-full" style="margin-bottom: 8px; cursor: pointer; text-align: center; display: block;">
-                            📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
-                        </label>
-                        <button onclick="resetEntireAuction()" class="btn danger btn-full" style="background-color: #dc2626; color: white;">⚠️ Reset Entire Auction & Players</button>
-                    </div>
                 </div>
             </section>
 
@@ -197,6 +183,19 @@
                         <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">Teams (5 - 8)</div>
                         <div id="teams-col-2" style="display: flex; flex-direction: column; gap: 8px; flex: 1;"></div>
                     </div>
+                </div>
+
+                <!-- Relocated Action Buttons -->
+                <div style="margin-top: 15px; border-top: 1px solid #334155; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <button onclick="downloadSquadCSV()" class="btn primary-outline btn-full">📥 Export Squad Lists (CSV)</button>
+                    <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block; margin: 0;">
+                        📂 Upload Player Pool File <input type="file" id="player-pool-csv-input" onchange="importPlayerPoolFile(event)" accept=".csv, .xlsx, .xls" style="display: none;">
+                    </label>
+                    <button onclick="downloadAuctionBackup()" class="btn primary-outline btn-full">💾 Save Emergency Backup</button>
+                    <label class="btn primary-outline btn-full" style="cursor: pointer; text-align: center; display: block; margin: 0;">
+                        📂 Restore from Backup <input type="file" onchange="importAuctionState(event)" accept=".json" style="display: none;">
+                    </label>
+                    <button onclick="resetEntireAuction()" class="btn danger btn-full" style="background-color: #dc2626; color: white;">⚠️ Reset Entire Auction & Players</button>
                 </div>
             </section>
 
