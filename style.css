@@ -1,22 +1,22 @@
 /* Professional & Aesthetic UI Update for Cricket Auction */
 :root {
-    --bg-color: #0b0f19;
-    --card-bg: #131c2e;
-    --card-border: #1e293b;
+    --bg-color: #070a13;
+    --card-bg: #111827;
+    --card-border: #1f2937;
     --accent-emerald: #10b981;
     --accent-emerald-hover: #059669;
     --accent-blue: #38bdf8;
-    --danger-red: #f43f5e;
+    --danger-red: #ef4444;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-main);
     margin: 0;
-    padding: 30px;
+    padding: 32px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -25,30 +25,30 @@ body {
 
 header {
     text-align: center;
-    margin-bottom: 30px;
-    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-    padding: 20px 30px;
-    border-radius: 16px;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    padding: 24px 32px;
+    border-radius: 20px;
     width: 100%;
     max-width: 1600px;
     box-sizing: border-box;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
 header h1 {
     color: #ffffff;
-    margin: 0 0 4px 0;
-    font-size: 2.2em;
+    margin: 0 0 6px 0;
+    font-size: 2.2rem;
     font-weight: 800;
     letter-spacing: -0.025em;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 header p {
     color: #a7f3d0;
     margin: 0;
-    font-size: 1.05em;
+    font-size: 1.05rem;
     font-weight: 500;
 }
 
@@ -57,28 +57,28 @@ header p {
     width: 130px;
     height: 75px;
     object-fit: contain;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 /* 3-Column Admin Horizontal Layout */
 .auction-grid-3col {
     display: grid;
-    grid-template-columns: 340px 1fr 300px;
-    gap: 25px;
+    grid-template-columns: 360px 1fr 320px;
+    gap: 24px;
     width: 100%;
     max-width: 1600px;
-    margin-bottom: 25px;
+    margin-bottom: 24px;
     align-items: start;
 }
 
 /* Captain / Projector View 3-Column Layout */
 .auction-grid-captain-3col {
     display: grid;
-    grid-template-columns: 340px 1fr 340px;
-    gap: 25px;
+    grid-template-columns: 360px 1fr 360px;
+    gap: 24px;
     width: 100%;
     max-width: 1600px;
-    margin-bottom: 25px;
+    margin-bottom: 24px;
     align-items: start;
 }
 
@@ -90,42 +90,46 @@ header p {
 }
 
 .card {
-    background: var(--card-bg);
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--card-border);
+    background: linear-gradient(145deg, #131b2e 0%, #111827 100%);
+    padding: 24px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(51, 65, 85, 0.5);
     box-sizing: border-box;
+    backdrop-filter: blur(10px);
 }
 
 .player-display {
-    background: linear-gradient(180deg, rgba(19, 28, 46, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-    padding: 25px;
-    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(11, 15, 25, 0.95) 100%);
+    padding: 24px;
+    border-radius: 14px;
     text-align: center;
     margin-bottom: 20px;
-    border: 2px dashed rgba(16, 185, 129, 0.4);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    border: 2px dashed rgba(52, 211, 153, 0.4);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(16, 185, 129, 0.05);
 }
 
 #active-player-name {
     color: #34d399;
     margin: 12px 0 8px 0;
-    font-size: 2.2em;
+    font-size: 2.2rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     word-break: break-word;
+    text-shadow: 0 0 20px rgba(52, 211, 153, 0.2);
 }
 
 #active-player-cat, #captain-active-cat {
     display: inline-block;
     background: rgba(16, 185, 129, 0.15);
     color: #34d399;
-    padding: 4px 14px;
-    border-radius: 20px;
+    padding: 6px 16px;
+    border-radius: 9999px;
     font-weight: 600;
-    font-size: 0.9em;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-size: 0.85rem;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
 }
 
 .controls {
@@ -140,19 +144,19 @@ header p {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    border-top: 1px solid var(--card-border);
+    border-top: 1px solid rgba(51, 65, 85, 0.5);
     padding-top: 20px;
 }
 
 .bidding-panel h3 {
     margin: 0;
-    font-size: 1.1em;
+    font-size: 1.1rem;
     color: #34d399;
     font-weight: 600;
 }
 
 .bidding-panel label {
-    font-size: 0.9em;
+    font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 500;
 }
@@ -160,9 +164,9 @@ header p {
 .form-control {
     padding: 10px 14px;
     font-size: 14px;
-    background: #0b0f19;
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
+    background: #070a13;
+    border: 1px solid rgba(51, 65, 85, 0.7);
+    border-radius: 10px;
     color: var(--text-main);
     transition: all 0.2s ease;
     width: 100%;
@@ -171,7 +175,7 @@ header p {
 
 .form-control:focus {
     border-color: var(--accent-emerald);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
     outline: none;
 }
 
@@ -181,27 +185,27 @@ header p {
     gap: 10px;
 }
 
-/* Hard-enforced uniform, compact dimensions for ALL buttons including Next Player & Mark Unsold */
+/* Hard-enforced uniform, compact dimensions for ALL buttons */
 .btn,
 button,
 input[type="button"],
 input[type="submit"],
 .controls button,
 .player-display button {
-    padding: 9px 14px !important;
+    padding: 10px 16px !important;
     font-size: 13.5px !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     letter-spacing: 0.01em !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     cursor: pointer !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-sizing: border-box !important;
     line-height: 1.4 !important;
-    min-height: 38px !important;
+    min-height: 40px !important;
 }
 
 .btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 .btn-full {
@@ -212,51 +216,58 @@ input[type="submit"],
     background-color: #0284c7; 
     color: white; 
     border: 1px solid #0284c7;
-    box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
 }
 .btn.primary:hover { 
     background-color: #0369a1;
     border-color: #0369a1;
+    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+    transform: translateY(-1px);
 }
 
 .btn.primary-outline {
-    background-color: rgba(2, 132, 199, 0.05);
-    border: 1px solid rgba(2, 132, 199, 0.4);
+    background-color: rgba(2, 132, 199, 0.06);
+    border: 1px solid rgba(56, 189, 248, 0.35);
     color: #38bdf8;
 }
 .btn.primary-outline:hover {
     background-color: rgba(2, 132, 199, 0.15);
     border-color: #38bdf8;
+    transform: translateY(-1px);
 }
 
 .btn.success { 
     background-color: var(--accent-emerald); 
     color: white; 
     border: 1px solid var(--accent-emerald);
-    box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 .btn.success:hover { 
     background-color: var(--accent-emerald-hover); 
     border-color: var(--accent-emerald-hover);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
 }
 
 .btn.danger {
     background-color: var(--danger-red);
     color: white;
     border: 1px solid var(--danger-red);
-    box-shadow: 0 1px 2px rgba(244, 63, 94, 0.2);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 .btn.danger:hover {
-    background-color: #e11d48;
-    border-color: #e11d48;
+    background-color: #dc2626;
+    border-color: #dc2626;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
 }
 
 .card h2 {
     margin-top: 0;
     color: #34d399;
-    font-size: 1.3em;
+    font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
     letter-spacing: -0.01em;
 }
 
@@ -264,10 +275,10 @@ input[type="submit"],
 .captain-side-grid {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    max-height: 620px;
+    gap: 14px;
+    max-height: 640px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 6px;
 }
 
 /* Custom Sleek Scrollbar */
@@ -279,19 +290,19 @@ input[type="submit"],
 }
 ::-webkit-scrollbar-thumb {
     background: #334155;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent-emerald);
 }
 
 .team-card {
-    background: #182238;
+    background: linear-gradient(145deg, #182238 0%, #131c2e 100%);
     border-left: 5px solid var(--accent-emerald);
     padding: 16px;
-    border-radius: 10px;
-    border: 1px solid var(--card-border);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+    border: 1px solid rgba(51, 65, 85, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -299,12 +310,13 @@ input[type="submit"],
 
 .team-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.5);
+    border-color: rgba(52, 211, 153, 0.4);
 }
 
 .team-card h3 {
     margin: 0 0 8px 0;
-    font-size: 1.05em;
+    font-size: 1.05rem;
     color: #f1f5f9;
     font-weight: 600;
 }
@@ -312,37 +324,38 @@ input[type="submit"],
 .points-display {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9em;
+    font-size: 0.85rem;
     color: var(--text-muted);
-    background: #0f172a;
-    padding: 6px 10px;
-    border-radius: 6px;
+    background: #070a13;
+    padding: 8px 12px;
+    border-radius: 8px;
     margin-bottom: 8px;
+    border: 1px solid rgba(51, 65, 85, 0.3);
 }
 
 .squad-progress {
     width: 100%;
-    background: #0f172a;
+    background: #070a13;
     height: 6px;
-    border-radius: 3px;
+    border-radius: 9999px;
     margin: 8px 0 12px 0;
     overflow: hidden;
 }
 
 .squad-progress-bar {
     height: 100%;
-    background: var(--accent-emerald);
-    border-radius: 3px;
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    border-radius: 9999px;
     transition: width 0.3s ease;
 }
 
 .purchased-players {
-    font-size: 0.85em;
+    font-size: 0.85rem;
     color: var(--text-muted);
-    background: #0f172a;
-    padding: 8px;
-    border-radius: 6px;
-    /* Removed max-height and overflow-y to let all players display without scrolling */
+    background: #070a13;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(51, 65, 85, 0.3);
 }
 
 .purchased-players ul {
@@ -352,18 +365,19 @@ input[type="submit"],
 }
 
 .purchased-players li {
-    padding: 3px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .purchased-players li:last-child {
     border-bottom: none;
 }
+
 /* Player Pool List Column */
 .player-pool-wrapper {
-    max-height: 620px;
+    max-height: 640px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 6px;
 }
 
 .player-pool-list {
@@ -376,15 +390,21 @@ input[type="submit"],
 }
 
 .player-pool-list li {
-    background: #182238;
+    background: linear-gradient(145deg, #182238 0%, #131c2e 100%);
     color: var(--text-main);
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.9em;
-    border: 1px solid var(--card-border);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(51, 65, 85, 0.6);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.2s ease;
+}
+
+.player-pool-list li:hover {
+    border-color: rgba(56, 189, 248, 0.4);
+    background: linear-gradient(145deg, #1e293b 0%, #182238 100%);
 }
 
 /* Sold Announcement Banner */
@@ -394,7 +414,7 @@ input[type="submit"],
     color: #34d399;
     text-align: center;
     min-height: 24px;
-    font-size: 0.95em;
+    font-size: 0.95rem;
 }
 
 /* Fix label-based file upload button layout to match standard buttons identically */
@@ -404,16 +424,16 @@ label.btn.primary-outline {
     justify-content: center !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: 9px 14px !important;
-    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    padding: 10px 16px !important;
+    font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
     font-size: 13.5px !important;
-    font-weight: 500 !important;
-    border-radius: 8px !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
     cursor: pointer !important;
     text-align: center !important;
     margin: 0 !important;
     line-height: 1.4 !important;
-    min-height: 38px !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    min-height: 40px !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
