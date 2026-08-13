@@ -52,12 +52,12 @@ header p {
     font-weight: 500;
 }
 
-/* Header Logo Styling - Rectangular sizing adjusted for prominent display */
+/* Header Logo Styling */
 .header-logo {
-    width: 200px;
-    height: 100px;
+    width: 130px;
+    height: 75px;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 4px;
 }
 
 /* 3-Column Admin Horizontal Layout */
@@ -74,7 +74,7 @@ header p {
 /* Captain / Projector View 3-Column Layout */
 .auction-grid-captain-3col {
     display: grid;
-    grid-template-columns: 540px 1fr 540px;
+    grid-template-columns: 340px 1fr 340px;
     gap: 25px;
     width: 100%;
     max-width: 1600px;
@@ -260,19 +260,10 @@ input[type="submit"],
     letter-spacing: -0.01em;
 }
 
-.teams-grid {
+.teams-grid,
+.captain-side-grid {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    max-height: 620px;
-    overflow-y: auto;
-    padding-right: 5px;
-}
-
-/* Captain Side Columns Horizontal Grid (2x2 Side-by-Side layout) */
-.captain-side-grid-horizontal {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 15px;
     max-height: 620px;
     overflow-y: auto;
