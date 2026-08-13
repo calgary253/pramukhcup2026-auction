@@ -382,12 +382,15 @@ function undoLastBid() {
     } 
     else if (lastAction.type === 'sold') {
         const team = teams[lastAction.teamIndex];
-        if (team && team.squad) {
-            const squadIndex = team.squad.findIndex(p => p.name === lastAction.player.name);
-            if (squadIndex !== -1) {
-                team.squad.splice(squadIndex, 1);
-                team.points += lastAction.amount; 
+        if (team) {
+            if (team.squad) {
+                const squadIndex = team.squad.findIndex(p => p.name === lastAction.player.name);
+                if (squadIndex !== -1) {
+                    team.squad.splice(squadIndex, 1);
+                }
             }
+            // Refund the points back to the captain's purse
+            team.points += lastAction.amount;
         }
         
         players.unshift(lastAction.player);
