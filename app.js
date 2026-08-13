@@ -11,19 +11,6 @@ if (!firebase.apps.length) {
 }
 const dbRef = firebase.database().ref('auction_state');
 
-// Admin Security Password Configuration (Hashed via SHA-256)
-// To change your password, generate a SHA-256 hash of your new password and paste it here.
-// (The hash below corresponds to the password "admin123" - feel free to replace it with your own)
-const ADMIN_PASSWORD_HASH = "f4b00bdf65b61d1793783f76c18adcec01386c23837d3e89175c82e0c157ed72";
-
-// Helper function to securely hash user input in the browser using SHA-256
-async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 // State Management variables (Player pool starts completely empty)
 let players = [];
 let unsoldPlayers = []; 
@@ -97,31 +84,12 @@ window.onload = async function() {
     const viewParam = urlParams.get('view');
     const teamParam = urlParams.get('team');
 
-    // Determine view mode based on URL parameters
+    // Determine view mode based on URL parameters without prompting for a password
     if (viewParam === 'captain' || teamParam) {
         currentViewMode = 'captain';
         document.body.classList.add('captain-view-mode');
     } else {
-        // Accessing Admin view requires secure password authentication
-        let authenticated = false;
-        while (!authenticated) {
-            const enteredPassword = prompt("🔐 Enter Admin Password to access the Admin Auction Panel:");
-            if (enteredPassword === null) {
-                // If they cancel, fallback to captain view so they aren't stuck on a blank screen
-                currentViewMode = 'captain';
-                document.body.classList.add('captain-view-mode');
-                break;
-            }
-            
-            // Hash the entered password and compare it securely with the stored hash
-            const enteredHash = await sha256(enteredPassword);
-            if (enteredHash === ADMIN_PASSWORD_HASH) {
-                authenticated = true;
-                currentViewMode = 'admin';
-            } else {
-                alert("❌ Incorrect password! Access denied.");
-            }
-        }
+        currentViewMode = 'admin';
     }
 
     // Listen to real-time changes from Firebase Cloud Database
