@@ -391,11 +391,11 @@ function undoLastBid() {
             currentHighestBid = previousBid.amount;
             currentLeaderText = `${teams[previousBid.teamIndex].name} (${teams[previousBid.teamIndex].captain}) - ${previousBid.amount} pts`;
         } else {
-            currentHighestBid = 0;
+            currentHighestBid = 50; // Reset back to starting base bid
             currentLeaderText = "None";
         }
-        lastAuctionMessage = "Last bid undone.";
-        lastAuctionMessageType = "info";
+        lastAuctionMessage = ""; // Ensure any status message is cleared so the active player stays visible
+        lastAuctionMessageType = "";
     } 
     else if (lastAction.type === 'sold') {
         const team = teams[lastAction.teamIndex];
@@ -406,7 +406,6 @@ function undoLastBid() {
                     team.squad.splice(squadIndex, 1);
                 }
             }
-            // Refund the points back to the captain's purse
             team.points += lastAction.amount;
         }
         
