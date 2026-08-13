@@ -277,7 +277,7 @@ function submitBid() {
     const team = teams[teamIndex];
     const squadSize = team.squad ? team.squad.length : 0;
     
-    // --- UPDATED MAXIMUM ALLOWABLE BID & RESERVED BASE POINTS LOGIC ---
+    // --- MAXIMUM ALLOWABLE BID & RESERVED BASE POINTS LOGIC ---
     const totalSquadSizeNeeded = 10;
     const playersRemaining = totalSquadSizeNeeded - squadSize;
     const reservedBasePoints = (playersRemaining - 1) * 50;
@@ -534,10 +534,11 @@ function updateUI() {
         teams.forEach((team, index) => {
             const btn = document.createElement('button');
             const isSelected = index === selectedIndex;
+            const squadCount = team.squad ? team.squad.length : 0;
             
             btn.type = "button";
-            btn.innerText = `${team.name.split(' ')[0]} (${team.points}p)`;
-            btn.title = `${team.name} - Captain: ${team.captain} (${team.points} pts left)`;
+            btn.innerText = `${team.name.split(' ')[0]} (${squadCount}/10, ${team.points}p)`;
+            btn.title = `${team.name} - Captain: ${team.captain} (${squadCount}/10 players, ${team.points} pts left)`;
             
             btn.style.padding = "6px 4px";
             btn.style.fontSize = "0.75rem";
@@ -576,6 +577,7 @@ function renderTeamsContainer() {
     teams.forEach((team, index) => {
         const targetCol = index < 4 ? col1 : col2;
         const card = document.createElement('div');
+        const squadCount = team.squad ? team.squad.length : 0;
         
         card.className = 'team-card';
         card.style.background = "#111827";
@@ -598,7 +600,7 @@ function renderTeamsContainer() {
         card.innerHTML = `
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                    <h3 style="margin: 0; font-size: 0.85rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${team.name}</h3>
+                    <h3 style="margin: 0; font-size: 0.85rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${team.name}">${team.name} <span style="font-size: 0.75rem; color: #38bdf8; font-weight: normal;">(${squadCount}/10)</span></h3>
                     <span style="background: #0284c7; padding: 1px 5px; border-radius: 3px; font-size: 0.65rem; font-weight: 600;">#${index + 1}</span>
                 </div>
                 <div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 2px;">Cap: <strong>${team.captain}</strong></div>
@@ -635,6 +637,8 @@ function renderCaptainTeamsGrid() {
     teams.forEach((team, index) => {
         const targetContainer = index < 4 ? leftContainer : rightContainer;
         const card = document.createElement('div');
+        const squadCount = team.squad ? team.squad.length : 0;
+
         card.className = 'captain-team-box';
         card.style.background = "#111827";
         card.style.border = "2px solid #1f2937";
@@ -651,7 +655,7 @@ function renderCaptainTeamsGrid() {
         card.innerHTML = `
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-weight: 800; font-size: 1.2rem; color: #f8fafc;">${team.name}</span>
+                    <span style="font-weight: 800; font-size: 1.2rem; color: #f8fafc;">${team.name} <span style="font-size: 0.95rem; color: #38bdf8; font-weight: normal;">(${squadCount}/10 players selected)</span></span>
                     <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.1rem; padding: 3px 10px; border-radius: 6px;">${team.points} pts</span>
                 </div>
                 <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
