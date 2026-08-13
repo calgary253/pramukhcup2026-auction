@@ -23,14 +23,14 @@ let lastAuctionMessageType = "";
 let currentViewMode = 'admin'; // Default fallback
 
 let initialTeams = [
-    { name: "Pragji Pioneers", shortName: "PP", captain: "Pavan Patel", points: 5000, squad: [] },
-    { name: "Yagnapurush Yodha", shortName: "YY", captain: "Jaimin Patel", points: 5000, squad: [] },
-    { name: "Varni Warriors", shortName: "VW", captain: "Meet Patel", points: 5000, squad: [] },
-    { name: "Rajipo Royals", shortName: "RR", captain: "Saral Patel", points: 5000, squad: [] },
-    { name: "Akshar United", shortName: "AU", captain: "Chintan Patel", points: 5000, squad: [] },
-    { name: "Shreehari Superkings", shortName: "SHS", captain: "Virag Patel", points: 5000, squad: [] },
-    { name: "Sarang Sirens", shortName: "SS", captain: "Vivek Patel", points: 5000, squad: [] },
-    { name: "Keshav Challengers", shortName: "KC", captain: "Smit Patel", points: 5000, squad: [] }
+    { name: "Pragji Pioneers", shortName: "PP", captain: "Pavan", points: 5000, squad: [] },
+    { name: "Yagnapurush Yodha", shortName: "YY", captain: "Jaimin", points: 5000, squad: [] },
+    { name: "Varni Warriors", shortName: "VW", captain: "Meet", points: 5000, squad: [] },
+    { name: "Rajipo Royals", shortName: "RR", captain: "Saral", points: 5000, squad: [] },
+    { name: "Akshar United", shortName: "AU", captain: "Chintal", points: 5000, squad: [] },
+    { name: "Shreehari Superkings", shortName: "SHS", captain: "Virag", points: 5000, squad: [] },
+    { name: "Sarang Sirens", shortName: "SS", captain: "Vivek", points: 5000, squad: [] },
+    { name: "Keshav Challengers", shortName: "KC", captain: "Smit", points: 5000, squad: [] }
 ];
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
@@ -514,7 +514,7 @@ function updateUI() {
         if (captainLeadingDisplay) captainLeadingDisplay.innerText = `Leading Team: ${currentLeaderText}`;
     }
 
-    // Render quick-click team buttons using shortCode - Captain Name formatting
+    // Render quick-click team buttons using exact requested formatting: PP - Pavan (squad/points)
     const bidderButtonsContainer = document.getElementById('bidder-buttons-container');
     const hiddenTeamInput = document.getElementById('selected-team-index');
 
