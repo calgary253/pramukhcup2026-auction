@@ -106,7 +106,7 @@ window.onload = async function() {
             lastAuctionMessage = cloudState.lastAuctionMessage || "";
             lastAuctionMessageType = cloudState.lastAuctionMessageType || "";
             
-            updateUI();
+            ;
         } else {
             await loadInitialPlayerPool();
         }
@@ -634,44 +634,34 @@ function renderCaptainTeamsGrid() {
     rightContainer.innerHTML = "";
 
     teams.forEach((team, index) => {
-        const targetContainer = index < 4 ? leftContainer : rightContainer;
-        const card = document.createElement('div');
+        const btn = document.createElement('button');
+        const isSelected = index === selectedIndex;
         const squadCount = team.squad ? team.squad.length : 0;
+        
+        btn.type = "button";
+        // Uses the shortName property defined above
+        btn.innerText = `${team.shortName || team.name.split(' ')[0]} (${squadCount}/10, ${team.points}p)`;
+        btn.title = `${team.name} - Captain: ${team.captain} (${squadCount}/10 players, ${team.points} pts left)`;
+        
+        btn.style.padding = "6px 4px";
+        btn.style.fontSize = "0.75rem";
+        btn.style.fontWeight = "600";
+        btn.style.borderRadius = "4px";
+        btn.style.border = isSelected ? "2px solid #38bdf8" : "1px solid #334155";
+        btn.style.background = isSelected ? "#0284c7" : "#1e293b";
+        btn.style.color = "#f8fafc";
+        btn.style.cursor = "pointer";
+        btn.style.overflow = "hidden";
+        btn.style.textOverflow = "ellipsis";
+        btn.style.whiteSpace = "nowrap";
 
-        card.className = 'captain-team-box';
-        card.style.background = "#111827";
-        card.style.border = "2px solid #1f2937";
-        card.style.borderRadius = "10px";
-        card.style.padding = "16px";
-        card.style.flex = "1"; 
-        card.style.display = "flex";
-        card.style.flexDirection = "column";
-        card.style.justifyContent = "space-between";
-        card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
+        btn.onclick = () => {
+            hiddenTeamInput.value = index;
+            updateUI();
+        };
 
-        let squadHtml = (team.squad || []).map(p => `
-            <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
-                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; color: #e2e8f0;">${p.name}</span>
-            </li>
-        `).join('');
-
-        card.innerHTML = `
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-weight: 800; font-size: 1.2rem; color: #f8fafc;">${team.name} <span style="font-size: 0.95rem; color: #38bdf8; font-weight: normal;">(${squadCount}/10)</span></span>
-                    <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.1rem; padding: 3px 10px; border-radius: 6px;">${team.points} pts</span>
-                </div>
-                <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
-            </div>
-            <div style="background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 6px;">
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    ${squadHtml || '<li style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 4px 0;">No players bought yet</li>'}
-                </ul>
-            </div>
-        `;
-        targetContainer.appendChild(card);
+        bidderButtonsContainer.appendChild(btn);
     });
-}
 function renderPlayerPool() {
     const poolList = document.getElementById('player-pool-list');
     if (!poolList) return;
