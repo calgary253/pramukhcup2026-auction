@@ -671,6 +671,7 @@ function renderCaptainTeamsGrid() {
         targetContainer.appendChild(card);
     });
 }
+
 function renderPlayerPool() {
     const poolList = document.getElementById('player-pool-list');
     if (!poolList) return;
