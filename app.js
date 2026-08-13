@@ -23,16 +23,15 @@ let lastAuctionMessageType = "";
 let currentViewMode = 'admin'; // Default fallback
 
 let initialTeams = [
-    { name: "Pragji Pioneers", captain: "Pavan Patel", points: 5000, squad: [] },
-    { name: "Yagnapurush Yodha", captain: "Jaimin Patel", points: 5000, squad: [] },
-    { name: "Varni Warriors", captain: "Meet Patel", points: 5000, squad: [] },
-    { name: "Rajipo Royals", captain: "Saral Patel", points: 5000, squad: [] },
-    { name: "Akshar United", captain: "Chintal Patel", points: 5000, squad: [] },
-    { name: "Shreehari Superkings", captain: "Virag Patel", points: 5000, squad: [] },
-    { name: "Sarang Sirens", captain: "Vivek Patel", points: 5000, squad: [] },
-    { name: "Keshav Challengers", captain: "Smit Patel", points: 5000, squad: [] }
+    { name: "Pragji Pioneers", shortName: "PP", captain: "Pavan Patel", points: 5000, squad: [] },
+    { name: "Yagnapurush Yodha", shortName: "YY", captain: "Jaimin Patel", points: 5000, squad: [] },
+    { name: "Varni Warriors", shortName: "VW", captain: "Meet Patel", points: 5000, squad: [] },
+    { name: "Rajipo Royals", shortName: "RR", captain: "Saral Patel", points: 5000, squad: [] },
+    { name: "Akshar United", shortName: "AU", captain: "Chintan Patel", points: 5000, squad: [] },
+    { name: "Shreehari Superkings", shortName: "SHS", captain: "Virag Patel", points: 5000, squad: [] },
+    { name: "Sarang Sirens", shortName: "SS", captain: "Vivek Patel", points: 5000, squad: [] },
+    { name: "Keshav Challengers", shortName: "KC", captain: "Smit Patel", points: 5000, squad: [] }
 ];
-
 let teams = JSON.parse(JSON.stringify(initialTeams));
 
 // Helper to convert team name into a URL-friendly slug
