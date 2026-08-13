@@ -223,7 +223,7 @@ function nextPlayer() {
 
     currentActivePlayer = players.shift();
 
-    currentHighestBid = 0; 
+    currentHighestBid = 50; 
     currentLeaderText = "None";
 
     saveStateToCloud();
