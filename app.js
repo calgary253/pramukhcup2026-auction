@@ -650,7 +650,6 @@ function renderCaptainTeamsGrid() {
         card.style.justifyContent = "space-between";
         card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
 
-        // Squad list without individual purchase prices
         let squadHtml = (team.squad || []).map(p => `
             <li style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; color: #e2e8f0;">${p.name}</span>
@@ -660,7 +659,7 @@ function renderCaptainTeamsGrid() {
         card.innerHTML = `
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-weight: 800; font-size: 1.2rem; color: #f8fafc;">${team.name} <span style="font-size: 0.95rem; color: #38bdf8; font-weight: normal;">(${squadCount}/10 players selected)</span></span>
+                    <span style="font-weight: 800; font-size: 1.2rem; color: #f8fafc;">${team.name} <span style="font-size: 0.95rem; color: #38bdf8; font-weight: normal;">(${squadCount}/10)</span></span>
                     <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-weight: 800; font-size: 1.1rem; padding: 3px 10px; border-radius: 6px;">${team.points} pts</span>
                 </div>
                 <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Captain: <strong style="color: #cbd5e1;">${team.captain}</strong></div>
@@ -674,7 +673,6 @@ function renderCaptainTeamsGrid() {
         targetContainer.appendChild(card);
     });
 }
-
 function renderPlayerPool() {
     const poolList = document.getElementById('player-pool-list');
     if (!poolList) return;
