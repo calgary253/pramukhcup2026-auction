@@ -65,6 +65,17 @@
             display: none !important;
         }
 
+        /* Dynamic switching classes to control logo sizing per view mode */
+        body.captain-view-mode .header-logo {
+            width: 160px !important;
+            height: 90px !important;
+        }
+
+        body:not(.captain-view-mode) .header-logo {
+            width: 130px !important;
+            height: 75px !important;
+        }
+
         /* Sold & Unsold Highlight Styling in Main Display */
         .sold-highlight {
             color: #34d399 !important;
@@ -107,21 +118,18 @@
                     <button onclick="switchView('admin')" id="btn-view-admin" class="btn-sm active-view" style="padding: 4px 10px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; background: #0284c7; color: #fff; font-size: 0.8rem;">Admin Mode</button>
                 </div>
 
-                <!-- Left-aligned Logo and Centered Text Layout Group -->
-                <div style="margin-top: 2px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <!-- Logo Image (Left Corner, Rectangular Size) -->
+                <!-- Logo placed inline before the title for Admin View -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; margin-top: 2px;">
+                    <!-- Logo Image -->
                     <div style="display: flex; align-items: center;">
                         <img src="logo.png" alt="Pramukh Cup Logo" class="header-logo">
                     </div>
                     
-                    <!-- Title and Subtitle Centered in Header -->
-                    <div style="text-align: center; flex: 1; padding: 0 20px;">
+                    <!-- Title and Subtitle -->
+                    <div style="text-align: left;">
                         <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc;">Pramukh Cup - 2026 Calgary Team Auction</h1>
                         <p style="font-size: 1.05rem; color: #a7f3d0; font-weight: 500; margin: 0;">Live Team Bidding & Squad Management Dashboard</p>
                     </div>
-
-                    <!-- Empty spacer to balance the flex layout perfectly on the right -->
-                    <div style="width: 200px;"></div>
                 </div>
 
                 <!-- Captains' Remote Links Option Button -->
@@ -218,7 +226,7 @@
         <main id="captain-view-container" class="auction-grid-captain-3col" style="display: none; width: 100%;">
             <section class="card captain-teams-column">
                 <h2>Teams (1 - 4)</h2>
-                <div id="captain-teams-left" class="captain-side-grid-horizontal"></div>
+                <div id="captain-teams-left" class="captain-side-grid"></div>
             </section>
 
             <section class="card current-player-section captain-center-card" style="text-align: center; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);">
@@ -237,7 +245,7 @@
 
             <section class="card captain-teams-column">
                 <h2>Teams (5 - 8)</h2>
-                <div id="captain-teams-right" class="captain-side-grid-horizontal"></div>
+                <div id="captain-teams-right" class="captain-side-grid"></div>
             </section>
         </main>
     </div>
